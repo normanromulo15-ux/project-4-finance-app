@@ -2,8 +2,8 @@
 CREATE TABLE users (
   id UUID PRIMARY KEY,
   email VARCHAR(50) NOT NULL UNIQUE,
-  first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
+  first_name VARCHAR(100) NOT NULL,
   password VARCHAR(255) NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 )
@@ -12,7 +12,7 @@ CREATE TABLE users (
 CREATE TABLE savings_balance (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  current_balance NUMERIC(11, 2) NOT NULL DEFAULT 0.00,
+  current_balance NUMERIC(11, 2) NOT NULL DEFAULT 0.00 CHECK (current_balance >= 0),
   interest NUMERIC(5, 2) NOT NULL DEFAULT 0.00,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 ) 
@@ -21,7 +21,7 @@ CREATE TABLE savings_balance (
 CREATE TABLE digital_wallet_balance (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  current_balance NUMERIC(11, 2) NOT NULL DEFAULT 0.00,
+  current_balance NUMERIC(11, 2) NOT NULL DEFAULT 0.00 CHECK (current_balance >= 0),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 ) 
 
@@ -29,15 +29,16 @@ CREATE TABLE digital_wallet_balance (
 CREATE TABLE cash_balance (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  current_balance NUMERIC(11, 2) NOT NULL DEFAULT 0.00,
+  current_balance NUMERIC(11, 2) NOT NULL DEFAULT 0.00 CHECK (current_balance >= 0) ,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 )
 
 -- CREATE A TABLE FOR TRANSACTIONS
 CREATE TABLE transactions (
-  reference_id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  transaction_type VARCHAR(6) NOT NULL,
-  amount NUMERIC(11, 2) NOT NULL,
+  transaction_type VARCHAR(10) NOT NULL,
+  balance_type VARCHAR(10) NOT NULL,
+  amount NUMERIC(11, 2) NOT NULL CHECK (amount >= 0),
   created_at TIMESTAMPTZ DEFAULT NOW()
-)
+) 
