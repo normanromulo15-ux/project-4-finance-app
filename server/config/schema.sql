@@ -4,8 +4,9 @@ CREATE TABLE users (
   email VARCHAR(50) NOT NULL UNIQUE,
   last_name VARCHAR(100) NOT NULL,
   first_name VARCHAR(100) NOT NULL,
+  birth_date DATE NOT NULL,
   password VARCHAR(255) NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 )
   
 -- CREATE A TABLE FOR USER'S SAVINGS BALANCE HISTORY
@@ -14,7 +15,7 @@ CREATE TABLE savings_balance (
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   current_balance NUMERIC(11, 2) NOT NULL DEFAULT 0.00 CHECK (current_balance >= 0),
   interest NUMERIC(5, 2) NOT NULL DEFAULT 0.00,
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 ) 
 
 -- CREATE A TABLE FOR USER'S DIGITAL WALLET BALANCE HISTORY
@@ -22,7 +23,7 @@ CREATE TABLE digital_wallet_balance (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   current_balance NUMERIC(11, 2) NOT NULL DEFAULT 0.00 CHECK (current_balance >= 0),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 ) 
 
 -- CREATE A TABLE FOR USER'S CASH BALANCE HISTORY
@@ -30,7 +31,7 @@ CREATE TABLE cash_balance (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   current_balance NUMERIC(11, 2) NOT NULL DEFAULT 0.00 CHECK (current_balance >= 0) ,
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 )
 
 -- CREATE A TABLE FOR TRANSACTIONS
@@ -40,5 +41,8 @@ CREATE TABLE transactions (
   transaction_type VARCHAR(10) NOT NULL,
   balance_type VARCHAR(10) NOT NULL,
   amount NUMERIC(11, 2) NOT NULL CHECK (amount >= 0),
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 ) 
+
+-- DELETE ALL USERS
+DELETE FROM users
