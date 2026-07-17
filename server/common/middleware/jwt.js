@@ -17,7 +17,7 @@ export function generateRefreshToken(payload) {
   });
 }
 
-// Function to authenticate a user using the access token
+// Middleware to authenticate a user using the access token
 export function authenticateUser(req, res, next) {
   try {
     const token = req.headers.authorization?.split(" ")[1];
@@ -27,6 +27,6 @@ export function authenticateUser(req, res, next) {
     next();
   } catch (error) {
     console.error(error);
-    res.status(401).json({ message: "Invalid or missing token." });
+    res.status(401).json({ message: "Unauthorized" });
   }
 }
