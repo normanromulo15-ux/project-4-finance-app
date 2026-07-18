@@ -140,14 +140,27 @@ router.post("/login", async (req, res) => {
 });
 
 // DELETE auth/logout
-router.delete("/logout", async (_, res) => {
-  await db.query("DELETE FROM refresh_tokens");
+router.delete("/logout", async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  const hashedRefreshToken = crypto
+    .createHash("sha256")
+    .update(refreshToken)
+    .digest("hex");
 
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    sameSite: "strict",
-  });
-  res.sendStatus(204);
+  try {
+    await db.query("DELETE FROM refresh_tokens WHERE token=$1", [
+      hashedRefreshToken,
+    ]);
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "strict",
+    });
+    res.sendStatus(204);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(500);
+  }
 });
 
 export default router;
