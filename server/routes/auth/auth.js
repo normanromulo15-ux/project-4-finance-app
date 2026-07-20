@@ -15,31 +15,31 @@ const router = express.Router();
 
 // POST auth/register
 router.post("/register", async (req, res) => {
-  const { email, firstName, lastName, birth_date, password } = req.body;
-  const userId = crypto.randomUUID();
-  const formattedEmail = email.trim().toLowerCase();
-  const formattedFirstName = firstName
-    .trim()
-    .split(" ")
-    .map((e) => e.trim().toUpperCase())
-    .join(" ");
-  const formattedLastName = lastName
-    .trim()
-    .split(" ")
-    .map((e) => e.trim().toUpperCase())
-    .join(" ");
-
-  // Check if all required fields are provided
-  if (!email || !firstName || !lastName || !password)
-    return res.status(400).json({ message: "All fields are required" });
-
-  // Check if the password meets the minimum length requirement
-  if (password.length < 8)
-    return res
-      .status(400)
-      .json({ message: "Password must be at least 8 characters long" });
-
   try {
+    const { email, firstName, lastName, birth_date, password } = req.body;
+    const userId = crypto.randomUUID();
+    const formattedEmail = email.trim().toLowerCase();
+    const formattedFirstName = firstName
+      .trim()
+      .split(" ")
+      .map((e) => e.trim().toUpperCase())
+      .join(" ");
+    const formattedLastName = lastName
+      .trim()
+      .split(" ")
+      .map((e) => e.trim().toUpperCase())
+      .join(" ");
+
+    // Check if all required fields are provided
+    if (!email || !firstName || !lastName || !password)
+      return res.status(422).json({ message: "All fields are required" });
+
+    // Check if the password meets the minimum length requirement
+    if (password.length < 8)
+      return res
+        .status(422)
+        .json({ message: "Password must be at least 8 characters long" });
+
     // Check if the user already exists in the database
     const existingUser = await db.query(
       "SELECT email FROM users WHERE email = $1",
@@ -67,24 +67,24 @@ router.post("/register", async (req, res) => {
     res.status(201).json(response.rows[0]);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "An error occurred during registration" });
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
 // POST auth/login
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  const formattedEmail = email.trim().toLowerCase();
-
-  // Check if all inputs are filled
-  if (!email || !password)
-    return res.status(422).json({ message: "All fields are required." });
-
-  // Check if the input password meets the minimum string length
-  if (password.length < 8)
-    return res.status(422).json({ message: "Invalid password input." });
-
   try {
+    const { email, password } = req.body;
+    const formattedEmail = email.trim().toLowerCase();
+
+    // Check if all inputs are filled
+    if (!email || !password)
+      return res.status(422).json({ message: "All fields are required." });
+
+    // Check if the input password meets the minimum string length
+    if (password.length < 8)
+      return res.status(422).json({ message: "Invalid password input." });
+
     const databaseResponse = await db.query(
       "SELECT id, email, password FROM users WHERE email=$1",
       [formattedEmail],
@@ -120,8 +120,8 @@ router.post("/login", async (req, res) => {
       const tokenExpiryDate = new Date(Number(exp) * 1000).toISOString();
 
       await db.query(
-        "INSERT INTO refresh_tokens (user_id, token, created_at, expires_at) VALUES ($1, $2, $3, $4)",
-        [id, hashedRefreshToken, tokenIssuedDate, tokenExpiryDate],
+        "INSERT INTO refresh_tokens (token,user_id, created_at, expires_at) VALUES ($1, $2, $3, $4)",
+        [hashedRefreshToken, id, tokenIssuedDate, tokenExpiryDate],
       );
 
       res.cookie("refreshToken", refreshToken, {
@@ -135,19 +135,22 @@ router.post("/login", async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.sendStatus(500);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
 // DELETE auth/logout
 router.delete("/logout", async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  const hashedRefreshToken = crypto
-    .createHash("sha256")
-    .update(refreshToken)
-    .digest("hex");
-
   try {
+    const refreshToken = req.cookies.refreshToken;
+    const hashedRefreshToken = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
+
+    if (hashedRefreshToken === null || hashedRefreshToken === undefined)
+      return res.status(422).json({ message: "Unprocessable content." });
+
     await db.query("DELETE FROM refresh_tokens WHERE token=$1", [
       hashedRefreshToken,
     ]);
@@ -156,10 +159,10 @@ router.delete("/logout", async (req, res) => {
       httpOnly: true,
       sameSite: "strict",
     });
-    res.sendStatus(204);
+    res.status(204).json({ message: "No content." });
   } catch (error) {
     console.error(error);
-    res.sendStatus(500);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
