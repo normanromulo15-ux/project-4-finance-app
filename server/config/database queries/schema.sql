@@ -13,20 +13,19 @@ CREATE TABLE users (
 CREATE TABLE accounts (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  type VARCHAR(20) NOT NULL,
+  account VARCHAR(20) NOT NULL,
   balance NUMERIC (11,2) NOT NULL DEFAULT 0.00 CHECK (balance >= 0),
   interest NUMERIC (5,2) CHECK (interest >= 0),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-)
-
+);
 
 -- CREATE A TABLE FOR TRANSACTIONS
 CREATE TABLE transactions (
   id UUID PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  transaction_type VARCHAR(10) NOT NULL,
-  balance_type VARCHAR(10) NOT NULL,
-  amount NUMERIC(11, 2) NOT NULL CHECK (amount >= 0),
+  account VARCHAR(20) NOT NULL,
+  type VARCHAR(10) NOT NULL,
+  amount NUMERIC(11, 2) NOT NULL CHECK (amount > 0),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 )
 

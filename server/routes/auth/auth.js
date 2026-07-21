@@ -52,8 +52,8 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Add the new user to the database
-    const response = await db.query(
-      "INSERT INTO users (id, email, last_name, first_name,birth_date, password) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *, last_name, first_name",
+    await db.query(
+      "INSERT INTO users (id, email, last_name, first_name,birth_date, password) VALUES ($1,$2,$3,$4,$5,$6)",
       [
         userId,
         formattedEmail,
@@ -64,10 +64,10 @@ router.post("/register", async (req, res) => {
       ],
     );
 
-    res.status(201).json(response.rows[0]);
+    res.status(201).json({ message: "Created" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
@@ -77,13 +77,9 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     const formattedEmail = email.trim().toLowerCase();
 
-    // Check if all inputs are filled
-    if (!email || !password)
-      return res.status(422).json({ message: "All fields are required." });
-
-    // Check if the input password meets the minimum string length
-    if (password.length < 8)
-      return res.status(422).json({ message: "Invalid password input." });
+    // Check if all inputs are filled or if the input password meets the minimum string length
+    if (!email || !password || password.length < 8)
+      return res.status(422).json({ message: "Unprocessable Content" });
 
     const databaseResponse = await db.query(
       "SELECT id, email, password FROM users WHERE email=$1",
@@ -92,7 +88,7 @@ router.post("/login", async (req, res) => {
 
     // Check if the user exists
     if (databaseResponse.rowCount === 0)
-      return res.status(404).json({ message: "User does not exist." });
+      return res.status(404).json({ message: "Not Found" });
 
     const { id, password: storedPassword } = databaseResponse.rows[0];
 
@@ -131,11 +127,11 @@ router.post("/login", async (req, res) => {
       });
       res.json({ accessToken });
     } else {
-      res.sendStatus(404);
+      res.status(401).json({ message: "Unauthorized" });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
@@ -149,7 +145,7 @@ router.delete("/logout", async (req, res) => {
       .digest("hex");
 
     if (hashedRefreshToken === null || hashedRefreshToken === undefined)
-      return res.status(422).json({ message: "Unprocessable content." });
+      return res.status(422).json({ message: "Unprocessable Content" });
 
     await db.query("DELETE FROM refresh_tokens WHERE token=$1", [
       hashedRefreshToken,
@@ -159,10 +155,10 @@ router.delete("/logout", async (req, res) => {
       httpOnly: true,
       sameSite: "strict",
     });
-    res.status(204).json({ message: "No content." });
+    res.status(204).json({ message: "No Content" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error." });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
