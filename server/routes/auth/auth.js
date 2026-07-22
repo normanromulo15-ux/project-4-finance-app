@@ -13,7 +13,7 @@ dotenv.config();
 
 const router = express.Router();
 
-// POST auth/register
+// Create a new user
 router.post("/register", async (req, res) => {
   try {
     const { email, firstName, lastName, birth_date, password } = req.body;
@@ -71,7 +71,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// POST auth/login
+// Login an existing user
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -135,10 +135,31 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// DELETE auth/logout
+// Generate a new access token
+router.get("/refresh", async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const payload = {
+      sub: decoded.sub,
+    };
+
+    const newAccessToken = generateAccessToken(payload);
+    res.json({ newAccessToken });
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ message: "Unauthorized" });
+  }
+});
+
+// Logout an existing user
 router.delete("/logout", async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
+
     const hashedRefreshToken = crypto
       .createHash("sha256")
       .update(refreshToken)

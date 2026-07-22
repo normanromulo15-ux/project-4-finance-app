@@ -6,7 +6,7 @@ dotenv.config();
 // Function to generate an access token
 export function generateAccessToken(payload) {
   return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "15m",
+    expiresIn: "20s",
   });
 }
 
@@ -21,9 +21,9 @@ export function generateRefreshToken(payload) {
 export function authenticateUser(req, res, next) {
   try {
     const token = req.headers.authorization?.split(" ")[1];
-    const payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-    req.user = payload;
+    req.user = decoded;
     next();
   } catch (error) {
     console.error(error);
