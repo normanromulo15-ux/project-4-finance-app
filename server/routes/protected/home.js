@@ -4,7 +4,7 @@ import { authenticateUser } from "../../common/middleware/jwt.js";
 
 const router = express.Router();
 
-// Display the home page along with the respective current account balance
+// Retrieve the latest balance of an account
 router.get("/:account", authenticateUser, async (req, res) => {
   try {
     const { sub } = req.user;

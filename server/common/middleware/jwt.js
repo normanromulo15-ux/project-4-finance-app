@@ -6,7 +6,7 @@ dotenv.config();
 // Function to generate an access token
 export function generateAccessToken(payload) {
   return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "20s",
+    expiresIn: "15m",
   });
 }
 

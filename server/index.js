@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import authRouter from "./routes/auth/auth.js";
-import homePageRouter from "./routes/protected_routes/home.js";
+import homePageRouter from "./routes/protected/home.js";
 import cookieParser from "cookie-parser";
 
 dotenv.config();

@@ -136,7 +136,7 @@ router.post("/login", async (req, res) => {
 });
 
 // Generate a new access token
-router.get("/refresh", async (req, res) => {
+router.get("/refresh", (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
 
