@@ -165,9 +165,6 @@ router.delete("/logout", async (req, res) => {
       .update(refreshToken)
       .digest("hex");
 
-    if (hashedRefreshToken === null || hashedRefreshToken === undefined)
-      return res.status(422).json({ message: "Unprocessable Content" });
-
     await db.query("DELETE FROM refresh_tokens WHERE token=$1", [
       hashedRefreshToken,
     ]);
@@ -176,7 +173,7 @@ router.delete("/logout", async (req, res) => {
       httpOnly: true,
       sameSite: "strict",
     });
-    res.status(204).json({ message: "No Content" });
+    res.sendStatus(204);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });

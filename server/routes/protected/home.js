@@ -4,75 +4,122 @@ import { authenticateUser } from "../../common/middleware/jwt.js";
 
 const router = express.Router();
 
-// Retrieve the latest balance of an account
-router.get("/:account", authenticateUser, async (req, res) => {
-  try {
-    const { sub } = req.user;
-
-    let balance = 0;
-
-    const accounts = ["savings", "eWallet", "cash"];
-
-    // Check if the account type is valid
-    const account = accounts.find((e) => e === req.params.account);
-    if (!account)
-      return res.status(422).json({ message: "Unprocessable Content" });
-
-    const databaseResponse = await db.query(
-      "SELECT amount FROM transactions WHERE user_id = $1 AND account = $2 AND type = $3 ",
-      [sub, account, "deposit"],
-    );
-
-    // Check if the databaseResponse array is empty
-    if (databaseResponse.rowCount === 0) return res.json({ balance });
-
-    balance = databaseResponse.rows
-      .map((e) => Number(e.amount))
-      .reduce((a, b) => a + b);
-
-    res.json({ balance });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
-
-// Add a transaction to a specified account type
+// Add a transaction to a user's specified account type and then insert it to the user's balance
 router.post("/:account", authenticateUser, async (req, res) => {
   try {
     const { sub } = req.user;
 
-    const amount = Number(req.body.transactionAmount);
+    const transactionAmount = Number(req.body.transactionAmount);
     const transactionId = crypto.randomUUID();
+    const accountBalanceId = crypto.randomUUID();
 
     // Check if the amount value and type is valid
-    if (amount < 0 || typeof amount !== "number")
+    if (transactionAmount <= 0 || typeof transactionAmount !== "number")
       return res.status(422).json({ message: "Unprocessable Content" });
 
-    const accounts = ["savings", "eWallet", "cash"];
+    const accountTypes = ["savings", "eWallet", "cash"];
     const transactionTypes = ["deposit", "withdrawal"];
 
-    const accountType = accounts.find((e) => e === req.params.account);
+    const accountType = accountTypes.find((e) => e === req.params.account);
     const transactionType = transactionTypes.find(
       (e) => e === req.query.transactionType,
     );
 
-    // Check if the account and transaction types are valid
+    // Check if the account or transaction type are valid
     if (!accountType || !transactionType)
       return res.status(422).json({ message: "Unprocessable Content" });
 
-    // Store the transaction to the database
-    await db.query(
-      "INSERT INTO transactions (id, user_id, account, type, amount) VALUES ($1,$2,$3,$4,$5)",
-      [transactionId, sub, accountType, transactionType, amount],
+    // Store the transaction amount to the transactions table
+    const { rows: transactions } = await db.query(
+      "INSERT INTO transactions (id, user_id, account, type, amount) VALUES ($1,$2,$3,$4,$5) RETURNING created_at",
+      [transactionId, sub, accountType, transactionType, transactionAmount],
     );
 
-    res.status(201).json({ message: "Created" });
+    // Retrieve the transaction timestamp
+    const transactionTimestamp = transactions[0].created_at;
+
+    // Retrieve the previous balance entry of the user's account
+    const { rows: accountBalance } = await db.query(
+      "SELECT balance FROM accounts WHERE user_id = $1 AND account=$2 ORDER BY updated_at DESC LIMIT 1",
+      [sub, accountType],
+    );
+
+    // If there is no any previous balance in that user's account, add the deposit amount directly to the balance
+    if (accountBalance.length === 0 && transactionType === "deposit") {
+      const newAccountBalance = transactionAmount;
+
+      // Database query to insert the deposit amount to the database
+      await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5, $6)", [
+        accountBalanceId,
+        sub,
+        accountType,
+        newAccountBalance,
+        null,
+        transactionTimestamp,
+      ]);
+
+      return res
+        .status(201)
+        .json({ message: "Created initial balance for this account." });
+    } else if (
+      accountBalance.length === 0 ||
+      transactionType === "withdrawal"
+    ) {
+      return res
+        .status(422)
+        .json({ message: "Insufficient funds to withdraw" });
+    } else {
+      // Retrieve the latest account balance of the user
+      const previousAccountBalance = Number(accountBalance[0].balance);
+
+      let newAccountBalance = 0;
+
+      switch (transactionType) {
+        /* If the transaction type is deposit, sum the previous balances and add the deposit amount to the database to reflect the new balance*/
+        case "deposit":
+          newAccountBalance = previousAccountBalance + transactionAmount;
+          console.log(newAccountBalance);
+
+          await db.query(
+            "INSERT INTO accounts VALUES ($1, $2, $3, $4, $5, $6)",
+            [
+              accountBalanceId,
+              sub,
+              accountType,
+              newAccountBalance,
+              null,
+              transactionTimestamp,
+            ],
+          );
+
+          break;
+
+        /* If the transaction type is withdrawal, sum the previous balances and subtract the deposit amount to the database to reflect the new balance*/
+        case "withdrawal":
+          newAccountBalance = previousAccountBalance - transactionAmount;
+
+          await db.query(
+            "INSERT INTO accounts VALUES ($1, $2, $3, $4, $5, $6)",
+            [
+              accountBalanceId,
+              sub,
+              accountType,
+              newAccountBalance,
+              null,
+              transactionTimestamp,
+            ],
+          );
+
+          break;
+
+        default:
+          break;
+      }
+      res.status(201).json({ message: "Created" });
+    }
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({ message: "Internal Server Error", details: error.message });
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
