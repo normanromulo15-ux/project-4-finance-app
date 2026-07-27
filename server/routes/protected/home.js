@@ -29,26 +29,39 @@ router.post("/:account", authenticateUser, async (req, res) => {
     if (!accountType || !transactionType)
       return res.status(422).json({ message: "Unprocessable Content" });
 
+    // Retrieve the previous balance entry of the user's account
+    const { rows: accountBalance } = await db.query(
+      "SELECT balance FROM accounts WHERE user_id = $1 AND account= $2 ORDER BY updated_at DESC LIMIT 1",
+      [sub, accountType],
+    );
+
+    // Retrieve the latest account balance of the user
+    const previousAccountBalance = Number(accountBalance[0]?.balance) || 0;
+
+    /* Invalidate the transaction request if the transaction type is withdrawal and if the transaction amount is greater than the previous account balance */
+    if (
+      transactionType === "withdrawal" &&
+      transactionAmount > previousAccountBalance
+    )
+      return res.status(422).json({
+        message: "Insufficient funds to withdraw.",
+      });
+
     // Store the transaction amount to the transactions table
-    const { rows: transactions } = await db.query(
+    const { rows: transaction } = await db.query(
       "INSERT INTO transactions (id, user_id, account, type, amount) VALUES ($1,$2,$3,$4,$5) RETURNING created_at",
       [transactionId, sub, accountType, transactionType, transactionAmount],
     );
 
     // Retrieve the transaction timestamp
-    const transactionTimestamp = transactions[0].created_at;
-
-    // Retrieve the previous balance entry of the user's account
-    const { rows: accountBalance } = await db.query(
-      "SELECT balance FROM accounts WHERE user_id = $1 AND account=$2 ORDER BY updated_at DESC LIMIT 1",
-      [sub, accountType],
-    );
+    const transactionTimestamp = transaction[0].created_at;
 
     // If there is no any previous balance in that user's account, add the deposit amount directly to the balance
-    if (accountBalance.length === 0 && transactionType === "deposit") {
+    if (previousAccountBalance === 0 && transactionType === "deposit") {
       const newAccountBalance = transactionAmount;
+      console.log(`Latest balance of ${accountType}: ${newAccountBalance}`);
 
-      // Database query to insert the deposit amount to the database
+      // Insert the new account balance to the accounts table
       await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5, $6)", [
         accountBalanceId,
         sub,
@@ -58,27 +71,17 @@ router.post("/:account", authenticateUser, async (req, res) => {
         transactionTimestamp,
       ]);
 
-      return res
-        .status(201)
-        .json({ message: "Created initial balance for this account." });
-    } else if (
-      accountBalance.length === 0 ||
-      transactionType === "withdrawal"
-    ) {
-      return res
-        .status(422)
-        .json({ message: "Insufficient funds to withdraw" });
+      return res.status(201).json({
+        message: `Created initial balance for the ${accountType} account.`,
+      });
     } else {
-      // Retrieve the latest account balance of the user
-      const previousAccountBalance = Number(accountBalance[0].balance);
-
-      let newAccountBalance = 0;
+      let newAccountBalance;
 
       switch (transactionType) {
         /* If the transaction type is deposit, sum the previous balances and add the deposit amount to the database to reflect the new balance*/
         case "deposit":
           newAccountBalance = previousAccountBalance + transactionAmount;
-          console.log(newAccountBalance);
+          console.log(`Latest balance of ${accountType}: ${newAccountBalance}`);
 
           await db.query(
             "INSERT INTO accounts VALUES ($1, $2, $3, $4, $5, $6)",
@@ -97,6 +100,7 @@ router.post("/:account", authenticateUser, async (req, res) => {
         /* If the transaction type is withdrawal, sum the previous balances and subtract the deposit amount to the database to reflect the new balance*/
         case "withdrawal":
           newAccountBalance = previousAccountBalance - transactionAmount;
+          console.log(`Latest balance of ${accountType}: ${newAccountBalance}`);
 
           await db.query(
             "INSERT INTO accounts VALUES ($1, $2, $3, $4, $5, $6)",
@@ -111,11 +115,10 @@ router.post("/:account", authenticateUser, async (req, res) => {
           );
 
           break;
-
-        default:
-          break;
       }
-      res.status(201).json({ message: "Created" });
+      res.status(201).json({
+        message: `Created new transaction for the ${accountType} account.`,
+      });
     }
   } catch (error) {
     console.log(error);

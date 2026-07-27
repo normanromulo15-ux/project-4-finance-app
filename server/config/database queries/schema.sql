@@ -26,6 +26,7 @@ CREATE TABLE transactions (
   account VARCHAR(20) NOT NULL,
   type VARCHAR(10) NOT NULL,
   amount NUMERIC(11, 2) NOT NULL CHECK (amount > 0),
+  description VARCHAR(50) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 )
 
