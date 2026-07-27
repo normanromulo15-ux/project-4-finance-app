@@ -4,6 +4,37 @@ import { authenticateUser } from "../../common/middleware/jwt.js";
 
 const router = express.Router();
 
+// Retrieve the latest balance of a user's account
+router.get("/:account", authenticateUser, async (req, res) => {
+  try {
+    const { sub } = req.user;
+
+    const accountTypes = ["savings", "eWallet", "cash"];
+    const accountType = accountTypes.find((e) => e === req.params.account);
+
+    // Invalidate the request if the account type does not exist
+    if (!accountType) return res.status(404).json({ message: "Not Found." });
+
+    // Retrieve the latest balance from the database
+    const { rows: account } = await db.query(
+      "SELECT balance FROM accounts WHERE user_id = $1 AND account = $2 ORDER BY updated_at DESC LIMIT 1",
+      [sub, accountType],
+    );
+    const latestAccountBalance = Number(account[0]?.balance) || null;
+
+    // Invalidate the request if the latest account balance is null
+    if (!latestAccountBalance)
+      return res
+        .status(404)
+        .json({ message: "Account's balance not yet initialized." });
+
+    res.json({ latestAccountBalance });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 // Add a transaction to a user's specified account type and then insert it to the user's balance
 router.post("/:account", authenticateUser, async (req, res) => {
   try {
@@ -27,7 +58,7 @@ router.post("/:account", authenticateUser, async (req, res) => {
 
     // Check if the account or transaction type are valid
     if (!accountType || !transactionType)
-      return res.status(422).json({ message: "Unprocessable Content" });
+      return res.status(404).json({ message: "Not Found" });
 
     // Retrieve the previous balance entry of the user's account
     const { rows: accountBalance } = await db.query(
