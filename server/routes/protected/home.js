@@ -28,7 +28,18 @@ router.get("/:account", authenticateUser, async (req, res) => {
         .status(404)
         .json({ message: "Account's balance not yet initialized." });
 
-    res.json({ latestAccountBalance });
+    // Create a new instance to format the account balance in Philippine standards
+    const phpFormatter = new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+    });
+
+    const displayAccountBalance = phpFormatter.format(latestAccountBalance);
+
+    res.json({
+      accountType,
+      displayAccountBalance,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -40,12 +51,18 @@ router.post("/:account", authenticateUser, async (req, res) => {
   try {
     const { sub } = req.user;
 
-    const transactionAmount = Number(req.body.transactionAmount);
     const transactionId = crypto.randomUUID();
+    const transactionAmount = Number(req.body.transactionAmount);
+    const transactionDescription = req.body.transactionDescription.trim();
+
     const accountBalanceId = crypto.randomUUID();
 
-    // Check if the amount value and type is valid
-    if (transactionAmount <= 0 || typeof transactionAmount !== "number")
+    // Check if the amount value or type AND if the transaction description's length is valid
+    if (
+      transactionAmount <= 0 ||
+      typeof transactionAmount !== "number" ||
+      transactionDescription.length > 50
+    )
       return res.status(422).json({ message: "Unprocessable Content" });
 
     const accountTypes = ["savings", "eWallet", "cash"];
@@ -80,8 +97,15 @@ router.post("/:account", authenticateUser, async (req, res) => {
 
     // Store the transaction amount to the transactions table
     const { rows: transaction } = await db.query(
-      "INSERT INTO transactions (id, user_id, account, type, amount) VALUES ($1,$2,$3,$4,$5) RETURNING created_at",
-      [transactionId, sub, accountType, transactionType, transactionAmount],
+      "INSERT INTO transactions (id, user_id, account, type, amount, description) VALUES ($1,$2,$3,$4,$5,$6) RETURNING created_at",
+      [
+        transactionId,
+        sub,
+        accountType,
+        transactionType,
+        transactionAmount,
+        transactionDescription,
+      ],
     );
 
     // Retrieve the transaction timestamp
@@ -104,6 +128,7 @@ router.post("/:account", authenticateUser, async (req, res) => {
 
       return res.status(201).json({
         message: `Created initial balance for the ${accountType} account.`,
+        transactionTimestamp,
       });
     } else {
       let newAccountBalance;
@@ -149,6 +174,7 @@ router.post("/:account", authenticateUser, async (req, res) => {
       }
       res.status(201).json({
         message: `Created new transaction for the ${accountType} account.`,
+        transactionTimestamp,
       });
     }
   } catch (error) {

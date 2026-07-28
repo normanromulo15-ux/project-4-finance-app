@@ -138,7 +138,7 @@ router.post("/login", async (req, res) => {
 // Generate a new access token
 router.get("/refresh", (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies?.refreshToken;
 
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     const payload = {

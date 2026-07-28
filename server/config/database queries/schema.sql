@@ -39,4 +39,4 @@ CREATE TABLE refresh_tokens(
 )
 
 -- DELETE ALL USERS
-DELETE FROM users
+TRUNCATE TABLE users
