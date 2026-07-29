@@ -46,7 +46,7 @@ router.get("/:account", authenticateUser, async (req, res) => {
   }
 });
 
-// Retrieve the history of the transaction of a user's account according to the span
+// Retrieve the history of a user's transactions
 router.get("/transactions/:account", authenticateUser, async (req, res) => {
   try {
     const { sub: userId } = req.user;
@@ -80,11 +80,11 @@ router.get("/transactions/:account", authenticateUser, async (req, res) => {
     const formattedTransactionRecords = transactionRecords.map((e) => {
       let displayAmount = phpFormatter.format(e.amount);
       switch (e.type) {
-        case "deposit":
+        case "credit":
           displayAmount = `+${displayAmount}`;
           break;
 
-        case "withdrawal":
+        case "debit":
           displayAmount = `-${displayAmount}`;
           break;
       }
@@ -119,7 +119,7 @@ router.post("/:account", authenticateUser, async (req, res) => {
       return res.status(422).json({ message: "Unprocessable Content" });
 
     const accountTypes = ["savings", "eWallet", "cash"];
-    const transactionTypes = ["deposit", "withdrawal"];
+    const transactionTypes = ["credit", "debit"];
 
     const accountType = accountTypes.find(
       (e) => e === req.params.account.trim(),
@@ -143,7 +143,7 @@ router.post("/:account", authenticateUser, async (req, res) => {
 
     /* Invalidate the transaction request if the transaction type is withdrawal and if the transaction amount is greater than the previous account balance */
     if (
-      transactionType === "withdrawal" &&
+      transactionType === "debit" &&
       transactionAmount > previousAccountBalance
     )
       return res.status(422).json({
@@ -167,19 +167,18 @@ router.post("/:account", authenticateUser, async (req, res) => {
     const transactionTimestamp = transaction[0].created_at;
 
     // If there is no any previous balance in that user's account, add the deposit amount directly to the balance
-    if (previousAccountBalance === 0 && transactionType === "deposit") {
+    if (previousAccountBalance === 0 && transactionType === "credit") {
       const newAccountBalance = transactionAmount;
       console.log(
         `Latest balance of ${accountType}: ${newAccountBalance.toFixed(2)}`,
       );
 
       // Insert the new account balance to the accounts table
-      await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5, $6)", [
+      await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5)", [
         accountBalanceId,
         userId,
         accountType,
         newAccountBalance,
-        null,
         transactionTimestamp,
       ]);
 
@@ -198,17 +197,13 @@ router.post("/:account", authenticateUser, async (req, res) => {
             `Latest balance of ${accountType}: ${newAccountBalance.toFixed(2)}`,
           );
 
-          await db.query(
-            "INSERT INTO accounts VALUES ($1, $2, $3, $4, $5, $6)",
-            [
-              accountBalanceId,
-              userId,
-              accountType,
-              newAccountBalance,
-              null,
-              transactionTimestamp,
-            ],
-          );
+          await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5)", [
+            accountBalanceId,
+            userId,
+            accountType,
+            newAccountBalance,
+            transactionTimestamp,
+          ]);
 
           break;
 
@@ -219,17 +214,13 @@ router.post("/:account", authenticateUser, async (req, res) => {
             `Latest balance of ${accountType}: ${newAccountBalance.toFixed(2)}`,
           );
 
-          await db.query(
-            "INSERT INTO accounts VALUES ($1, $2, $3, $4, $5, $6)",
-            [
-              accountBalanceId,
-              userId,
-              accountType,
-              newAccountBalance,
-              null,
-              transactionTimestamp,
-            ],
-          );
+          await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5)", [
+            accountBalanceId,
+            userId,
+            accountType,
+            newAccountBalance,
+            transactionTimestamp,
+          ]);
 
           break;
       }

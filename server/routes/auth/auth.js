@@ -156,14 +156,12 @@ router.get("/refresh", (req, res) => {
 // Logout an existing user
 router.delete("/logout", async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
-
-    if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
-
+    const refreshToken = req.cookies?.refreshToken;
     const hashedRefreshToken = crypto
       .createHash("sha256")
       .update(refreshToken)
       .digest("hex");
+    if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
 
     await db.query("DELETE FROM refresh_tokens WHERE token=$1", [
       hashedRefreshToken,
