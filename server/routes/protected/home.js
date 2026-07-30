@@ -1,49 +1,26 @@
 import express from "express";
 import db from "../../config/db.js";
 import { authenticateUser } from "../../common/middleware/jwt.js";
+import { retrieveLatestBalance } from "../../common/middleware/retrieveLatestBalance.js";
 
 const router = express.Router();
 
 // Retrieve the latest balance of a user's account
-router.get("/:account", authenticateUser, async (req, res) => {
-  try {
-    const { sub: userId } = req.user;
+router.get("/:account", authenticateUser, retrieveLatestBalance, (req, res) => {
+  const { accountType, latestAccountBalance } = req;
 
-    const accountTypes = ["savings", "eWallet", "cash"];
-    const accountType = accountTypes.find((e) => e === req.params.account);
+  // Create a new instance to format the account balance in Philippine standards
+  const phpFormatter = new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  });
 
-    // Invalidate the request if the account type does not exist
-    if (!accountType) return res.status(404).json({ message: "Not Found" });
+  const displayAccountBalance = phpFormatter.format(latestAccountBalance);
 
-    // Retrieve the latest balance from the database
-    const { rows: account } = await db.query(
-      "SELECT balance FROM accounts WHERE user_id = $1 AND account = $2 ORDER BY updated_at DESC LIMIT 1",
-      [userId, accountType],
-    );
-    const latestAccountBalance = Number(account[0]?.balance) || null;
-
-    // Invalidate the request if the latest account balance is null
-    if (!latestAccountBalance)
-      return res
-        .status(404)
-        .json({ message: "Account's balance not yet initialized." });
-
-    // Create a new instance to format the account balance in Philippine standards
-    const phpFormatter = new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-    });
-
-    const displayAccountBalance = phpFormatter.format(latestAccountBalance);
-
-    res.json({
-      accountType,
-      displayAccountBalance,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
+  res.json({
+    accountType,
+    displayAccountBalance,
+  });
 });
 
 // Retrieve the history of a user's transactions
@@ -108,12 +85,10 @@ router.post("/:account", authenticateUser, async (req, res) => {
     const transactionAmount = Number(req.body.transactionAmount);
     const transactionDescription = req.body.transactionDescription.trim();
 
-    const accountBalanceId = crypto.randomUUID();
-
     // Check if the amount value or type AND if the transaction description's length is valid
     if (
       transactionAmount <= 0 ||
-      typeof transactionAmount !== "number" ||
+      !transactionAmount ||
       transactionDescription.length > 50
     )
       return res.status(422).json({ message: "Unprocessable Content" });
@@ -165,6 +140,9 @@ router.post("/:account", authenticateUser, async (req, res) => {
 
     // Retrieve the transaction timestamp
     const transactionTimestamp = transaction[0].created_at;
+
+    // Update the savings account balance of the user
+    const accountBalanceId = crypto.randomUUID();
 
     // If there is no any previous balance in that user's account, add the deposit amount directly to the balance
     if (previousAccountBalance === 0 && transactionType === "credit") {
@@ -234,5 +212,68 @@ router.post("/:account", authenticateUser, async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+// Add a daily interest based on the user's savings end-of-day balance
+router.post(
+  "/interest",
+  authenticateUser,
+  retrieveLatestBalance,
+  async (req, res) => {
+    try {
+      const { sub: userId } = req.user;
+      const {
+        accountType: savings,
+        latestAccountBalance: latestSavingsBalance,
+        latestAccountBalanceDate: latestSavingsBalanceDate,
+      } = req;
+
+      const dailyInterestDate = new Date().toDateString();
+      const dailyInterestRate = 0.035;
+      const withholdingTaxRate = 0.2;
+      const dailyInterest =
+        latestSavingsBalance *
+        dailyInterestRate *
+        (1 - withholdingTaxRate) *
+        (1 / 365);
+
+      const transactionId = crypto.randomUUID();
+      const transactionType = "credit";
+      const transactionDescription = `Daily interest credit for ${dailyInterestDate}`;
+
+      // Add the daily interest in the transactions table
+      const { rows: transaction } = await db.query(
+        "INSERT INTO transactions (id, user_id,account,type,amount,description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at",
+        [
+          transactionId,
+          userId,
+          savings,
+          transactionType,
+          dailyInterest,
+          transactionDescription,
+        ],
+      );
+
+      // Retrieve the transaction timestamp
+      const transactionTimestamp = transaction[0].created_at;
+
+      // Update the savings account balance of the user
+      const accountBalanceId = crypto.randomUUID();
+      const newSavingsBalance = Number(latestSavingsBalance) + dailyInterest;
+
+      await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5)", [
+        accountBalanceId,
+        userId,
+        savings,
+        newSavingsBalance,
+        transactionTimestamp,
+      ]);
+
+      res.status(201).json({ message: "Created", dailyInterest });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  },
+);
 
 export default router;
