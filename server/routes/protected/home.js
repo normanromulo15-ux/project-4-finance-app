@@ -1,4 +1,5 @@
 import express from "express";
+import nodeCrypto from "node:crypto";
 import db from "../../config/db.js";
 import { authenticateUser } from "../../common/middleware/jwt.js";
 import { retrieveLatestBalance } from "../../common/middleware/retrieveLatestBalance.js";
@@ -7,7 +8,7 @@ const router = express.Router();
 
 // Add a daily interest based on the user's savings end-of-day balance
 router.post(
-  "/interest",
+  "/interest/:account",
   authenticateUser,
   retrieveLatestBalance,
   async (req, res) => {
@@ -28,16 +29,19 @@ router.post(
         (1 - withholdingTaxRate) *
         (1 / 365);
 
-      const transactionId = crypto.randomUUID();
+      const transactionId = nodeCrypto
+        .randomBytes(6)
+        .toString("hex")
+        .toUpperCase();
       const transactionType = "credit";
       const transactionDescription = `Daily interest credit for ${dailyInterestDate}`;
 
       // Add the daily interest in the transactions table
       const { rows: transaction } = await db.query(
-        "INSERT INTO transactions (id, user_id,account,type,amount,description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at",
+        "INSERT INTO transactions (user_id, reference_id,account,type,amount,description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at",
         [
-          transactionId,
           userId,
+          transactionId,
           savings,
           transactionType,
           dailyInterest,
@@ -49,18 +53,17 @@ router.post(
       const transactionTimestamp = transaction[0].created_at;
 
       // Update the savings account balance of the user
-      const accountBalanceId = crypto.randomUUID();
       const newSavingsBalance = Number(latestSavingsBalance) + dailyInterest;
 
-      await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5)", [
-        accountBalanceId,
-        userId,
-        savings,
-        newSavingsBalance,
-        transactionTimestamp,
-      ]);
+      await db.query(
+        "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
+        [userId, savings, newSavingsBalance, transactionTimestamp],
+      );
 
-      res.status(201).json({ message: "Created", dailyInterest });
+      res.status(201).json({
+        message: "Created",
+        dailyInterest: `PHP ${dailyInterest.toFixed(2)}`,
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Internal Server Error" });
@@ -82,7 +85,7 @@ router.get("/transactions/:account", authenticateUser, async (req, res) => {
 
     // Retrieve the transaction history of an account according the specified span
     const { rows: transactionRecords } = await db.query(
-      "SELECT id,type, amount, description, created_at FROM transactions WHERE user_id = $1 AND account = $2 ORDER BY created_at DESC",
+      "SELECT reference_id,type, amount, description, created_at FROM transactions WHERE user_id = $1 AND account = $2 ORDER BY created_at DESC",
       [userId, accountType],
     );
 
@@ -126,18 +129,19 @@ router.post("/:account", authenticateUser, async (req, res) => {
   try {
     const { sub: userId } = req.user;
 
-    const transactionId = crypto.randomUUID();
+    const transactionId = nodeCrypto
+      .randomBytes(6)
+      .toString("hex")
+      .toUpperCase();
     const transactionAmount = Number(req.body?.transactionAmount);
     const transactionDescription = req.body?.transactionDescription.trim();
-
-    console.log("POST /:account endpoint triggered");
-    console.log(transactionId, transactionAmount, transactionDescription);
 
     // Check if the amount value or type or  if the transaction description's length is valid
     if (
       transactionAmount <= 0 ||
       !transactionAmount ||
-      transactionDescription.length > 50
+      (transactionDescription.length === 0 &&
+        transactionDescription.length > 50)
     )
       return res
         .status(422)
@@ -177,10 +181,10 @@ router.post("/:account", authenticateUser, async (req, res) => {
 
     // Store the transaction amount to the transactions table
     const { rows: transaction } = await db.query(
-      "INSERT INTO transactions (id, user_id, account, type, amount, description) VALUES ($1,$2,$3,$4,$5,$6) RETURNING created_at",
+      "INSERT INTO transactions (user_id, reference_id, account, type, amount, description) VALUES ($1,$2,$3,$4,$5,$6) RETURNING created_at",
       [
-        transactionId,
         userId,
+        transactionId,
         accountType,
         transactionType,
         transactionAmount,
@@ -192,20 +196,20 @@ router.post("/:account", authenticateUser, async (req, res) => {
     const transactionTimestamp = transaction[0].created_at;
 
     // Update the savings account balance of the user
-    const accountBalanceId = crypto.randomUUID();
+    const accountBalanceId = nodeCrypto
+      .randomBytes(6)
+      .toString("hex")
+      .toUpperCase();
 
     // If there is no any previous balance in that user's account, add the deposit amount directly to the balance
     if (previousAccountBalance === 0 && transactionType === "credit") {
       const newAccountBalance = transactionAmount;
 
       // Insert the new account balance to the accounts table
-      await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5)", [
-        accountBalanceId,
-        userId,
-        accountType,
-        newAccountBalance,
-        transactionTimestamp,
-      ]);
+      await db.query(
+        "INSERT INTO accounts (user_id, account, balance, updated_at ) VALUES ($1, $2, $3, $4)",
+        [userId, accountType, newAccountBalance, transactionTimestamp],
+      );
 
       console.log(
         `Latest balance of ${accountType}: ${newAccountBalance.toFixed(2)}`,
@@ -223,13 +227,10 @@ router.post("/:account", authenticateUser, async (req, res) => {
         case "credit":
           newAccountBalance = previousAccountBalance + transactionAmount;
 
-          await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5)", [
-            accountBalanceId,
-            userId,
-            accountType,
-            newAccountBalance,
-            transactionTimestamp,
-          ]);
+          await db.query(
+            "INSERT INTO accounts (user_id, account, balance, updated_at ) VALUES ($1, $2, $3, $4)",
+            [userId, accountType, newAccountBalance, transactionTimestamp],
+          );
 
           console.log(
             `Latest balance of ${accountType}: ${newAccountBalance.toFixed(2)}`,
@@ -244,13 +245,10 @@ router.post("/:account", authenticateUser, async (req, res) => {
             `Latest balance of ${accountType}: ${newAccountBalance.toFixed(2)}`,
           );
 
-          await db.query("INSERT INTO accounts VALUES ($1, $2, $3, $4, $5)", [
-            accountBalanceId,
-            userId,
-            accountType,
-            newAccountBalance,
-            transactionTimestamp,
-          ]);
+          await db.query(
+            "INSERT INTO accounts (user_id, account, balance, updated_at ) VALUES ($1, $2, $3, $4)",
+            [userId, accountType, newAccountBalance, transactionTimestamp],
+          );
 
           break;
       }

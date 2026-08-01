@@ -52,8 +52,8 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Add the new user to the database
-    await db.query(
-      "INSERT INTO users (id, email, last_name, first_name,birth_date, password) VALUES ($1,$2,$3,$4,$5,$6)",
+    const { rows: newUserData } = await db.query(
+      "INSERT INTO users (public_id, email, last_name, first_name,birth_date, password) VALUES ($1,$2,$3,$4,$5,$6) RETURNING public_id, email, last_name, first_name, birth_date",
       [
         userId,
         formattedEmail,
@@ -64,7 +64,7 @@ router.post("/register", async (req, res) => {
       ],
     );
 
-    res.status(201).json({ message: "Created" });
+    res.status(201).json({ message: "Created new user", user: newUserData[0] });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -79,24 +79,25 @@ router.post("/login", async (req, res) => {
 
     // Check if all inputs are filled or if the input password meets the minimum string length
     if (!email || !password || password.length < 8)
-      return res.status(422).json({ message: "Unprocessable Content" });
+      return res.status(422).json({ message: "Invalid input." });
 
-    const databaseResponse = await db.query(
+    // Retrieve the data of the user from the database based on the provided email
+    const { rows: userData } = await db.query(
       "SELECT id, email, password FROM users WHERE email=$1",
       [formattedEmail],
     );
 
     // Check if the user exists
-    if (databaseResponse.rowCount === 0)
-      return res.status(404).json({ message: "Not Found" });
+    if (userData.length === 0)
+      return res.status(404).json({ message: "User does not exist." });
 
-    const { id, password: storedPassword } = databaseResponse.rows[0];
+    const { id: userId, password: storedPassword } = userData[0];
 
     const isAuthorized = await bcrypt.compare(password, storedPassword);
 
     if (isAuthorized) {
       const payload = {
-        sub: id,
+        sub: userId,
       };
 
       const accessToken = generateAccessToken(payload);
@@ -116,8 +117,8 @@ router.post("/login", async (req, res) => {
       const tokenExpiryDate = new Date(Number(exp) * 1000).toISOString();
 
       await db.query(
-        "INSERT INTO refresh_tokens (token,user_id, created_at, expires_at) VALUES ($1, $2, $3, $4)",
-        [hashedRefreshToken, id, tokenIssuedDate, tokenExpiryDate],
+        "INSERT INTO refresh_tokens (user_id,token, created_at, expires_at) VALUES ($1, $2, $3, $4)",
+        [userId, hashedRefreshToken, tokenIssuedDate, tokenExpiryDate],
       );
 
       res.cookie("refreshToken", refreshToken, {
@@ -157,11 +158,14 @@ router.get("/refresh", (req, res) => {
 router.delete("/logout", async (req, res) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
+
+    // Invalidate the request if the refresh token is missing
+    if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
+
     const hashedRefreshToken = crypto
       .createHash("sha256")
       .update(refreshToken)
       .digest("hex");
-    if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
 
     await db.query("DELETE FROM refresh_tokens WHERE token=$1", [
       hashedRefreshToken,
@@ -171,6 +175,7 @@ router.delete("/logout", async (req, res) => {
       httpOnly: true,
       sameSite: "strict",
     });
+
     res.sendStatus(204);
   } catch (error) {
     console.error(error);

@@ -6,8 +6,11 @@ export async function retrieveLatestBalance(req, res, next) {
     const { sub: userId } = req.user;
 
     const accountTypes = ["savings", "eWallet", "cash"];
-    const accountType =
-      accountTypes.find((e) => e === req.params.account) || "savings";
+    const accountType = accountTypes.find((e) => e === req.params.account);
+
+    // Invalidate the request if the account type is invalid
+    if (!accountType)
+      return res.status(404).json({ message: "Account Not Found." });
 
     // Retrieve the latest balance from the database
     const { rows: account } = await db.query(
