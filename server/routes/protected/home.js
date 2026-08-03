@@ -1,5 +1,8 @@
+// Dependencies
 import express from "express";
-import nodeCrypto from "node:crypto";
+import crypto from "node:crypto";
+
+// Module imports
 import db from "../../config/db.js";
 import { authenticateUser } from "../../common/middleware/jwt.js";
 import { retrieveLatestBalance } from "../../common/middleware/retrieveLatestBalance.js";
@@ -20,7 +23,23 @@ router.post(
         latestAccountBalanceDate: latestSavingsBalanceDate,
       } = req;
 
-      const dailyInterestDate = new Date().toDateString();
+      // Invalidate the request if the account type is not savings
+      if (savings !== "savings")
+        return res.status(404).json({ message: "Invalid Account" });
+
+      const formattedPreviousBalanceDate = new Date(
+        latestSavingsBalanceDate,
+      ).toLocaleDateString("en-PH", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+
+      const dailyInterestDate = new Date().toLocaleDateString("en-PH", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
       const dailyInterestRate = 0.035;
       const withholdingTaxRate = 0.2;
       const dailyInterest =
@@ -29,12 +48,15 @@ router.post(
         (1 - withholdingTaxRate) *
         (1 / 365);
 
-      const transactionId = nodeCrypto
-        .randomBytes(6)
-        .toString("hex")
-        .toUpperCase();
+      const transactionId = crypto.randomBytes(6).toString("hex").toUpperCase();
       const transactionType = "credit";
-      const transactionDescription = `Daily interest credit for ${dailyInterestDate}`;
+      const transactionDescription = `Interest credit for ${dailyInterestDate}.`;
+
+      // Invalidate the request if the daily interest has already been credited for the day
+      if (formattedPreviousBalanceDate === dailyInterestDate)
+        return res.status(409).json({
+          message: "Error in adding daily interest.",
+        });
 
       // Add the daily interest in the transactions table
       const { rows: transaction } = await db.query(
@@ -61,8 +83,8 @@ router.post(
       );
 
       res.status(201).json({
-        message: "Created",
-        dailyInterest: `PHP ${dailyInterest.toFixed(2)}`,
+        message: `Created daily interest credit for ${dailyInterestDate}`,
+        daily_interest: `PHP ${dailyInterest.toFixed(2)}`,
       });
     } catch (error) {
       console.error(error);
@@ -92,7 +114,7 @@ router.get("/transactions/:account", authenticateUser, async (req, res) => {
     // Tell the user that there's no initial balance yet if the transaction records is empty
     if (transactionRecords.length === 0)
       return res.json({
-        message: "No balance yet in this account. Topup now!",
+        message: "No balance yet in this account.",
       });
 
     // Create a new instance to format the account balances in Philippine standards
@@ -114,7 +136,11 @@ router.get("/transactions/:account", authenticateUser, async (req, res) => {
           break;
       }
 
-      return { ...e, amount: displayAmount };
+      return {
+        ...e,
+        amount: displayAmount,
+        created_at: new Date(e.created_at).toLocaleString(),
+      };
     });
 
     res.json(formattedTransactionRecords);
@@ -129,10 +155,7 @@ router.post("/:account", authenticateUser, async (req, res) => {
   try {
     const { sub: userId } = req.user;
 
-    const transactionId = nodeCrypto
-      .randomBytes(6)
-      .toString("hex")
-      .toUpperCase();
+    const transactionId = crypto.randomBytes(6).toString("hex").toUpperCase();
     const transactionAmount = Number(req.body?.transactionAmount);
     const transactionDescription = req.body?.transactionDescription.trim();
 
@@ -181,7 +204,7 @@ router.post("/:account", authenticateUser, async (req, res) => {
 
     // Store the transaction amount to the transactions table
     const { rows: transaction } = await db.query(
-      "INSERT INTO transactions (user_id, reference_id, account, type, amount, description) VALUES ($1,$2,$3,$4,$5,$6) RETURNING created_at",
+      "INSERT INTO transactions (user_id, reference_id, account, type, amount, description) VALUES ($1,$2,$3,$4,$5,$6) RETURNING reference_id, created_at",
       [
         userId,
         transactionId,
@@ -192,14 +215,13 @@ router.post("/:account", authenticateUser, async (req, res) => {
       ],
     );
 
+    // Retrieve the transaction reference ID
+    const transactionReferenceId = transaction[0].reference_id;
+
     // Retrieve the transaction timestamp
     const transactionTimestamp = transaction[0].created_at;
 
     // Update the savings account balance of the user
-    const accountBalanceId = nodeCrypto
-      .randomBytes(6)
-      .toString("hex")
-      .toUpperCase();
 
     // If there is no any previous balance in that user's account, add the deposit amount directly to the balance
     if (previousAccountBalance === 0 && transactionType === "credit") {
@@ -211,13 +233,10 @@ router.post("/:account", authenticateUser, async (req, res) => {
         [userId, accountType, newAccountBalance, transactionTimestamp],
       );
 
-      console.log(
-        `Latest balance of ${accountType}: ${newAccountBalance.toFixed(2)}`,
-      );
-
       return res.status(201).json({
         message: `Created initial balance for the ${accountType} account.`,
-        transactionTimestamp,
+        transaction_reference_id: transactionReferenceId,
+        transaction_timestamp: transactionTimestamp.toLocaleString(),
       });
     } else {
       let newAccountBalance;
@@ -232,18 +251,11 @@ router.post("/:account", authenticateUser, async (req, res) => {
             [userId, accountType, newAccountBalance, transactionTimestamp],
           );
 
-          console.log(
-            `Latest balance of ${accountType}: ${newAccountBalance.toFixed(2)}`,
-          );
-
           break;
 
         /* If the transaction type is debit, sum the previous balances and subtract the deposit amount to the database to reflect the new balance*/
         case "debit":
           newAccountBalance = previousAccountBalance - transactionAmount;
-          console.log(
-            `Latest balance of ${accountType}: ${newAccountBalance.toFixed(2)}`,
-          );
 
           await db.query(
             "INSERT INTO accounts (user_id, account, balance, updated_at ) VALUES ($1, $2, $3, $4)",
@@ -254,7 +266,8 @@ router.post("/:account", authenticateUser, async (req, res) => {
       }
       res.status(201).json({
         message: `Created new transaction for the ${accountType} account.`,
-        transactionTimestamp,
+        transaction_reference_id: transactionReferenceId,
+        transaction_timestamp: transactionTimestamp.toLocaleString(),
       });
     }
   } catch (error) {
@@ -265,7 +278,7 @@ router.post("/:account", authenticateUser, async (req, res) => {
 
 // Retrieve the latest balance of a user's account
 router.get("/:account", authenticateUser, retrieveLatestBalance, (req, res) => {
-  const { accountType, latestAccountBalance } = req;
+  const { accountType, latestAccountBalance, latestAccountBalanceDate } = req;
 
   // Create a new instance to format the account balance in Philippine standards
   const phpFormatter = new Intl.NumberFormat("en-PH", {
@@ -276,8 +289,9 @@ router.get("/:account", authenticateUser, retrieveLatestBalance, (req, res) => {
   const displayAccountBalance = phpFormatter.format(latestAccountBalance);
 
   res.json({
-    accountType,
-    displayAccountBalance,
+    account_type: accountType,
+    display_account_balance: displayAccountBalance,
+    balance_timestamp: `${new Date(latestAccountBalanceDate).toLocaleString()}`,
   });
 });
 

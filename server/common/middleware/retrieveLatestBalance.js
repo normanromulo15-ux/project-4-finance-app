@@ -19,7 +19,7 @@ export async function retrieveLatestBalance(req, res, next) {
     );
 
     const latestAccountBalance = Number(account[0]?.balance);
-    const latestAccountBalanceDate = account[0]?.updated_at;
+    const latestAccountBalanceDate = account[0]?.updated_at; // ISO 8601 format
 
     // Invalidate the request if the latest account balance or if the latest account balance date is falsy
     if (!latestAccountBalance || !latestAccountBalanceDate)

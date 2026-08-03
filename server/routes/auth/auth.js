@@ -7,7 +7,7 @@ import {
 } from "../../common/middleware/jwt.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import crypto from "crypto";
+import crypto from "node:crypto";
 
 dotenv.config();
 
@@ -106,7 +106,8 @@ router.post("/login", async (req, res) => {
       const hashedRefreshToken = crypto
         .createHash("sha256")
         .update(refreshToken)
-        .digest("hex");
+        .digest("hex")
+        .toUpperCase();
 
       const { iat, exp } = jwt.verify(
         refreshToken,
@@ -165,7 +166,8 @@ router.delete("/logout", async (req, res) => {
     const hashedRefreshToken = crypto
       .createHash("sha256")
       .update(refreshToken)
-      .digest("hex");
+      .digest("hex")
+      .toUpperCase();
 
     await db.query("DELETE FROM refresh_tokens WHERE token=$1", [
       hashedRefreshToken,
