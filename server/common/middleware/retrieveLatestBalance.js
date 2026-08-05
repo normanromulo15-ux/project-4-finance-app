@@ -24,7 +24,7 @@ export async function retrieveLatestBalance(req, res, next) {
     // Invalidate the request if the latest account balance or if the latest account balance date is falsy
     if (!latestAccountBalance || !latestAccountBalanceDate)
       return res
-        .status(404)
+        .status(400)
         .json({ message: "Account's balance not yet initialized." });
 
     req.accountType = accountType;

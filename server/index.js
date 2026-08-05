@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import authRouter from "./routes/auth/auth.js";
-import homePageRouter from "./routes/protected/home.js";
+import appRouter from "./routes/protected/app.js";
 import cookieParser from "cookie-parser";
 
 dotenv.config();
@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
-app.use("/home", homePageRouter);
+app.use("/", appRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

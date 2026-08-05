@@ -55,7 +55,7 @@ router.post(
       // Invalidate the request if the daily interest has already been credited for the day
       if (formattedPreviousBalanceDate === dailyInterestDate)
         return res.status(409).json({
-          message: "Error in adding daily interest.",
+          message: "Error in adding interest.",
         });
 
       // Add the daily interest in the transactions table
@@ -74,7 +74,7 @@ router.post(
       // Retrieve the transaction timestamp
       const transactionTimestamp = transaction[0].created_at;
 
-      // Update the savings account balance of the user
+      // Update the savings account balance of the user stored in the database
       const newSavingsBalance = Number(latestSavingsBalance) + dailyInterest;
 
       await db.query(
@@ -84,7 +84,8 @@ router.post(
 
       res.status(201).json({
         message: `Created daily interest credit for ${dailyInterestDate}`,
-        daily_interest: `PHP ${dailyInterest.toFixed(2)}`,
+        daily_interest: dailyInterest,
+        daily_interest_timestamp: `${dailyInterestDate}, 12:00 AM`,
       });
     } catch (error) {
       console.error(error);
@@ -291,7 +292,7 @@ router.get("/:account", authenticateUser, retrieveLatestBalance, (req, res) => {
   res.json({
     account_type: accountType,
     display_account_balance: displayAccountBalance,
-    balance_timestamp: `${new Date(latestAccountBalanceDate).toLocaleString()}`,
+    balance_timestamp: latestAccountBalanceDate.toLocaleString(),
   });
 });
 
