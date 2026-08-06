@@ -84,7 +84,7 @@ router.post(
 
       res.status(201).json({
         message: `Created daily interest credit for ${dailyInterestDate}`,
-        daily_interest: dailyInterest,
+        daily_interest: `PHP ${dailyInterest.toFixed(2)}`,
         daily_interest_timestamp: `${dailyInterestDate}, 12:00 AM`,
       });
     } catch (error) {
