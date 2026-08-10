@@ -2,8 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
-// Routers
 import authRouter from "./routes/auth/auth.js";
 import appRouter from "./routes/protected/app.js";
 import userRouter from "./routes/protected/user.js";
@@ -13,15 +11,17 @@ dotenv.config();
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
+// Global middleware
 app.use(
   cors({
-    origin: "http://localhost:5713",
+    origin: "http://localhost:5173",
     credentials: true,
   }),
 );
 app.use(express.json());
 app.use(cookieParser());
 
+// Routes
 app.use("/", appRouter);
 app.use("/auth", authRouter);
 app.use("/user", userRouter);

@@ -138,7 +138,7 @@ router.post("/login", async (req, res) => {
 });
 
 // Generate a new access token
-router.get("/refresh-token", (req, res) => {
+router.get("/refresh", (req, res) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
 
@@ -169,9 +169,10 @@ router.delete("/logout", async (req, res) => {
       .digest("hex")
       .toUpperCase();
 
-    await db.query("DELETE FROM refresh_tokens WHERE token=$1", [
-      hashedRefreshToken,
-    ]);
+    const { rows: refreshTokens } = await db.query(
+      "DELETE FROM refresh_tokens WHERE token=$1 RETURNING token",
+      [hashedRefreshToken],
+    );
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
