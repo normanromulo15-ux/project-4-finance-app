@@ -1,50 +1,67 @@
-import { useContext, useState } from "react";
-import { AuthContext } from "../hooks/authContext.jsx";
+import { useEffect, useState } from "react";
+import { useAuth } from "../hooks/useAuth.jsx";
+import { useNavigate } from "react-router";
 import api from "../services/api.js";
+import Footer from "../components/footer.jsx";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 export default function Login() {
-  const { setAccessToken } = useContext(AuthContext);
+  const { accessToken, isLoggedIn, setIsLoggedIn, setAccessToken } = useAuth();
   const [userCredentials, setUserCredentials] = useState({
     email: "",
     password: "",
   });
+  const [incorrectCredentials, setIncorrectCredentials] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [enableLogin, setEnableLogin] = useState(false);
+  const navigate = useNavigate();
 
   const { email, password } = userCredentials;
+
+  useEffect(() => {
+    api.accessToken = accessToken;
+    isLoggedIn && navigate("/");
+  }, [accessToken, isLoggedIn]);
 
   // Handle the user credentials input
   function handleUserCredentialsInput(e) {
     const { name, value } = e.target;
 
     setUserCredentials((prev) => ({ ...prev, [name]: value }));
+  }
 
-    switch (name) {
-      case "password":
-        setEnableLogin(value.length >= 8);
-        console.log(enableLogin);
-        break;
-    }
+  // Handle show password
+  function handleShowPassword() {
+    setShowPassword((prev) => !prev);
   }
 
   // Handle user credentials submission
   async function handleUserCredentialsSubmission(e) {
     e.preventDefault();
     try {
-      const response = api.post("/auth/login", userCredentials);
-      setAccessToken(response.data);
+      const { data } = await api.post("/auth/login", userCredentials);
+      setAccessToken(data.accessToken);
+      setIsLoggedIn(true);
+      setUserCredentials({
+        email: "",
+        password: "",
+      });
     } catch (error) {
       console.error(error);
+      setIncorrectCredentials(true);
+      setTimeout(() => {
+        setIncorrectCredentials(false);
+      }, 800);
     }
   }
 
   return (
     <div className="h-dvh flex flex-col">
       <header className="bg-[#2830c9] text-white flex flex-col items-center gap-2 p-6">
-        <h1 className="text-3xl">Login Page</h1>
+        <h1 className="text-3xl">Lorem Ipsum</h1>
       </header>
       <form
-        className="flex flex-col justify-center flex-1 px-14 gap-4"
+        className="relative flex flex-col justify-center flex-1 px-14 gap-4"
         onSubmit={handleUserCredentialsSubmission}
       >
         <input
@@ -55,23 +72,41 @@ export default function Login() {
           value={email}
           onChange={handleUserCredentialsInput}
           placeholder="Email"
+          autoFocus={true}
+          autoComplete="on"
+          required={true}
         />
-        <input
-          className="bg-gray-100 border border-gray-300 py-2 px-3 rounded-3xl text-sm"
-          type={showPassword ? "text" : "password"}
-          id="password"
-          name="password"
-          value={password}
-          onChange={handleUserCredentialsInput}
-          placeholder="Password"
-        />
+        <div className="relative bg-gray-100 border border-gray-300 py-2 px-3 rounded-3xl flex">
+          {incorrectCredentials && (
+            <small className="absolute text-red-600 -top-20 text-sm font-semibold w-100">
+              Incorrect email or password.
+            </small>
+          )}
+          <input
+            className="flex-1 text-sm"
+            type={showPassword ? "text" : "password"}
+            id="password"
+            name="password"
+            value={password}
+            onChange={handleUserCredentialsInput}
+            placeholder="Password"
+            required={true}
+          />
+          {showPassword ? (
+            <VisibilityOffIcon
+              className="scale-85"
+              onClick={handleShowPassword}
+            />
+          ) : (
+            <VisibilityIcon className="scale-85" onClick={handleShowPassword} />
+          )}
+        </div>
+
         <button className="bg-[#2830c9] rounded-3xl p-2 text-white text-base font-medium">
           Login
         </button>
       </form>
-      <footer className="bg-[#292933] flex items-center justify-center py-2">
-        <p className="text-xs text-white">Made by React, 2026</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

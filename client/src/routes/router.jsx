@@ -6,7 +6,7 @@ import Login from "../pages/login.jsx";
 import Register from "../pages/register.jsx";
 
 // Loaders
-import authLoader from "./loaders/authLoader.jsx";
+import homePageLoader from "./loaders/homePageLoader.jsx";
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +20,6 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
-    loader: authLoader,
+    loader: homePageLoader,
   },
 ]);

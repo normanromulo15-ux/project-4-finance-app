@@ -1,13 +1,124 @@
-// Dependencies
 import express from "express";
 import crypto from "node:crypto";
-
-// Module imports
 import db from "../../config/db.js";
 import { authenticateUser } from "../../common/middleware/jwt.js";
 import { retrieveLatestBalance } from "../../common/middleware/retrieveLatestBalance.js";
 
 const router = express.Router();
+
+// Add a fund transfer from one account to another account
+router.post("/transfer", authenticateUser, async (req, res) => {
+  try {
+    const { sub: userId } = req.user;
+    const {
+      originAccount,
+      destinationAccount,
+      transferAmount,
+      transferFeePercentage,
+    } = req.body;
+
+    const numericTransferAmount = Number(transferAmount);
+    const numericTransferFeePercentage = Number(transferFeePercentage);
+
+    // INVALIDATE THE REQUEST IF THE ORIGIN ACCOUNT IS THE SAME AS THE DESTINATION ACCOUNT
+    if (originAccount === destinationAccount)
+      return res.status(422).json({
+        message: "Fund transfer must be done between two different accounts.",
+      });
+
+    // INVALIDATE THE REQUEST IF EITHER THE TRANSFER AMOUNT OR A NON-ZERO TRANSFER FEE PERCENTAGE IS NOT OF TYPE NUMBER.
+    if (
+      !numericTransferAmount ||
+      (!numericTransferFeePercentage && numericTransferFeePercentage !== 0)
+    )
+      return res.status(422).json({ message: "Unprocessable Content" });
+
+    const transferFee = numericTransferAmount * numericTransferFeePercentage;
+
+    const accountTypes = ["cash", "eWallet", "savings"];
+
+    const senderAccount = accountTypes.find((e) => e === originAccount);
+    const receiverAccount = accountTypes.find((e) => e === destinationAccount);
+
+    // INVALIDATE THE REQUEST IF EITHER THE ORIGIN OR DESTINATION ACCOUNT IS  NOT A VALID ACCOUNT TYPE
+    if (!senderAccount || !receiverAccount)
+      return res.status(404).json({ message: "Account Not Found" });
+
+    // INVALIDATE THE REQUEST IF THE TRANSFER AMOUNT IS LESS THAN OR EQUAL TO 0 OR IF THE TRANSFER FEE IS LESS THAN 0
+    if (numericTransferAmount <= 0 || numericTransferAmount < 0)
+      return res.status(422).json({ message: "Unprocessable Content" });
+
+    // RETRIEVE THE LATEST BALANCES OF THE ORIGIN ACCOUNT AND THE DESTINATION ACCOUNT
+    const { rows: senderAccountData } = await db.query(
+      "SELECT balance FROM accounts WHERE user_id = $1 AND account = $2 ORDER BY updated_at DESC LIMIT 1",
+      [userId, senderAccount],
+    );
+
+    const { rows: receiverAccountData } = await db.query(
+      "SELECT balance FROM accounts WHERE user_id = $1 AND account = $2 ORDER BY updated_at DESC LIMIT 1",
+      [userId, receiverAccount],
+    );
+
+    const senderAccountBalance = Number(senderAccountData[0].balance);
+    const receiverAccountBalance = Number(receiverAccountData[0].balance);
+
+    const totalTransferAmount = numericTransferAmount + transferFee;
+
+    // INVALIDATE THE REQUEST IF THE TOTAL TRANSFER AMOUNT IS GREATER THAN THE SENDER ACCOUNT BALANCE
+    if (totalTransferAmount > senderAccountBalance)
+      return res.status(422).json({ message: "Unprocessable Content" });
+
+    // ADD THE FUND TRANSFER TO THE FUND TRANSFERS TABLE
+    const transferReferenceNumber = crypto
+      .randomBytes(6)
+      .toString("hex")
+      .toUpperCase();
+
+    const { rows: fundTransferData } = await db.query(
+      "INSERT INTO fund_transfers (user_id, reference_id, origin_account, destination_account, amount, transfer_fee) VALUES ($1, $2, $3, $4, $5, $6 ) RETURNING created_at",
+      [
+        userId,
+        transferReferenceNumber,
+        senderAccount,
+        receiverAccount,
+        numericTransferAmount,
+        transferFee,
+      ],
+    );
+
+    // RETRIEVE THE FUND TRANSFER TIMESTAMP
+    const fundTransferTimestamp = fundTransferData[0].created_at;
+
+    // UPDATE THE SENDER AND THE RECEIVER ACCOUNTS AFTER A SUCCESSFUL FUND TRANSFER
+    const newSenderAccountBalance = senderAccountBalance - totalTransferAmount;
+    const newReceiverAccountBalance =
+      receiverAccountBalance + numericTransferAmount;
+
+    // UPDATE THE SENDER ACCOUNT BALANCE
+    await db.query(
+      "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
+      [userId, senderAccount, newSenderAccountBalance, fundTransferTimestamp],
+    );
+
+    // UPDATE THE RECEIVER ACCOUNT BALANCE
+    await db.query(
+      "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
+      [
+        userId,
+        receiverAccount,
+        newReceiverAccountBalance,
+        fundTransferTimestamp,
+      ],
+    );
+
+    res.status(201).json({
+      message: `Fund transfer of PHP ${numericTransferAmount} from ${senderAccount} to ${receiverAccount} successful.`,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 // Add a daily interest based on the user's savings end-of-day balance
 router.post(
@@ -84,8 +195,8 @@ router.post(
 
       res.status(201).json({
         message: `Created daily interest credit for ${dailyInterestDate}`,
-        daily_interest: `PHP ${dailyInterest.toFixed(2)}`,
-        daily_interest_timestamp: `${dailyInterestDate}, 12:00 AM`,
+        dailyInterest: `PHP ${dailyInterest.toFixed(2)}`,
+        dailyInterestTimestamp: `${dailyInterestDate}, 12:00 AM`,
       });
     } catch (error) {
       console.error(error);
@@ -140,7 +251,7 @@ router.get("/transactions/:account", authenticateUser, async (req, res) => {
       return {
         ...e,
         amount: displayAmount,
-        created_at: new Date(e.created_at).toLocaleString(),
+        createdAt: new Date(e.created_at).toLocaleString(),
       };
     });
 
@@ -236,8 +347,8 @@ router.post("/:account", authenticateUser, async (req, res) => {
 
       return res.status(201).json({
         message: `Created initial balance for the ${accountType} account.`,
-        transaction_reference_id: transactionReferenceId,
-        transaction_timestamp: transactionTimestamp.toLocaleString(),
+        transactionReferenceId,
+        transactionTimestamp: transactionTimestamp.toLocaleString(),
       });
     } else {
       let newAccountBalance;
@@ -267,8 +378,8 @@ router.post("/:account", authenticateUser, async (req, res) => {
       }
       res.status(201).json({
         message: `Created new transaction for the ${accountType} account.`,
-        transaction_reference_id: transactionReferenceId,
-        transaction_timestamp: transactionTimestamp.toLocaleString(),
+        transactionReferenceId,
+        transactionTimestamp: transactionTimestamp.toLocaleString(),
       });
     }
   } catch (error) {
@@ -290,9 +401,9 @@ router.get("/:account", authenticateUser, retrieveLatestBalance, (req, res) => {
   const displayAccountBalance = phpFormatter.format(latestAccountBalance);
 
   res.json({
-    account_type: accountType,
-    display_account_balance: displayAccountBalance,
-    balance_timestamp: latestAccountBalanceDate.toLocaleString(),
+    accountType,
+    accountBalance: displayAccountBalance,
+    balanceTimestamp: latestAccountBalanceDate.toLocaleString(),
   });
 });
 

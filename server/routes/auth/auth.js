@@ -124,6 +124,7 @@ router.post("/login", async (req, res) => {
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
+        secure: false,
         maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
       });
@@ -151,7 +152,7 @@ router.get("/refresh", (req, res) => {
     res.json({ newAccessToken });
   } catch (error) {
     console.error(error);
-    res.status(401).json({ message: "Unauthorized" });
+    res.sendStatus(401);
   }
 });
 
@@ -169,10 +170,12 @@ router.delete("/logout", async (req, res) => {
       .digest("hex")
       .toUpperCase();
 
-    const { rows: refreshTokens } = await db.query(
-      "DELETE FROM refresh_tokens WHERE token=$1 RETURNING token",
-      [hashedRefreshToken],
-    );
+    // DELETE THE REFRESH TOKEN FROM THE DATABASE AND RESTART THE NUMBERING OF ITS ID
+    await db.query("DELETE FROM refresh_tokens WHERE token=$1", [
+      hashedRefreshToken,
+    ]);
+
+    await db.query("TRUNCATE TABLE refresh_tokens RESTART IDENTITY");
 
     res.clearCookie("refreshToken", {
       httpOnly: true,

@@ -1,4 +1,3 @@
-import { useAuth } from "../hooks/useAuth.js";
 import axios from "axios";
 
 const api = axios.create({
@@ -9,11 +8,11 @@ const api = axios.create({
 
 // Configure the request interceptor
 api.interceptors.request.use((config) => {
-  const { accessToken } = useAuth();
+  const { accessToken } = api;
+  config.accessToken = accessToken;
 
   if (accessToken) {
-    config.headers.Authorization = `Bearer ${token}`;
-    return null;
+    config.headers.Authorization = `Bearer ${accessToken} `;
   }
 
   return config;
@@ -23,10 +22,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (config) => config,
   async (error) => {
-    if (!error.userAuthenticated && error.response?.status === 401) {
-      error.userAuthenticated = true;
-    }
-
+    console.error(error);
     return Promise.reject(error);
   },
 );
