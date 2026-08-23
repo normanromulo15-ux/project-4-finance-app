@@ -152,7 +152,7 @@ router.get("/refresh", (req, res) => {
     res.json({ newAccessToken });
   } catch (error) {
     console.error(error);
-    res.sendStatus(401);
+    res.status(401).json({ message: "Invalid refresh token" });
   }
 });
 
@@ -162,7 +162,8 @@ router.delete("/logout", async (req, res) => {
     const refreshToken = req.cookies?.refreshToken;
 
     // Invalidate the request if the refresh token is missing
-    if (!refreshToken) return res.status(401).json({ message: "Unauthorized" });
+    if (!refreshToken)
+      return res.status(401).json({ message: "Invalid refresh token" });
 
     const hashedRefreshToken = crypto
       .createHash("sha256")

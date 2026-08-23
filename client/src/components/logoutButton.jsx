@@ -1,21 +1,18 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth.jsx";
-import { logoutUser } from "../services/app.js";
+import { logoutUser } from "../services/auth.js";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 
 export default function LogoutButton() {
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    !isLoggedIn && navigate("/login");
-  }, [isLoggedIn]);
+  const { setAccessToken } = useAuth();
 
   // Function to handle user logout
   async function handleUserLogout() {
     try {
       await logoutUser();
-      setIsLoggedIn(false);
+      setAccessToken(null);
+      navigate("/login");
       console.log("Logout successful");
     } catch (error) {
       console.error(error);
@@ -23,11 +20,9 @@ export default function LogoutButton() {
   }
 
   return (
-    <button
-      className="bg-red-500 text-white text-lg font-medium rounded-4xl px-4 py-2 absolute right-4 top-4"
+    <ExitToAppIcon
+      className="absolute right-3 bottom-4 text-black scale-95"
       onClick={handleUserLogout}
-    >
-      Logout
-    </button>
+    />
   );
 }

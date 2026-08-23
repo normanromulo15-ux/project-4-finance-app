@@ -1,22 +1,23 @@
 import api from "./api.js";
 
 // Function to get a user's current balance of a certain account
-export async function getCurrentBalance(account = "savings") {
+export async function getCurrentBalance(account) {
   try {
-    const { data } = await api.get(`/${account}`);
+    const { data } = await api.get(`/balances/${account}`);
 
     return data;
   } catch (error) {
-    console.error(error);
-    return null;
+    throw error;
   }
 }
 
-// Function to log out a user
-export async function logoutUser() {
+// Function to add the daily interest to the savings account
+export async function addDailyInterest(account = "savings") {
   try {
-    await api.delete("/auth/logout");
+    const { data } = await api.post(`/interests/:${account}`);
+
+    return data;
   } catch (error) {
-    console.error(error);
+    throw error;
   }
 }

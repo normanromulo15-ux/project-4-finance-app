@@ -4,11 +4,18 @@ import { createBrowserRouter } from "react-router";
 import Home from "../pages/home.jsx";
 import Login from "../pages/login.jsx";
 import Register from "../pages/register.jsx";
+import AccountOption from "../pages/accountOption.jsx";
+import DebitTransaction from "../pages/debitTransaction.jsx";
 
 // Loaders
-import homePageLoader from "./loaders/homePageLoader.jsx";
+import balanceLoader from "./loaders/balanceLoader.js";
 
 export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+    loader: balanceLoader,
+  },
   {
     path: "/login",
     element: <Login />,
@@ -18,8 +25,13 @@ export const router = createBrowserRouter([
     element: <Register />,
   },
   {
-    path: "/",
-    element: <Home />,
-    loader: homePageLoader,
+    path: "/transaction",
+    element: <AccountOption />,
+    loader: balanceLoader,
+  },
+  {
+    path: "/transaction/debit",
+    element: <DebitTransaction />,
+    loader: balanceLoader,
   },
 ]);

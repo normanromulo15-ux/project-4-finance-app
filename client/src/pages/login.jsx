@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useNavigate } from "react-router";
+import { loginUser } from "../services/auth.js";
 import api from "../services/api.js";
 import Footer from "../components/footer.jsx";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 export default function Login() {
-  const { accessToken, isLoggedIn, setIsLoggedIn, setAccessToken } = useAuth();
+  const { accessToken, setAccessToken } = useAuth();
   const [userCredentials, setUserCredentials] = useState({
     email: "",
     password: "",
@@ -20,8 +21,8 @@ export default function Login() {
 
   useEffect(() => {
     api.accessToken = accessToken;
-    isLoggedIn && navigate("/");
-  }, [accessToken, isLoggedIn]);
+    accessToken && navigate("/");
+  }, [accessToken]);
 
   // Handle the user credentials input
   function handleUserCredentialsInput(e) {
@@ -39,9 +40,8 @@ export default function Login() {
   async function handleUserCredentialsSubmission(e) {
     e.preventDefault();
     try {
-      const { data } = await api.post("/auth/login", userCredentials);
-      setAccessToken(data.accessToken);
-      setIsLoggedIn(true);
+      const loginAccessToken = await loginUser(userCredentials);
+      setAccessToken(loginAccessToken);
       setUserCredentials({
         email: "",
         password: "",
@@ -58,7 +58,7 @@ export default function Login() {
   return (
     <div className="h-dvh flex flex-col">
       <header className="bg-[#2830c9] text-white flex flex-col items-center gap-2 p-6">
-        <h1 className="text-3xl">Lorem Ipsum</h1>
+        <h1 className="text-3xl">Finances</h1>
       </header>
       <form
         className="relative flex flex-col justify-center flex-1 px-14 gap-4"

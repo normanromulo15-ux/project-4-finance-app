@@ -7,7 +7,7 @@ import { retrieveLatestBalance } from "../../common/middleware/retrieveLatestBal
 const router = express.Router();
 
 // Add a fund transfer from one account to another account
-router.post("/transfer", authenticateUser, async (req, res) => {
+router.post("/transfers", authenticateUser, async (req, res) => {
   try {
     const { sub: userId } = req.user;
     const {
@@ -33,7 +33,8 @@ router.post("/transfer", authenticateUser, async (req, res) => {
     )
       return res.status(422).json({ message: "Unprocessable Content" });
 
-    const transferFee = numericTransferAmount * numericTransferFeePercentage;
+    const numericTransferFee =
+      numericTransferAmount * numericTransferFeePercentage;
 
     const accountTypes = ["cash", "eWallet", "savings"];
 
@@ -46,7 +47,7 @@ router.post("/transfer", authenticateUser, async (req, res) => {
 
     // INVALIDATE THE REQUEST IF THE TRANSFER AMOUNT IS LESS THAN OR EQUAL TO 0 OR IF THE TRANSFER FEE IS LESS THAN 0
     if (numericTransferAmount <= 0 || numericTransferAmount < 0)
-      return res.status(422).json({ message: "Unprocessable Content" });
+      return res.status(422).json({ message: "Invalid fund transfer" });
 
     // RETRIEVE THE LATEST BALANCES OF THE ORIGIN ACCOUNT AND THE DESTINATION ACCOUNT
     const { rows: senderAccountData } = await db.query(
@@ -62,11 +63,11 @@ router.post("/transfer", authenticateUser, async (req, res) => {
     const senderAccountBalance = Number(senderAccountData[0].balance);
     const receiverAccountBalance = Number(receiverAccountData[0].balance);
 
-    const totalTransferAmount = numericTransferAmount + transferFee;
+    const totalTransferAmount = numericTransferAmount + numericTransferFee;
 
     // INVALIDATE THE REQUEST IF THE TOTAL TRANSFER AMOUNT IS GREATER THAN THE SENDER ACCOUNT BALANCE
     if (totalTransferAmount > senderAccountBalance)
-      return res.status(422).json({ message: "Unprocessable Content" });
+      return res.status(422).json({ message: "Unsufficient funds" });
 
     // ADD THE FUND TRANSFER TO THE FUND TRANSFERS TABLE
     const transferReferenceNumber = crypto
@@ -82,7 +83,7 @@ router.post("/transfer", authenticateUser, async (req, res) => {
         senderAccount,
         receiverAccount,
         numericTransferAmount,
-        transferFee,
+        numericTransferFee,
       ],
     );
 
@@ -122,7 +123,7 @@ router.post("/transfer", authenticateUser, async (req, res) => {
 
 // Add a daily interest based on the user's savings end-of-day balance
 router.post(
-  "/interest/:account",
+  "/interests/:account",
   authenticateUser,
   retrieveLatestBalance,
   async (req, res) => {
@@ -131,15 +132,15 @@ router.post(
       const {
         accountType: savings,
         latestAccountBalance: latestSavingsBalance,
-        latestAccountBalanceDate: latestSavingsBalanceDate,
+        latestAccountBalanceTimestamp: latestSavingsBalanceTimestamp,
       } = req;
 
       // Invalidate the request if the account type is not savings
       if (savings !== "savings")
-        return res.status(404).json({ message: "Invalid Account" });
+        return res.status(422).json({ message: "Invalid Account" });
 
       const formattedPreviousBalanceDate = new Date(
-        latestSavingsBalanceDate,
+        latestSavingsBalanceTimestamp,
       ).toLocaleDateString("en-PH", {
         month: "long",
         day: "numeric",
@@ -160,7 +161,6 @@ router.post(
         (1 / 365);
 
       const transactionId = crypto.randomBytes(6).toString("hex").toUpperCase();
-      const transactionType = "credit";
       const transactionDescription = `Interest credit for ${dailyInterestDate}.`;
 
       // Invalidate the request if the daily interest has already been credited for the day
@@ -171,12 +171,13 @@ router.post(
 
       // Add the daily interest in the transactions table
       const { rows: transaction } = await db.query(
-        "INSERT INTO transactions (user_id, reference_id,account,type,amount,description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING created_at",
+        "INSERT INTO transactions (user_id, reference_id,account,type,category,amount,description) VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING created_at",
         [
           userId,
           transactionId,
           savings,
-          transactionType,
+          "credit",
+          "Financial",
           dailyInterest,
           transactionDescription,
         ],
@@ -219,7 +220,7 @@ router.get("/transactions/:account", authenticateUser, async (req, res) => {
 
     // Retrieve the transaction history of an account according the specified span
     const { rows: transactionRecords } = await db.query(
-      "SELECT reference_id,type, amount, description, created_at FROM transactions WHERE user_id = $1 AND account = $2 ORDER BY created_at DESC",
+      "SELECT reference_id,type, amount,category, description, created_at FROM transactions WHERE user_id = $1 AND account = $2 ORDER BY created_at DESC",
       [userId, accountType],
     );
 
@@ -251,7 +252,13 @@ router.get("/transactions/:account", authenticateUser, async (req, res) => {
       return {
         ...e,
         amount: displayAmount,
-        createdAt: new Date(e.created_at).toLocaleString(),
+        created_at: new Date(e.created_at).toLocaleString("en-PH", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+        }),
       };
     });
 
@@ -263,24 +270,48 @@ router.get("/transactions/:account", authenticateUser, async (req, res) => {
 });
 
 // Add a transaction to a user's specified account type and then insert it to the user's balance
-router.post("/:account", authenticateUser, async (req, res) => {
+router.post("/transactions/:account", authenticateUser, async (req, res) => {
   try {
     const { sub: userId } = req.user;
+    const { amount, category, description } = req.body;
 
     const transactionId = crypto.randomBytes(6).toString("hex").toUpperCase();
-    const transactionAmount = Number(req.body?.transactionAmount);
-    const transactionDescription = req.body?.transactionDescription.trim();
+    const transactionAmount = Number(amount);
+    const transactionDescription = description.trim();
 
-    // Check if the amount value or type or  if the transaction description's length is valid
+    const transactionCategories = [
+      "Income",
+      "Housing",
+      "Food",
+      "Transportation",
+      "Utilities",
+      "Health",
+      "Personal",
+      "Financial",
+      "Social",
+      "Education",
+      "Work",
+      "Leisure",
+      "Government",
+      "Communication",
+      "Technology",
+    ];
+
+    const transactionCategory = transactionCategories.find(
+      (e) => e === category,
+    );
+
+    // Invalidate the request if any body properties break the business logic
     if (
       transactionAmount <= 0 ||
       !transactionAmount ||
+      !transactionCategory ||
       (transactionDescription.length === 0 &&
         transactionDescription.length > 50)
     )
       return res
         .status(422)
-        .json({ message: "Request properties are invalid." });
+        .json({ message: "Request body properties are invalid." });
 
     const accountTypes = ["savings", "eWallet", "cash"];
     const transactionTypes = ["credit", "debit"];
@@ -292,9 +323,9 @@ router.post("/:account", authenticateUser, async (req, res) => {
       (e) => e === req.query.transactionType,
     );
 
-    // Check if the account or transaction type are valid
+    // Invalidate the request if either the string or the query parameter breaks the business logic
     if (!accountType || !transactionType)
-      return res.status(404).json({ message: "Not Found" });
+      return res.status(422).json({ message: "Not Found" });
 
     // Retrieve the previous balance entry of the user's account
     const { rows: accountBalance } = await db.query(
@@ -316,12 +347,13 @@ router.post("/:account", authenticateUser, async (req, res) => {
 
     // Store the transaction amount to the transactions table
     const { rows: transaction } = await db.query(
-      "INSERT INTO transactions (user_id, reference_id, account, type, amount, description) VALUES ($1,$2,$3,$4,$5,$6) RETURNING reference_id, created_at",
+      "INSERT INTO transactions (user_id, reference_id, account, type, category, amount, description) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING reference_id, created_at",
       [
         userId,
         transactionId,
         accountType,
         transactionType,
+        transactionCategory,
         transactionAmount,
         transactionDescription,
       ],
@@ -389,22 +421,20 @@ router.post("/:account", authenticateUser, async (req, res) => {
 });
 
 // Retrieve the latest balance of a user's account
-router.get("/:account", authenticateUser, retrieveLatestBalance, (req, res) => {
-  const { accountType, latestAccountBalance, latestAccountBalanceDate } = req;
+router.get(
+  "/balances/:account",
+  authenticateUser,
+  retrieveLatestBalance,
+  (req, res) => {
+    const { accountType, latestAccountBalance, latestAccountBalanceTimestamp } =
+      req;
 
-  // Create a new instance to format the account balance in Philippine standards
-  const phpFormatter = new Intl.NumberFormat("en-PH", {
-    style: "currency",
-    currency: "PHP",
-  });
-
-  const displayAccountBalance = phpFormatter.format(latestAccountBalance);
-
-  res.json({
-    accountType,
-    accountBalance: displayAccountBalance,
-    balanceTimestamp: latestAccountBalanceDate.toLocaleString(),
-  });
-});
+    res.json({
+      accountType,
+      latestAccountBalance,
+      latestAccountBalanceTimestamp,
+    });
+  },
+);
 
 export default router;
