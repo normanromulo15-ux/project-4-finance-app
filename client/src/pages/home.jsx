@@ -8,7 +8,7 @@ import LogoutButton from "../components/logoutButton.jsx";
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState(null);
-  const { cash, eWallet, savings } = useLoaderData();
+  const { cash, eWallet } = useLoaderData();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,16 +26,8 @@ export default function Home() {
 
   // Function to handle the transaction
   function handleTransaction(e) {
-    const { value } = e.currentTarget;
-
-    switch (value) {
-      case "credit":
-        console.log("Save button clicked");
-        break;
-
-      case "debit":
-        navigate("/transaction");
-    }
+    const { name } = e.currentTarget;
+    navigate(`/${name}`);
   }
 
   return (
@@ -49,7 +41,7 @@ export default function Home() {
         <div className="flex items-center justify-center gap-4">
           <button
             className="flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] border rounded-xl py-2"
-            name="transaction-type"
+            name="credit"
             value="credit"
             onClick={handleTransaction}
           >
@@ -58,7 +50,7 @@ export default function Home() {
           </button>
           <button
             className="flex flex-1 flex-col justify-center items-center text-[#2830c9] border rounded-xl py-2"
-            name="transaction-type"
+            name="debit"
             value="debit"
             onClick={handleTransaction}
           >

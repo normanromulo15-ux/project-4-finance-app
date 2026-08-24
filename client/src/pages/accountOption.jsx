@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLoaderData, useNavigate } from "react-router";
+import { useLoaderData, useNavigate, useParams } from "react-router";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import BackButton from "../components/backButton.jsx";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
@@ -10,6 +10,7 @@ export default function AccountOption() {
   const [accountChoice, setAccountChoice] = useState(null);
   const { cash, eWallet } = useLoaderData();
   const navigate = useNavigate();
+  const { transactionType } = useParams();
 
   const displayCashBalance = formatCurrency(cash.latestAccountBalance);
   const displayDigitalWalletBalance = formatCurrency(
@@ -24,7 +25,7 @@ export default function AccountOption() {
 
   // Function to handle the account navigation due to a click of the next button
   function handleNextButtonClick() {
-    navigate("/transaction/debit");
+    navigate(`/${transactionType}/${accountChoice}`);
   }
 
   return (
@@ -34,6 +35,7 @@ export default function AccountOption() {
       <button
         className={`relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4  
         ${accountChoice === "cash" && "scale-105"} `}
+        name="cash"
         value="cash"
         onClick={handleAccountChoice}
       >
@@ -47,7 +49,7 @@ export default function AccountOption() {
           <h2 className="text-lg text-left font-medium border-b w-full">
             Cash
           </h2>
-          <h3 className="text-xs text-left font-medium w-full mt-1">
+          <h3 className="text-sm text-left font-medium w-full mt-1">
             AVAILABLE BALANCE: <span>{displayCashBalance}</span>
           </h3>
         </div>
@@ -55,6 +57,7 @@ export default function AccountOption() {
       <button
         className={`relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 
         ${accountChoice === "eWallet" && "scale-105"}`}
+        name="eWallet"
         value="eWallet"
         onClick={handleAccountChoice}
       >
@@ -68,13 +71,13 @@ export default function AccountOption() {
           <h2 className="text-lg text-left font-medium border-b w-full">
             Digital Wallet
           </h2>
-          <h3 className="text-xs text-left font-medium w-full mt-1">
+          <h3 className="text-sm text-left font-medium w-full mt-1">
             AVAILABLE BALANCE: <span>{displayDigitalWalletBalance}</span>
           </h3>
         </div>
       </button>
       <button
-        className={`w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:bg-gray-300 disabled:cursor-not-allowed`}
+        className="w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:bg-gray-300 disabled:cursor-not-allowed"
         disabled={!accountChoice}
         onClick={handleNextButtonClick}
       >
