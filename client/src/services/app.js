@@ -21,3 +21,14 @@ export async function addDailyInterest(account = "savings") {
     throw error;
   }
 }
+
+// Function to retrieve the full name of an authorized user
+export async function getUserFullName() {
+  try {
+    const { data } = await api.get("/name");
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}

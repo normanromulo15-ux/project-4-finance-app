@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import express from "express";
-import db from "../../config/db.js";
+import db from "../../database/db.js";
 
 import { authenticateUser } from "../../common/middleware/jwt.js";
 

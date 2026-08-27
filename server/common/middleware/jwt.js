@@ -27,6 +27,6 @@ export function authenticateUser(req, res, next) {
     next();
   } catch (error) {
     console.error(error);
-    res.status(401).json({ message: "Unauthorized" });
+    res.status(401).json({ message: "Invalid token" });
   }
 }

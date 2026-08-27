@@ -5,7 +5,7 @@ export async function loginUser(credentials) {
   try {
     const { data } = await api.post("/auth/login", credentials);
 
-    return data.accessToken;
+    return data;
   } catch (error) {
     throw error;
   }

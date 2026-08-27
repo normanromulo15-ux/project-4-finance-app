@@ -40,8 +40,8 @@ export default function Login() {
   async function handleUserCredentialsSubmission(e) {
     e.preventDefault();
     try {
-      const loginAccessToken = await loginUser(userCredentials);
-      setAccessToken(loginAccessToken);
+      const response = await loginUser(userCredentials);
+      setAccessToken(response.accessToken);
       setUserCredentials({
         email: "",
         password: "",
@@ -61,11 +61,11 @@ export default function Login() {
         <h1 className="text-3xl">Finances</h1>
       </header>
       <form
-        className="relative flex flex-col justify-center flex-1 px-14 gap-4"
+        className="relative flex flex-col flex-1 justify-center px-10 gap-4"
         onSubmit={handleUserCredentialsSubmission}
       >
         <input
-          className="bg-gray-100 border border-gray-300 py-2 px-3 rounded-3xl text-sm"
+          className="bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg text-sm"
           type="text"
           id="email"
           name="email"
@@ -76,7 +76,9 @@ export default function Login() {
           autoComplete="on"
           required={true}
         />
-        <div className="relative bg-gray-100 border border-gray-300 py-2 px-3 rounded-3xl flex">
+        <div
+          className={`relative  border ${incorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}  py-2 px-3 rounded-lg flex`}
+        >
           {incorrectCredentials && (
             <small className="absolute text-red-600 -top-20 text-sm font-semibold w-100">
               Incorrect email or password.
@@ -86,6 +88,7 @@ export default function Login() {
             className="flex-1 text-sm"
             type={showPassword ? "text" : "password"}
             id="password"
+            minLength={8}
             name="password"
             value={password}
             onChange={handleUserCredentialsInput}
@@ -102,10 +105,22 @@ export default function Login() {
           )}
         </div>
 
-        <button className="bg-[#2830c9] rounded-3xl p-2 text-white text-base font-medium">
-          Login
+        <button className="flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white text-base font-medium ">
+          <p>Sign In</p>
         </button>
+        <p className="text-center text-sm ">
+          Don't have an account?{" "}
+          <span
+            className="font-medium underline"
+            onClick={() => {
+              console.log("Script to redirect to the register page.");
+            }}
+          >
+            Register here.
+          </span>
+        </p>
       </form>
+
       <Footer />
     </div>
   );

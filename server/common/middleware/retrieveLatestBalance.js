@@ -1,4 +1,4 @@
-import db from "../../config/db.js";
+import db from "../../database/db.js";
 
 // Middleware to retrieve a user's latest balance of an account
 export async function retrieveLatestBalance(req, res, next) {

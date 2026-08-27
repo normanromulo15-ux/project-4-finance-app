@@ -1,6 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import db from "../../config/db.js";
+import db from "../../database/db.js";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -175,8 +175,6 @@ router.delete("/logout", async (req, res) => {
     await db.query("DELETE FROM refresh_tokens WHERE token=$1", [
       hashedRefreshToken,
     ]);
-
-    await db.query("TRUNCATE TABLE refresh_tokens RESTART IDENTITY");
 
     res.clearCookie("refreshToken", {
       httpOnly: true,

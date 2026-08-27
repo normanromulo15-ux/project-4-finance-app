@@ -1,14 +1,18 @@
 import express from "express";
 import crypto from "node:crypto";
-import db from "../../config/db.js";
+import db from "../../database/db.js";
 import { authenticateUser } from "../../common/middleware/jwt.js";
 import { retrieveLatestBalance } from "../../common/middleware/retrieveLatestBalance.js";
+import { transactionCategories } from "../../utils/transactionCategories.js";
 
 const router = express.Router();
 
 // Add a fund transfer from one account to another account
 router.post("/transfers", authenticateUser, async (req, res) => {
+  const client = await db.connect();
   try {
+    await client.query("BEGIN");
+
     const { sub: userId } = req.user;
     const {
       originAccount,
@@ -49,13 +53,14 @@ router.post("/transfers", authenticateUser, async (req, res) => {
     if (numericTransferAmount <= 0 || numericTransferAmount < 0)
       return res.status(422).json({ message: "Invalid fund transfer" });
 
-    // RETRIEVE THE LATEST BALANCES OF THE ORIGIN ACCOUNT AND THE DESTINATION ACCOUNT
-    const { rows: senderAccountData } = await db.query(
+    // RETRIEVE THE LATEST BALANCE OF THE ORIGIN ACCOUNT
+    const { rows: senderAccountData } = await client.query(
       "SELECT balance FROM accounts WHERE user_id = $1 AND account = $2 ORDER BY updated_at DESC LIMIT 1",
       [userId, senderAccount],
     );
 
-    const { rows: receiverAccountData } = await db.query(
+    // RETRIEVE THE LATEST BALANCE OF THE DESTINATION ACCOUNT
+    const { rows: receiverAccountData } = await client.query(
       "SELECT balance FROM accounts WHERE user_id = $1 AND account = $2 ORDER BY updated_at DESC LIMIT 1",
       [userId, receiverAccount],
     );
@@ -69,13 +74,13 @@ router.post("/transfers", authenticateUser, async (req, res) => {
     if (totalTransferAmount > senderAccountBalance)
       return res.status(422).json({ message: "Unsufficient funds" });
 
-    // ADD THE FUND TRANSFER TO THE FUND TRANSFERS TABLE
     const transferReferenceNumber = crypto
       .randomBytes(6)
       .toString("hex")
       .toUpperCase();
 
-    const { rows: fundTransferData } = await db.query(
+    // ADD THE FUND TRANSFER TO THE FUND TRANSFERS TABLE
+    const { rows: fundTransferData } = await client.query(
       "INSERT INTO fund_transfers (user_id, reference_id, origin_account, destination_account, amount, transfer_fee) VALUES ($1, $2, $3, $4, $5, $6 ) RETURNING created_at",
       [
         userId,
@@ -96,13 +101,13 @@ router.post("/transfers", authenticateUser, async (req, res) => {
       receiverAccountBalance + numericTransferAmount;
 
     // UPDATE THE SENDER ACCOUNT BALANCE
-    await db.query(
+    await client.query(
       "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
       [userId, senderAccount, newSenderAccountBalance, fundTransferTimestamp],
     );
 
     // UPDATE THE RECEIVER ACCOUNT BALANCE
-    await db.query(
+    await client.query(
       "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
       [
         userId,
@@ -112,12 +117,17 @@ router.post("/transfers", authenticateUser, async (req, res) => {
       ],
     );
 
+    await client.query("COMMIT");
+
     res.status(201).json({
       message: `Fund transfer of PHP ${numericTransferAmount} from ${senderAccount} to ${receiverAccount} successful.`,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    await client.query("ROLLBACK");
+    res.status(500).json({ message: "Fund transfer failed" });
+  } finally {
+    client.release();
   }
 });
 
@@ -127,7 +137,10 @@ router.post(
   authenticateUser,
   retrieveLatestBalance,
   async (req, res) => {
+    const client = await db.connect();
     try {
+      await client.query("BEGIN");
+
       const { sub: userId } = req.user;
       const {
         accountType: savings,
@@ -170,7 +183,7 @@ router.post(
         });
 
       // Add the daily interest in the transactions table
-      const { rows: transaction } = await db.query(
+      const { rows: transaction } = await client.query(
         "INSERT INTO transactions (user_id, reference_id,account,type,category,amount,description) VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING created_at",
         [
           userId,
@@ -186,13 +199,16 @@ router.post(
       // Retrieve the transaction timestamp
       const transactionTimestamp = transaction[0].created_at;
 
-      // Update the savings account balance of the user stored in the database
+      // Compute the new savings balance of the user
       const newSavingsBalance = Number(latestSavingsBalance) + dailyInterest;
 
-      await db.query(
+      // Update the savings account balance of the user stored in the database
+      await client.query(
         "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
         [userId, savings, newSavingsBalance, transactionTimestamp],
       );
+
+      await client.query("COMMIT");
 
       res.status(201).json({
         message: `Created daily interest credit for ${dailyInterestDate}`,
@@ -201,7 +217,10 @@ router.post(
       });
     } catch (error) {
       console.error(error);
+      await client.query("ROLLBACK");
       res.status(500).json({ message: "Internal Server Error" });
+    } finally {
+      client.release();
     }
   },
 );
@@ -269,9 +288,47 @@ router.get("/transactions/:account", authenticateUser, async (req, res) => {
   }
 });
 
-// Add a transaction to a user's specified account type and then insert it to the user's balance
-router.post("/transactions/:account", authenticateUser, async (req, res) => {
+// Retrieve the full name of a logged-in user
+router.get("/name", authenticateUser, async (req, res) => {
   try {
+    const { sub: userId } = req.user;
+
+    const { rows: userNames } = await db.query(
+      "SELECT first_name, last_name FROM users WHERE id = $1",
+      [userId],
+    );
+
+    // Invalidate the request if no user is found
+    if (userNames.length === 0)
+      return res.status(404).json({ message: "User not found" });
+
+    const firstName = userNames[0].first_name;
+    const lastName = userNames[0].last_name;
+
+    //console.log(firstName, lastName);
+
+    res.json({
+      firstName: firstName
+        .split(" ")
+        .map((e) => e.charAt(0).toUpperCase() + e.slice(1).toLowerCase())
+        .join(" "),
+      lastName: lastName
+        .split(" ")
+        .map((e) => e.charAt(0).toUpperCase() + e.slice(1).toLowerCase())
+        .join(" "),
+    });
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(500);
+  }
+});
+
+// Add a transaction to a user's specified account type and then insert it to the user's account balance
+router.post("/transactions/:account", authenticateUser, async (req, res) => {
+  const client = await db.connect();
+  try {
+    await client.query("BEGIN");
+
     const { sub: userId } = req.user;
     const { amount, category, description } = req.body;
 
@@ -279,29 +336,11 @@ router.post("/transactions/:account", authenticateUser, async (req, res) => {
     const transactionAmount = Number(amount);
     const transactionDescription = description.trim();
 
-    const transactionCategories = [
-      "Income",
-      "Housing",
-      "Food",
-      "Transportation",
-      "Utilities",
-      "Health",
-      "Personal",
-      "Financial",
-      "Social",
-      "Education",
-      "Work",
-      "Leisure",
-      "Government",
-      "Communication",
-      "Technology",
-    ];
-
     const transactionCategory = transactionCategories.find(
       (e) => e === category,
     );
 
-    // Invalidate the request if any body properties break the business logic
+    // Invalidate the request if any of the body properties breaks the business logic
     if (
       transactionAmount <= 0 ||
       !transactionAmount ||
@@ -328,7 +367,7 @@ router.post("/transactions/:account", authenticateUser, async (req, res) => {
       return res.status(422).json({ message: "Not Found" });
 
     // Retrieve the previous balance entry of the user's account
-    const { rows: accountBalance } = await db.query(
+    const { rows: accountBalance } = await client.query(
       "SELECT balance FROM accounts WHERE user_id = $1 AND account= $2 ORDER BY updated_at DESC LIMIT 1",
       [userId, accountType],
     );
@@ -346,7 +385,7 @@ router.post("/transactions/:account", authenticateUser, async (req, res) => {
       });
 
     // Store the transaction amount to the transactions table
-    const { rows: transaction } = await db.query(
+    const { rows: transaction } = await client.query(
       "INSERT INTO transactions (user_id, reference_id, account, type, category, amount, description) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING reference_id, created_at",
       [
         userId,
@@ -365,58 +404,68 @@ router.post("/transactions/:account", authenticateUser, async (req, res) => {
     // Retrieve the transaction timestamp
     const transactionTimestamp = transaction[0].created_at;
 
-    // Update the savings account balance of the user
+    /* UPDATE THE ACCOUNT BALANCE 
+    OF A USER
+    */
 
     // If there is no any previous balance in that user's account, add the deposit amount directly to the balance
     if (previousAccountBalance === 0 && transactionType === "credit") {
       const newAccountBalance = transactionAmount;
 
       // Insert the new account balance to the accounts table
-      await db.query(
+      await client.query(
         "INSERT INTO accounts (user_id, account, balance, updated_at ) VALUES ($1, $2, $3, $4)",
         [userId, accountType, newAccountBalance, transactionTimestamp],
       );
+
+      await client.query("COMMIT");
 
       return res.status(201).json({
         message: `Created initial balance for the ${accountType} account.`,
         transactionReferenceId,
         transactionTimestamp: transactionTimestamp.toLocaleString(),
       });
-    } else {
-      let newAccountBalance;
-
-      switch (transactionType) {
-        /* If the transaction type is credit, sum the previous balances and add the deposit amount to the database to reflect the new balance*/
-        case "credit":
-          newAccountBalance = previousAccountBalance + transactionAmount;
-
-          await db.query(
-            "INSERT INTO accounts (user_id, account, balance, updated_at ) VALUES ($1, $2, $3, $4)",
-            [userId, accountType, newAccountBalance, transactionTimestamp],
-          );
-
-          break;
-
-        /* If the transaction type is debit, sum the previous balances and subtract the deposit amount to the database to reflect the new balance*/
-        case "debit":
-          newAccountBalance = previousAccountBalance - transactionAmount;
-
-          await db.query(
-            "INSERT INTO accounts (user_id, account, balance, updated_at ) VALUES ($1, $2, $3, $4)",
-            [userId, accountType, newAccountBalance, transactionTimestamp],
-          );
-
-          break;
-      }
-      res.status(201).json({
-        message: `Created new transaction for the ${accountType} account.`,
-        transactionReferenceId,
-        transactionTimestamp: transactionTimestamp.toLocaleString(),
-      });
     }
+
+    let newAccountBalance;
+
+    switch (transactionType) {
+      /* If the transaction type is credit, sum the previous balances and add the deposit amount to the database to reflect the new balance*/
+      case "credit":
+        newAccountBalance = previousAccountBalance + transactionAmount;
+
+        await client.query(
+          "INSERT INTO accounts (user_id, account, balance, updated_at ) VALUES ($1, $2, $3, $4)",
+          [userId, accountType, newAccountBalance, transactionTimestamp],
+        );
+
+        break;
+
+      /* If the transaction type is debit, sum the previous balances and subtract the deposit amount to the database to reflect the new balance*/
+      case "debit":
+        newAccountBalance = previousAccountBalance - transactionAmount;
+
+        await client.query(
+          "INSERT INTO accounts (user_id, account, balance, updated_at ) VALUES ($1, $2, $3, $4)",
+          [userId, accountType, newAccountBalance, transactionTimestamp],
+        );
+
+        break;
+    }
+
+    await client.query("COMMIT");
+
+    res.status(201).json({
+      message: `Created new transaction for the ${accountType} account.`,
+      transactionReferenceId,
+      transactionTimestamp: transactionTimestamp.toLocaleString(),
+    });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    await client.query("ROLLBACK");
+    res.status(500).json({ message: "Transaction failed" });
+  } finally {
+    client.release();
   }
 });
 

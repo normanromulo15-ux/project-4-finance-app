@@ -8,7 +8,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 export default function AccountOption() {
   const [accountChoice, setAccountChoice] = useState(null);
-  const { cash, eWallet } = useLoaderData();
+  const { cash, eWallet } = useLoaderData().userBalances;
   const navigate = useNavigate();
   const { transactionType } = useParams();
 
@@ -29,7 +29,11 @@ export default function AccountOption() {
   }
 
   return (
-    <main className="relative h-dvh flex flex-col gap-8 items-center justify-center px-8 pb-8 pt-40">
+    <main
+      className="relative h-dvh flex flex-col gap-8 items-center justify-center px-8 pb-8 pt-40
+    md:px-16
+    "
+    >
       <BackButton endpoint={"/"} />
       <h1 className="text-3xl font-bold">Select an account:</h1>
       <button
@@ -40,7 +44,7 @@ export default function AccountOption() {
         onClick={handleAccountChoice}
       >
         {accountChoice === "cash" && (
-          <div className="absolute top-1 right-2">
+          <div className="absolute top-1 right-2 scale-125">
             <CheckCircleIcon />
           </div>
         )}
@@ -62,7 +66,7 @@ export default function AccountOption() {
         onClick={handleAccountChoice}
       >
         {accountChoice === "eWallet" && (
-          <div className="absolute top-1 right-2">
+          <div className="absolute top-1 right-2 scale-125">
             <CheckCircleIcon />
           </div>
         )}

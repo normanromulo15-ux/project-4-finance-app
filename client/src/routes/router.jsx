@@ -8,13 +8,13 @@ import AccountOption from "../pages/accountOption.jsx";
 import TransactionDetails from "../pages/transactionDetails.jsx";
 
 // Loaders
-import balanceLoader from "./loaders/balanceLoader.js";
+import userDataLoader from "./loaders/userDataLoader.js";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
-    loader: balanceLoader,
+    loader: userDataLoader,
   },
   {
     path: "/login",
@@ -27,11 +27,11 @@ export const router = createBrowserRouter([
   {
     path: "/:transactionType",
     element: <AccountOption />,
-    loader: balanceLoader,
+    loader: userDataLoader,
   },
   {
     path: "/:transactionType/:accountType",
     element: <TransactionDetails />,
-    loader: balanceLoader,
+    loader: userDataLoader,
   },
 ]);
