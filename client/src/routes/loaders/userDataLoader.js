@@ -5,7 +5,6 @@ import { getUserFullName } from "../../services/app.js";
 export default async function userDataLoader() {
   try {
     const userFullName = await getUserFullName();
-
     const userBalances = {
       cash: await getCurrentBalance("cash"),
       eWallet: await getCurrentBalance("eWallet"),

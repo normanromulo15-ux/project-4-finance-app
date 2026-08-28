@@ -1,23 +1,27 @@
 import { useEffect, useState } from "react";
-import { useLoaderData, useParams } from "react-router";
+import { useLoaderData, useNavigate, useParams } from "react-router";
+import { addTransaction } from "../services/app.js";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import { transactionCategories } from "../utils/transactionCategories.js";
 import BackButton from "../components/backButton.jsx";
 
 export default function TransactionDetails() {
+  const navigate = useNavigate();
   const [transactionDetails, setTransactionDetails] = useState({
+    account: "",
     amount: "",
     category: "",
     description: "",
+    type: "",
   });
-  const { amount, category, description } = transactionDetails;
+  const { account, amount, category, description } = transactionDetails;
 
   const [formatAmount, setFormatAmount] = useState(0);
   const [accountName, setAccountName] = useState("");
   const [showTransactionConfirmation, setShowTransactionConfirmation] =
     useState(false);
   const [showTransactionSuccess, setShowTransactionSuccess] = useState(false);
-  const { transactionType } = useParams();
+  const { transactionType, accountType } = useParams();
   const { firstName, lastName } = useLoaderData().userFullName;
 
   useEffect(() => {
@@ -35,6 +39,30 @@ export default function TransactionDetails() {
   // Function to handle the display of transaction confirmation
   function handleDisplayTransactionConfirmation() {
     setShowTransactionConfirmation((prev) => !prev);
+    setTransactionDetails((prev) => ({
+      ...prev,
+      account: accountType,
+      category: transactionType === "credit" ? "Financial" : prev.category,
+      type: transactionType,
+    }));
+  }
+
+  // Function to capitalize the first letter of a string
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  // Function to handle the transaction confirmation
+  async function handleTransactionConfirmation(e) {
+    e.preventDefault();
+    try {
+      const response = await addTransaction(transactionDetails);
+      console.log(response);
+      setShowTransactionSuccess(true);
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -128,13 +156,20 @@ export default function TransactionDetails() {
       </main>
       {showTransactionConfirmation && (
         <div className="z-10 fixed flex flex-col items-center justify-center h-dvh bg-black/70 p-8 inset-0">
-          <div className="z-20 w-full flex flex-col items-center justify-start bg-white p-4 gap-2 border-4 border-[#2830c9] rounded-2xl">
+          <form
+            className="z-20 w-full flex flex-col items-center justify-start bg-white p-4 gap-2 border-4 border-[#2830c9] rounded-2xl"
+            onSubmit={handleTransactionConfirmation}
+          >
             <h1 className="text-center text-xl font-bold">
               You are about to {transactionType === "debit" ? "spend" : "save"}{" "}
               {formatAmount}
             </h1>
             <h2 className="w-full text-left">
               <span className="font-semibold">Account Name:</span> {accountName}
+            </h2>
+            <h2 className="w-full text-left">
+              <span className="font-semibold">Account:</span>{" "}
+              {capitalizeFirstLetter(account)}
             </h2>
             <h2 className="w-full text-left ">
               <span className="font-semibold">Amount:</span> {formatAmount}
@@ -151,18 +186,25 @@ export default function TransactionDetails() {
               Please review the transaction details. This action can't be
               undone.{" "}
             </p>
-            <section className="flex justify-center gap-4">
+            <div className="flex items-center justify-center gap-4">
               <button
                 className="bg-neutral-300 text-gray-700 text-base font-medium px-3 py-2 rounded-lg"
-                onClick={handleDisplayTransactionConfirmation}
+                onClick={() => {
+                  handleDisplayTransactionConfirmation();
+                  setShowTransactionConfirmation(false);
+                }}
+                type="button"
               >
                 Close
               </button>
-              <button className="bg-[#2830c9] text-white text-base font-medium px-3 py-2 rounded-lg">
+              <button
+                className="bg-[#2830c9] text-white text-base font-medium px-3 py-2 rounded-lg"
+                type="submit"
+              >
                 Confirm
               </button>
-            </section>
-          </div>
+            </div>
+          </form>
         </div>
       )}
     </>

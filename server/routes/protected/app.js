@@ -8,7 +8,7 @@ import { transactionCategories } from "../../utils/transactionCategories.js";
 const router = express.Router();
 
 // Add a fund transfer from one account to another account
-router.post("/transfers", authenticateUser, async (req, res) => {
+router.post("/transfer", authenticateUser, async (req, res) => {
   const client = await db.connect();
   try {
     await client.query("BEGIN");
@@ -133,7 +133,7 @@ router.post("/transfers", authenticateUser, async (req, res) => {
 
 // Add a daily interest based on the user's savings end-of-day balance
 router.post(
-  "/interests/:account",
+  "/interest/:account",
   authenticateUser,
   retrieveLatestBalance,
   async (req, res) => {
@@ -143,13 +143,13 @@ router.post(
 
       const { sub: userId } = req.user;
       const {
-        accountType: savings,
+        accountType: savingsAccount,
         latestAccountBalance: latestSavingsBalance,
         latestAccountBalanceTimestamp: latestSavingsBalanceTimestamp,
       } = req;
 
       // Invalidate the request if the account type is not savings
-      if (savings !== "savings")
+      if (savingsAccount !== "savings")
         return res.status(422).json({ message: "Invalid Account" });
 
       const formattedPreviousBalanceDate = new Date(
@@ -188,7 +188,7 @@ router.post(
         [
           userId,
           transactionId,
-          savings,
+          savingsAccount,
           "credit",
           "Financial",
           dailyInterest,
@@ -205,7 +205,7 @@ router.post(
       // Update the savings account balance of the user stored in the database
       await client.query(
         "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
-        [userId, savings, newSavingsBalance, transactionTimestamp],
+        [userId, savingsAccount, newSavingsBalance, transactionTimestamp],
       );
 
       await client.query("COMMIT");
@@ -324,15 +324,16 @@ router.get("/name", authenticateUser, async (req, res) => {
 });
 
 // Add a transaction to a user's specified account type and then insert it to the user's account balance
-router.post("/transactions/:account", authenticateUser, async (req, res) => {
+router.post("/transaction", authenticateUser, async (req, res) => {
   const client = await db.connect();
   try {
     await client.query("BEGIN");
 
     const { sub: userId } = req.user;
-    const { amount, category, description } = req.body;
+    const { account, amount, category, description, type } = req.body;
 
     const transactionId = crypto.randomBytes(6).toString("hex").toUpperCase();
+    const transactionAccount = account.trim();
     const transactionAmount = Number(amount);
     const transactionDescription = description.trim();
 
@@ -355,12 +356,8 @@ router.post("/transactions/:account", authenticateUser, async (req, res) => {
     const accountTypes = ["savings", "eWallet", "cash"];
     const transactionTypes = ["credit", "debit"];
 
-    const accountType = accountTypes.find(
-      (e) => e === req.params.account.trim(),
-    );
-    const transactionType = transactionTypes.find(
-      (e) => e === req.query.transactionType,
-    );
+    const accountType = accountTypes.find((e) => e === transactionAccount);
+    const transactionType = transactionTypes.find((e) => e === type.trim());
 
     // Invalidate the request if either the string or the query parameter breaks the business logic
     if (!accountType || !transactionType)
@@ -456,9 +453,8 @@ router.post("/transactions/:account", authenticateUser, async (req, res) => {
     await client.query("COMMIT");
 
     res.status(201).json({
-      message: `Created new transaction for the ${accountType} account.`,
       transactionReferenceId,
-      transactionTimestamp: transactionTimestamp.toLocaleString(),
+      transactionTimestamp,
     });
   } catch (error) {
     console.log(error);
