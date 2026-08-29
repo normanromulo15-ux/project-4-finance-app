@@ -66,7 +66,6 @@ router.post("/register", async (req, res) => {
 
     res.status(201).json({ message: "Created new user", user: newUserData[0] });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
@@ -133,7 +132,6 @@ router.post("/login", async (req, res) => {
       res.status(401).json({ message: "Unauthorized" });
     }
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
@@ -151,7 +149,6 @@ router.get("/refresh", (req, res) => {
     const newAccessToken = generateAccessToken(payload);
     res.json({ newAccessToken });
   } catch (error) {
-    console.error(error);
     res.status(401).json({ message: "Invalid refresh token" });
   }
 });
@@ -183,7 +180,6 @@ router.delete("/logout", async (req, res) => {
 
     res.sendStatus(204);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });

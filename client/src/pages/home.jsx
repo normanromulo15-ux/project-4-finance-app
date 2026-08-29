@@ -2,28 +2,38 @@ import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import { formatCurrentTime } from "../utils/formatCurrentTime.js";
-import { formatTimestamp } from "../utils/formatTimestamp.js";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import MoneyIcon from "@mui/icons-material/Money";
+import WalletIcon from "@mui/icons-material/Wallet";
 import SavingsIcon from "@mui/icons-material/Savings";
 import LogoutButton from "../components/logoutButton.jsx";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 export default function Home() {
-  const [currentDateAndTime, setCurrentDateAndTime] = useState(null);
   const [currentTime, setCurrentTime] = useState(null);
-  const [spendingBalance, setSpendingBalance] = useState(0);
-  const [savingsBalance, setSavingsBalance] = useState(0);
+  const [cashBalance, setCashBalance] = useState(null);
+  const [eWalletBalance, setEWalletBalance] = useState(null);
+  const [savingsBalance, setSavingsBalance] = useState(null);
+  const [spendingBalance, setSpendingBalance] = useState(null);
+  const [spendingBalanceVisibility, setSpendingBalanceVisibility] =
+    useState(false);
   const { cash, eWallet, savings } = useLoaderData().userBalances;
   const navigate = useNavigate();
 
   useEffect(() => {
-    setCurrentDateAndTime(
-      formatTimestamp(savings.latestAccountBalanceTimestamp).toUpperCase(),
-    );
     setCurrentTime(formatCurrentTime());
     setSpendingBalance(addCashAndeWalletBalance());
+    setCashBalance(formatCurrency(cash.latestAccountBalance));
+    setEWalletBalance(formatCurrency(eWallet.latestAccountBalance));
     setSavingsBalance(formatCurrency(savings.latestAccountBalance));
   }, [spendingBalance, savingsBalance]);
+
+  // Function to handle the visibility of the spending balance
+  function handleSpendingBalanceVisibility() {
+    setSpendingBalanceVisibility((prev) => !prev);
+  }
 
   // Function to add the cash and the eWallet balance
   function addCashAndeWalletBalance() {
@@ -42,10 +52,22 @@ export default function Home() {
 
   return (
     <main className="relative h-dvh flex flex-col justify-start px-8 pt-8 gap-8">
-      <section className="w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-4 py-2 gap-2">
-        <h1 className="text-xs font-medium">
-          SPENDING BALANCE AS OF {currentTime}:
-        </h1>
+      <section className="w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-3 py-2 gap-2">
+        <div className="flex items-center justify-between text-sm font-medium">
+          <h1>SPENDING BALANCE AS OF {currentTime}:</h1>
+          {spendingBalanceVisibility ? (
+            <VisibilityIcon
+              onClick={handleSpendingBalanceVisibility}
+              sx={{ scale: 0.85 }}
+            />
+          ) : (
+            <VisibilityOffIcon
+              onClick={handleSpendingBalanceVisibility}
+              sx={{ scale: 0.85 }}
+            />
+          )}
+        </div>
+
         <h2 className="font-bold text-3xl">{spendingBalance}</h2>
         <div className="flex items-center justify-center gap-4">
           <button
@@ -68,16 +90,34 @@ export default function Home() {
           </button>
         </div>
       </section>
-      <section className="w-full border border-t-4 border-[#2830c9] rounded-2xl p-4 ">
-        <div className="flex items-center gap-3 text-xl font-semibold">
-          <SavingsIcon />
-          <h3 className="flex-1">Savings</h3>
+      <section className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4">
+          <div className="flex items-center justify-start text-xl font-semibold gap-2">
+            <MoneyIcon />
+            <h3>Cash</h3>
+          </div>
+          <h4 className="overflow-hidden font-bold text-lg">{cashBalance}</h4>
         </div>
-        <h4 className="text-xs font-medium mt-1 mb-2">
-          BALANCE AS OF {currentDateAndTime}:
-        </h4>
-        <h5 className="font-bold text-2xl">{savingsBalance}</h5>
+        <div className="flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4">
+          <div className="flex items-center justify-start text-xl font-semibold gap-2">
+            <WalletIcon />
+            <h3>E-Wallet</h3>
+          </div>
+          <h4 className="overflow-hidden font-bold text-lg">
+            {eWalletBalance}
+          </h4>
+        </div>
+        <div className="flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4">
+          <div className="flex items-center justify-start text-xl font-semibold gap-2">
+            <SavingsIcon />
+            <h3>Savings</h3>
+          </div>
+          <h4 className="overflow-hidden font-bold text-lg">
+            {savingsBalance}
+          </h4>
+        </div>
       </section>
+
       <LogoutButton />
     </main>
   );
