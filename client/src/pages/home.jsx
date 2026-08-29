@@ -17,6 +17,11 @@ export default function Home() {
   const [eWalletBalance, setEWalletBalance] = useState(null);
   const [savingsBalance, setSavingsBalance] = useState(null);
   const [spendingBalance, setSpendingBalance] = useState(null);
+  const [accountBalances, setAccountBalances] = useState([
+    { accountType: "cash", balance: null },
+    { accountType: "eWallet", balance: null },
+    { accountType: "savings", balance: null },
+  ]);
   const [spendingBalanceVisibility, setSpendingBalanceVisibility] =
     useState(false);
   const { cash, eWallet, savings } = useLoaderData().userBalances;
@@ -28,11 +33,17 @@ export default function Home() {
     setCashBalance(formatCurrency(cash.latestAccountBalance));
     setEWalletBalance(formatCurrency(eWallet.latestAccountBalance));
     setSavingsBalance(formatCurrency(savings.latestAccountBalance));
+    setAccountBalances([
+      { accountType: "cash", balance: cashBalance },
+      { accountType: "eWallet", balance: eWalletBalance },
+      { accountType: "savings", balance: savingsBalance },
+    ]);
   }, [spendingBalance, savingsBalance]);
 
   // Function to handle the visibility of the spending balance
   function handleSpendingBalanceVisibility() {
     setSpendingBalanceVisibility((prev) => !prev);
+    console.log(accountBalances);
   }
 
   // Function to add the cash and the eWallet balance
@@ -51,7 +62,7 @@ export default function Home() {
   }
 
   return (
-    <main className="relative h-dvh flex flex-col justify-start px-8 pt-8 gap-8">
+    <main className="relative h-dvh flex flex-col justify-start gap-12 p-8">
       <section className="w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-3 py-2 gap-2">
         <div className="flex items-center justify-between text-sm font-medium">
           <h1>SPENDING BALANCE AS OF {currentTime}:</h1>
@@ -90,34 +101,49 @@ export default function Home() {
           </button>
         </div>
       </section>
-      <section className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4">
-          <div className="flex items-center justify-start text-xl font-semibold gap-2">
-            <MoneyIcon />
-            <h3>Cash</h3>
-          </div>
-          <h4 className="overflow-hidden font-bold text-lg">{cashBalance}</h4>
-        </div>
-        <div className="flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4">
-          <div className="flex items-center justify-start text-xl font-semibold gap-2">
-            <WalletIcon />
-            <h3>E-Wallet</h3>
-          </div>
-          <h4 className="overflow-hidden font-bold text-lg">
-            {eWalletBalance}
-          </h4>
-        </div>
-        <div className="flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4">
-          <div className="flex items-center justify-start text-xl font-semibold gap-2">
-            <SavingsIcon />
-            <h3>Savings</h3>
-          </div>
-          <h4 className="overflow-hidden font-bold text-lg">
-            {savingsBalance}
-          </h4>
+      <section>
+        <h3 className="font-bold text-2xl pl-2 mb-4">Accounts</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {accountBalances.map((e, i) => {
+            let accountName;
+            let accountBalance;
+            let AccountIcon;
+
+            switch (e.accountType) {
+              case "cash":
+                accountName = "Cash";
+                accountBalance = e.balance;
+                AccountIcon = <MoneyIcon />;
+                break;
+              case "eWallet":
+                accountName = "E-Wallet";
+                accountBalance = e.balance;
+                AccountIcon = <WalletIcon />;
+                break;
+              case "savings":
+                accountName = "Savings";
+                accountBalance = e.balance;
+                AccountIcon = <SavingsIcon />;
+                break;
+            }
+
+            return (
+              <div
+                className="flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4"
+                key={i}
+              >
+                <div className="flex items-center justify-start text-xl font-semibold gap-2">
+                  {AccountIcon}
+                  <h3>{accountName}</h3>
+                </div>
+                <h4 className="overflow-hidden font-bold text-lg">
+                  {accountBalance}
+                </h4>
+              </div>
+            );
+          })}
         </div>
       </section>
-
       <LogoutButton />
     </main>
   );
