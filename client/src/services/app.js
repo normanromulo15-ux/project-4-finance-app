@@ -14,7 +14,7 @@ export async function getCurrentBalance(account) {
 // Function to add the daily interest to the savings account
 export async function addDailyInterest(account = "savings") {
   try {
-    const { data } = await api.post(`/interest/:${account}`);
+    const { data } = await api.post(`/interest/${account}`);
 
     return data;
   } catch (error) {

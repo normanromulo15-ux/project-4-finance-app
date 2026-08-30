@@ -1,0 +1,33 @@
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+
+export default function BalanceVisibility(props) {
+  const { balance, balanceVisibility, handleBalanceVisibility } = props;
+  let widthValue;
+
+  switch (balance) {
+    case "spending":
+      widthValue = "1.25rem";
+      break;
+
+    case "allAccounts":
+      widthValue = "2rem";
+      break;
+  }
+
+  return (
+    <>
+      {!balanceVisibility ? (
+        <VisibilityIcon
+          onClick={handleBalanceVisibility}
+          sx={{ width: widthValue }}
+        />
+      ) : (
+        <VisibilityOffIcon
+          onClick={handleBalanceVisibility}
+          sx={{ width: widthValue }}
+        />
+      )}
+    </>
+  );
+}
