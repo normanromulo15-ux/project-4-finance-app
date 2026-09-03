@@ -1,6 +1,6 @@
 export default function TransactionConfirmation(props) {
   const {
-    handleTransactionConfirmation,
+    handleTransactionSubmission,
     transactionType,
     formatAmount,
     accountName,
@@ -15,7 +15,7 @@ export default function TransactionConfirmation(props) {
     <div className="z-10 fixed flex flex-col items-center justify-center h-dvh bg-black/70 p-8 inset-0">
       <form
         className="z-20 w-full flex flex-col items-center justify-start bg-white p-4 gap-2 border-4 border-[#2830c9] rounded-2xl"
-        onSubmit={handleTransactionConfirmation}
+        onSubmit={handleTransactionSubmission}
       >
         <h1 className="text-center text-xl font-bold">
           You are about to {transactionType === "debit" ? "spend" : "save"}{" "}

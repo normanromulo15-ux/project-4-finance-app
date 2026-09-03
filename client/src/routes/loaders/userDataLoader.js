@@ -4,6 +4,7 @@ import { getUserFullName } from "../../services/app.js";
 
 export default async function userDataLoader() {
   try {
+    // Retrieve the user's full name and current balances for cash, eWallet, and savings accounts
     const userFullName = await getUserFullName();
     const userBalances = {
       cash: await getCurrentBalance("cash"),

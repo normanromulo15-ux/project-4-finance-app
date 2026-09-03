@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import { addDailyInterest } from "../services/app.js";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import { formatCurrentTime } from "../utils/formatCurrentTime.js";
+import { addDailyInterest } from "../services/app.js";
 import BalanceVisibility from "../components/balanceVisibility.jsx";
 import LogoutButton from "../components/logoutButton.jsx";
 import AddIcon from "@mui/icons-material/Add";
@@ -27,6 +27,13 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    async function addInterestToSavings() {
+      return await addDailyInterest();
+    }
+    addInterestToSavings();
+  }, []);
+
+  useEffect(() => {
     setCurrentTime(formatCurrentTime());
     setCashBalance(formatCurrency(cash.latestAccountBalance));
     setEWalletBalance(formatCurrency(eWallet.latestAccountBalance));
@@ -38,10 +45,6 @@ export default function Home() {
     ]);
     setSpendingBalance(addCashAndEWalletBalance());
   }, [spendingBalance, savingsBalance]);
-
-  useEffect(() => {
-    addDailyInterest();
-  }, []);
 
   // Function to handle the visibility of a balance
   function handleBalanceVisibility() {
@@ -64,7 +67,7 @@ export default function Home() {
   }
 
   return (
-    <main className="relative h-dvh flex flex-col justify-start gap-12 p-8">
+    <main className="relative h-dvh flex flex-col justify-start gap-6 p-8">
       <section className="w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-3 py-2 gap-2">
         <div className="flex items-center justify-between text-sm font-medium">
           <h1>SPENDING BALANCE AS OF {currentTime}:</h1>
@@ -99,11 +102,11 @@ export default function Home() {
         </div>
       </section>
       <section>
-        <div className="flex items-center justify-between px-2 pb-2 mb-4 border-b-2">
+        <div className="flex flex-col justify-center gap-1 px-2 pb-2 mb-4 border-b-2">
           <h3 className="font-bold text-2xl ">Accounts</h3>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          {accountBalances.map((e, i) => {
+          {accountBalances.map((e) => {
             let accountName;
             let accountBalance;
             let AccountIcon;
@@ -129,7 +132,7 @@ export default function Home() {
             return (
               <div
                 className="flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4"
-                key={i}
+                key={e.accountType}
               >
                 <div className="flex items-center justify-start text-xl font-semibold gap-2">
                   {AccountIcon}
@@ -143,6 +146,7 @@ export default function Home() {
           })}
         </div>
       </section>
+
       <LogoutButton />
     </main>
   );

@@ -21,7 +21,6 @@ export default function TransactionDetails() {
   const [accountName, setAccountName] = useState("");
   const [showTransactionConfirmation, setShowTransactionConfirmation] =
     useState(false);
-  const [showTransactionSuccess, setShowTransactionSuccess] = useState(false);
   const { transactionType, accountType } = useParams();
   const { firstName, lastName } = useLoaderData().userFullName;
 
@@ -48,14 +47,20 @@ export default function TransactionDetails() {
     }));
   }
 
-  // Function to handle the transaction confirmation
-  async function handleTransactionConfirmation(e) {
+  // Function to handle the transaction submission
+  async function handleTransactionSubmission(e) {
     e.preventDefault();
     try {
       const response = await addTransaction(transactionDetails);
-      console.log(response);
-      setShowTransactionSuccess(true);
-      navigate("/");
+      const {
+        storedTransactionAmount: transactionAmount,
+        transactionReferenceId: refNo,
+        transactionTimestamp: timestamp,
+      } = response;
+
+      navigate(
+        `/${transactionType}/${accountType}/success?amount=${transactionAmount}&refNo=${refNo}&timestamp=${timestamp}`,
+      );
     } catch (error) {
       console.error(error);
     }
@@ -157,7 +162,7 @@ export default function TransactionDetails() {
       </main>
       {showTransactionConfirmation && (
         <TransactionConfirmation
-          handleTransactionConfirmation={handleTransactionConfirmation}
+          handleTransactionSubmission={handleTransactionSubmission}
           transactionType={transactionType}
           formatAmount={formatAmount}
           accountName={accountName}

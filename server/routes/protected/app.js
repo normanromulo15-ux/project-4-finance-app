@@ -11,8 +11,6 @@ const router = express.Router();
 router.post("/transfer", authenticateUser, async (req, res) => {
   const client = await db.connect();
   try {
-    await client.query("BEGIN");
-
     const { sub: userId } = req.user;
     const {
       originAccount,
@@ -52,6 +50,9 @@ router.post("/transfer", authenticateUser, async (req, res) => {
     // INVALIDATE THE REQUEST IF THE TRANSFER AMOUNT IS LESS THAN OR EQUAL TO 0 OR IF THE TRANSFER FEE IS LESS THAN 0
     if (numericTransferAmount <= 0 || numericTransferAmount < 0)
       return res.status(422).json({ message: "Invalid fund transfer" });
+
+    // Start a database connection
+    await client.query("BEGIN");
 
     // RETRIEVE THE LATEST BALANCE OF THE ORIGIN ACCOUNT
     const { rows: senderAccountData } = await client.query(
@@ -139,8 +140,6 @@ router.post(
   async (req, res) => {
     const client = await db.connect();
     try {
-      await client.query("BEGIN");
-
       const { sub: userId } = req.user;
       const {
         accountType: savingsAccount,
@@ -165,6 +164,7 @@ router.post(
         day: "numeric",
         year: "numeric",
       });
+
       const dailyInterestRate = 0.035;
       const withholdingTaxRate = 0.2;
       const dailyInterest =
@@ -177,10 +177,14 @@ router.post(
       const transactionDescription = `Interest credit for ${dailyInterestDate}.`;
 
       // Invalidate the request if the daily interest has already been credited for the day
-      if (formattedPreviousBalanceDate === dailyInterestDate)
+      if (formattedPreviousBalanceDate === dailyInterestDate) {
         return res.status(409).json({
           message: "Error in adding interest.",
         });
+      }
+
+      // Start a database connection
+      await client.query("BEGIN");
 
       // Add the daily interest in the transactions table
       const { rows: transaction } = await client.query(
@@ -210,11 +214,7 @@ router.post(
 
       await client.query("COMMIT");
 
-      res.status(201).json({
-        message: `Created daily interest credit for ${dailyInterestDate}`,
-        dailyInterest: `PHP ${dailyInterest.toFixed(2)}`,
-        dailyInterestTimestamp: `${dailyInterestDate}, 12:00 AM`,
-      });
+      res.sendStatus(201);
     } catch (error) {
       console.error(error);
       await client.query("ROLLBACK");
@@ -327,8 +327,6 @@ router.get("/name", authenticateUser, async (req, res) => {
 router.post("/transaction", authenticateUser, async (req, res) => {
   const client = await db.connect();
   try {
-    await client.query("BEGIN");
-
     const { sub: userId } = req.user;
     const { account, amount, category, description, type } = req.body;
 
@@ -363,6 +361,9 @@ router.post("/transaction", authenticateUser, async (req, res) => {
     if (!accountType || !transactionType)
       return res.status(422).json({ message: "Not Found" });
 
+    // Start a database connection
+    await client.query("BEGIN");
+
     // Retrieve the previous balance entry of the user's account
     const { rows: accountBalance } = await client.query(
       "SELECT balance FROM accounts WHERE user_id = $1 AND account= $2 ORDER BY updated_at DESC LIMIT 1",
@@ -383,7 +384,7 @@ router.post("/transaction", authenticateUser, async (req, res) => {
 
     // Store the transaction amount to the transactions table
     const { rows: transaction } = await client.query(
-      "INSERT INTO transactions (user_id, reference_id, account, type, category, amount, description) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING reference_id, created_at",
+      "INSERT INTO transactions (user_id, reference_id, account, type, category, amount, description) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING reference_id, amount,created_at",
       [
         userId,
         transactionId,
@@ -397,6 +398,9 @@ router.post("/transaction", authenticateUser, async (req, res) => {
 
     // Retrieve the transaction reference ID
     const transactionReferenceId = transaction[0].reference_id;
+
+    // Retrieve the transaction amount
+    const storedTransactionAmount = Number(transaction[0].amount);
 
     // Retrieve the transaction timestamp
     const transactionTimestamp = transaction[0].created_at;
@@ -418,9 +422,9 @@ router.post("/transaction", authenticateUser, async (req, res) => {
       await client.query("COMMIT");
 
       return res.status(201).json({
-        message: `Created initial balance for the ${accountType} account.`,
+        storedTransactionAmount,
         transactionReferenceId,
-        transactionTimestamp: transactionTimestamp.toLocaleString(),
+        transactionTimestamp,
       });
     }
 
@@ -453,6 +457,7 @@ router.post("/transaction", authenticateUser, async (req, res) => {
     await client.query("COMMIT");
 
     res.status(201).json({
+      storedTransactionAmount,
       transactionReferenceId,
       transactionTimestamp,
     });

@@ -5,7 +5,9 @@ import Home from "../pages/home.jsx";
 import Login from "../pages/login.jsx";
 import Register from "../pages/register.jsx";
 import AccountOption from "../pages/accountOption.jsx";
+import FundTransfer from "../pages/fundTransfer.jsx";
 import TransactionDetails from "../pages/transactionDetails.jsx";
+import TransactionSuccess from "../pages/transactionSuccess.jsx";
 
 // Loaders
 import userDataLoader from "./loaders/userDataLoader.js";
@@ -25,6 +27,10 @@ export const router = createBrowserRouter([
     element: <Register />,
   },
   {
+    path: "/transfer",
+    element: <FundTransfer />,
+  },
+  {
     path: "/:transactionType",
     element: <AccountOption />,
     loader: userDataLoader,
@@ -33,5 +39,9 @@ export const router = createBrowserRouter([
     path: "/:transactionType/:accountType",
     element: <TransactionDetails />,
     loader: userDataLoader,
+  },
+  {
+    path: "/:transactionType/:accountType/success",
+    element: <TransactionSuccess />,
   },
 ]);
