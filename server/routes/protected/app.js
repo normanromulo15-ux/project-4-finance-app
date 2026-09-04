@@ -82,7 +82,7 @@ router.post("/transfer", authenticateUser, async (req, res) => {
 
     // ADD THE FUND TRANSFER TO THE FUND TRANSFERS TABLE
     const { rows: fundTransferData } = await client.query(
-      "INSERT INTO fund_transfers (user_id, reference_id, origin_account, destination_account, amount, transfer_fee) VALUES ($1, $2, $3, $4, $5, $6 ) RETURNING created_at",
+      "INSERT INTO fund_transfers (user_id, reference_id, origin_account, destination_account, amount, transfer_fee) VALUES ($1, $2, $3, $4, $5, $6 ) RETURNING reference_id,amount, created_at",
       [
         userId,
         transferReferenceNumber,
@@ -93,8 +93,12 @@ router.post("/transfer", authenticateUser, async (req, res) => {
       ],
     );
 
-    // RETRIEVE THE FUND TRANSFER TIMESTAMP
-    const fundTransferTimestamp = fundTransferData[0].created_at;
+    // RETRIEVE THE RETURNED DATA FROM THE FUND TRANSFERS TABLE AFTER A SUCCESSFUL INSERTION
+    const {
+      reference_id: storedFundTransferReferenceId,
+      amount: storedFundTransferAmount,
+      created_at: storedFundTransferTimestamp,
+    } = fundTransferData[0];
 
     // UPDATE THE SENDER AND THE RECEIVER ACCOUNTS AFTER A SUCCESSFUL FUND TRANSFER
     const newSenderAccountBalance = senderAccountBalance - totalTransferAmount;
@@ -104,7 +108,12 @@ router.post("/transfer", authenticateUser, async (req, res) => {
     // UPDATE THE SENDER ACCOUNT BALANCE
     await client.query(
       "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
-      [userId, senderAccount, newSenderAccountBalance, fundTransferTimestamp],
+      [
+        userId,
+        senderAccount,
+        newSenderAccountBalance,
+        storedFundTransferTimestamp,
+      ],
     );
 
     // UPDATE THE RECEIVER ACCOUNT BALANCE
@@ -114,14 +123,16 @@ router.post("/transfer", authenticateUser, async (req, res) => {
         userId,
         receiverAccount,
         newReceiverAccountBalance,
-        fundTransferTimestamp,
+        storedFundTransferTimestamp,
       ],
     );
 
     await client.query("COMMIT");
 
     res.status(201).json({
-      message: `Fund transfer of PHP ${numericTransferAmount} from ${senderAccount} to ${receiverAccount} successful.`,
+      storedFundTransferReferenceId,
+      storedFundTransferAmount,
+      storedFundTransferTimestamp,
     });
   } catch (error) {
     console.error(error);

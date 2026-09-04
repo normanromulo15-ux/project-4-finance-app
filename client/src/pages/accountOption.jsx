@@ -8,7 +8,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 export default function AccountOption() {
   const [accountChoice, setAccountChoice] = useState(null);
-  const { cash, eWallet } = useLoaderData().userBalances;
+  const { cash, eWallet } = useLoaderData();
   const navigate = useNavigate();
   const { transactionType } = useParams();
 

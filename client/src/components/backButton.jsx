@@ -11,7 +11,10 @@ export default function BackButton(props) {
   }
 
   return (
-    <button className="cursor-pointer absolute left-4 top-4" onClick={handleBackNavigation}>
+    <button
+      className="cursor-pointer absolute left-4 top-4"
+      onClick={handleBackNavigation}
+    >
       <ArrowBackIcon />
     </button>
   );

@@ -22,7 +22,7 @@ export default function TransactionDetails() {
   const [showTransactionConfirmation, setShowTransactionConfirmation] =
     useState(false);
   const { transactionType, accountType } = useParams();
-  const { firstName, lastName } = useLoaderData().userFullName;
+  const { firstName, lastName } = useLoaderData().fullName;
 
   useEffect(() => {
     setAccountName(`${firstName} ${lastName}`);
@@ -73,11 +73,11 @@ export default function TransactionDetails() {
 
   return (
     <>
-      <main className="relative h-dvh flex flex-col justify-center items-center px-8 pb-8 pt-40 gap-8">
+      <main className="h-dvh flex flex-col justify-center items-center px-8 pb-8 pt-40 gap-8">
         <BackButton endpoint={`/${transactionType}`} />
         <h1 className="text-3xl font-bold">Transaction Details</h1>
         <form className="w-full flex flex-col gap-6">
-          <div className="w-full flex flex-col gap-1">
+          <div className="flex flex-col gap-1">
             <label className="font-semibold" htmlFor="amount">
               Enter an amount (₱):
             </label>
@@ -94,7 +94,7 @@ export default function TransactionDetails() {
             />
           </div>
           {transactionType === "debit" && (
-            <div className="w-full flex flex-col gap-1">
+            <div className="flex flex-col gap-1">
               <label className="font-semibold" htmlFor="category">
                 Category:
               </label>
@@ -129,7 +129,7 @@ export default function TransactionDetails() {
             </div>
           )}
 
-          <div className="w-full flex flex-col gap-1">
+          <div className="flex flex-col gap-1">
             <label className="font-semibold" htmlFor="description">
               Description:
             </label>

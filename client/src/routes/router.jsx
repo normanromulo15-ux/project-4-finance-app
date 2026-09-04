@@ -6,6 +6,7 @@ import Login from "../pages/login.jsx";
 import Register from "../pages/register.jsx";
 import AccountOption from "../pages/accountOption.jsx";
 import FundTransfer from "../pages/fundTransfer.jsx";
+import Transactions from "../pages/transactions.jsx";
 import TransactionDetails from "../pages/transactionDetails.jsx";
 import TransactionSuccess from "../pages/transactionSuccess.jsx";
 
@@ -27,8 +28,13 @@ export const router = createBrowserRouter([
     element: <Register />,
   },
   {
+    path: "/transactions",
+    element: <Transactions />,
+  },
+  {
     path: "/transfer",
     element: <FundTransfer />,
+    loader: userDataLoader,
   },
   {
     path: "/:transactionType",

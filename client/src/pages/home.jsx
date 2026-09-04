@@ -10,6 +10,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import MoneyIcon from "@mui/icons-material/Money";
 import WalletIcon from "@mui/icons-material/Wallet";
 import SavingsIcon from "@mui/icons-material/Savings";
+import FundTransferIcon from "../components/fundTransferButton.jsx";
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState(null);
@@ -23,7 +24,7 @@ export default function Home() {
     { accountType: "savings", balance: null },
   ]);
   const [balanceVisibility, setBalanceVisibility] = useState(true);
-  const { cash, eWallet, savings } = useLoaderData().userBalances;
+  const { cash, eWallet, savings } = useLoaderData();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,7 +68,7 @@ export default function Home() {
   }
 
   return (
-    <main className="relative h-dvh flex flex-col justify-start gap-6 p-8">
+    <main className="relative h-dvh flex flex-col items-center justify-between p-8">
       <section className="w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-3 py-2 gap-2">
         <div className="flex items-center justify-between text-sm font-medium">
           <h1>SPENDING BALANCE AS OF {currentTime}:</h1>
@@ -146,7 +147,9 @@ export default function Home() {
           })}
         </div>
       </section>
-
+      <section>
+        <FundTransferIcon />
+      </section>
       <LogoutButton />
     </main>
   );

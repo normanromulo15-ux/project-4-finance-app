@@ -4,15 +4,15 @@ import { getUserFullName } from "../../services/app.js";
 
 export default async function userDataLoader() {
   try {
-    // Retrieve the user's full name and current balances for cash, eWallet, and savings accounts
-    const userFullName = await getUserFullName();
-    const userBalances = {
-      cash: await getCurrentBalance("cash"),
-      eWallet: await getCurrentBalance("eWallet"),
-      savings: await getCurrentBalance("savings"),
-    };
+    // Retrieve the user's full name and current balance data for cash, eWallet, and savings accounts
+    const [fullName, cash, eWallet, savings] = await Promise.all([
+      getUserFullName(),
+      getCurrentBalance("cash"),
+      getCurrentBalance("eWallet"),
+      getCurrentBalance("savings"),
+    ]);
 
-    return { userFullName, userBalances };
+    return { fullName, cash, eWallet, savings };
   } catch (error) {
     console.error(error);
     return redirect("/login");
