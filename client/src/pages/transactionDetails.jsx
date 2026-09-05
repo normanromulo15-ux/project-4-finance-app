@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { addTransaction } from "../services/app.js";
+import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter.js";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import { transactionCategories } from "../utils/transactionCategories.js";
 import BackButton from "../components/backButton.jsx";
@@ -64,11 +65,6 @@ export default function TransactionDetails() {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  // Function to capitalize the first letter of a string
-  function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
   return (

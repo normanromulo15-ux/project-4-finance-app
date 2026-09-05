@@ -111,7 +111,7 @@ export default function Login() {
         <p className="text-center text-sm ">
           Don't have an account?{" "}
           <span
-            className="font-medium underline"
+            className="font-semibold text-[#2830c9]"
             onClick={() => {
               console.log("Script to redirect to the register page.");
             }}
