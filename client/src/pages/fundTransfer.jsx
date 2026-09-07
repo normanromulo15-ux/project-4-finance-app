@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import { transferFunds } from "../services/app.js";
 import BackButton from "../components/backButton.jsx";
@@ -11,15 +11,20 @@ export default function FundTransfer() {
     transferAmount: "",
     transferFeePercentage: 0,
   });
-  const { transferAmount, transferFeePercentage } = transferDetails;
+  const {
+    originAccount,
+    destinationAccount,
+    transferAmount,
+    transferFeePercentage,
+  } = transferDetails;
   const [selectedOriginAccount, setSelectedOriginAccount] = useState({
     account: null,
     balance: null,
     displayName: null,
   });
-  const [enableSubmitButton, setEnableSubmitButton] = useState(false);
   const [finalTransferAmount, setFinalTransferAmount] = useState(null);
-  const { fullName, cash, eWallet, savings } = useLoaderData();
+  const { cash, eWallet, savings } = useLoaderData();
+  const navigate = useNavigate();
   const accountBalances = [
     {
       account: "cash",
@@ -41,7 +46,7 @@ export default function FundTransfer() {
   useEffect(() => {
     const amountToTransfer =
       Number(transferAmount) * (1 - Number(transferFeePercentage) / 100);
-    setFinalTransferAmount(formatCurrency(amountToTransfer) || "TBD");
+    setFinalTransferAmount(formatCurrency(amountToTransfer));
   }, [transferAmount, transferFeePercentage]);
 
   // Function to handle the user's inputs of the transfer details
@@ -62,9 +67,21 @@ export default function FundTransfer() {
   }
 
   // Function to handle the submission of the fund transfer
-  function handleFundTransferSubmission(e) {
+  async function handleFundTransferSubmission(e) {
     e.preventDefault();
-    console.log(transferDetails);
+    try {
+      const response = await transferFunds(transferDetails);
+      const {
+        storedFundTransferReferenceId: refNo,
+        storedFundTransferAmount: amount,
+        storedFundTransferTimestamp: timestamp,
+      } = response;
+      navigate(
+        `/transfer/success?refNo=${refNo}&amount=${amount}&timestamp=${timestamp}`,
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -86,6 +103,7 @@ export default function FundTransfer() {
               id="origin-account"
               name="originAccount"
               onChange={handleTransferDetails}
+              required
             >
               <option value="">--Select an origin account--</option>
               {accountBalances.map((e) => {
@@ -112,6 +130,7 @@ export default function FundTransfer() {
               id="destination-account"
               name="destinationAccount"
               onChange={handleTransferDetails}
+              required
             >
               <option value="">--Select a destination account--</option>
               {accountBalances
@@ -133,36 +152,51 @@ export default function FundTransfer() {
               className="cursor-text rounded-lg
             border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium"
               id="amount"
+              min={1}
               name="transferAmount"
-              placeholder="Amount must be greater than ₱0.00"
+              placeholder="Amount must be at least ₱1.00"
               onChange={handleTransferDetails}
               value={transferAmount}
               type="number"
+              required
             />
           </div>
           <div className="flex flex-col gap-2">
             <label className="font-semibold" htmlFor="transfer-fee">
-              Transfer Fee Percentage (%):
+              Transfer Fee Percentage (0% - 2%):
             </label>
             <input
               className="cursor-text rounded-lg
             border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium"
               id="transfer-fee"
+              min={0}
+              max={2}
               name="transferFeePercentage"
               placeholder="Value must be equal or greater than 0"
               type="number"
               value={transferFeePercentage}
               onChange={handleTransferDetails}
+              required
             />
           </div>
           <h2 className="font-semibold">
-            Amount To Be Credited:{" "}
+            Amount To Be Transferred:{" "}
             <span className={`font-bold text-[#2830c9]`}>
               {finalTransferAmount}
             </span>
           </h2>
           <button
             className="w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:bg-gray-300 disabled:cursor-not-allowed"
+            disabled={
+              !originAccount ||
+              !destinationAccount ||
+              !transferAmount ||
+              !(
+                transferFeePercentage >= 0 &&
+                transferFeePercentage <= 100 &&
+                transferFeePercentage !== ""
+              )
+            }
             type="submit"
           >
             Confirm

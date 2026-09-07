@@ -144,97 +144,72 @@ router.post("/transfer", authenticateUser, async (req, res) => {
 });
 
 // Add a daily interest based on the user's savings end-of-day balance
-router.post(
-  "/interest/:account",
-  authenticateUser,
-  retrieveLatestBalance,
-  async (req, res) => {
-    const client = await db.connect();
-    try {
-      const { sub: userId } = req.user;
-      const {
-        accountType: savingsAccount,
-        latestAccountBalance: latestSavingsBalance,
-        latestAccountBalanceTimestamp: latestSavingsBalanceTimestamp,
-      } = req;
+router.post("/interest", authenticateUser, async (req, res) => {
+  const client = await db.connect();
+  try {
+    const { sub: userId } = req.user;
+    const currentTimestamp = new Date().toISOString();
 
-      // Invalidate the request if the account type is not savings
-      if (savingsAccount !== "savings")
-        return res.status(422).json({ message: "Invalid Account" });
+    // Retrieve the previous savings account of the user
+    const { rows: previousSavingsBalanceData } = await client.query(
+      "SELECT balance, updated_at FROM accounts WHERE account = 'savings' AND user_id = $1 ORDER BY updated_at DESC LIMIT 1",
+      [userId],
+    );
 
-      const formattedPreviousBalanceDate = new Date(
-        latestSavingsBalanceTimestamp,
-      ).toLocaleDateString("en-PH", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      });
+    // Invalidate the request if there is no initialized savings balance
+    if (previousSavingsBalanceData.length === 0)
+      return res.status(404).json({ message: "Savings account not found." });
 
-      const dailyInterestDate = new Date().toLocaleDateString("en-PH", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      });
+    const {
+      balance: previousSavingsBalance,
+      updated_at: previousSavingsBalanceTimestamp,
+    } = previousSavingsBalanceData[0];
 
-      const dailyInterestRate = 0.035;
-      const withholdingTaxRate = 0.2;
-      const dailyInterest =
-        latestSavingsBalance *
-        dailyInterestRate *
-        (1 - withholdingTaxRate) *
-        (1 / 365);
+    // Retrieve the date of the previous savings account balance
+    const previousSavingsBalanceDate = previousSavingsBalanceTimestamp
+      .toISOString()
+      .split("T")[0];
 
-      const transactionId = crypto.randomBytes(6).toString("hex").toUpperCase();
-      const transactionDescription = `Interest credit for ${dailyInterestDate}.`;
+    // Retrieve the current date
+    const currentDate = currentTimestamp.split("T")[0];
 
-      // Invalidate the request if the daily interest has already been credited for the day
-      if (formattedPreviousBalanceDate === dailyInterestDate) {
-        return res.status(409).json({
-          message: "Error in adding interest.",
-        });
-      }
-
-      // Start a database connection
-      await client.query("BEGIN");
-
-      // Add the daily interest in the transactions table
-      const { rows: transaction } = await client.query(
-        "INSERT INTO transactions (user_id, reference_id,account,type,category,amount,description) VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING created_at",
-        [
-          userId,
-          transactionId,
-          savingsAccount,
-          "credit",
-          "Financial",
-          dailyInterest,
-          transactionDescription,
-        ],
-      );
-
-      // Retrieve the transaction timestamp
-      const transactionTimestamp = transaction[0].created_at;
-
-      // Compute the new savings balance of the user
-      const newSavingsBalance = Number(latestSavingsBalance) + dailyInterest;
-
-      // Update the savings account balance of the user stored in the database
-      await client.query(
-        "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
-        [userId, savingsAccount, newSavingsBalance, transactionTimestamp],
-      );
-
-      await client.query("COMMIT");
-
-      res.sendStatus(201);
-    } catch (error) {
-      console.error(error);
-      await client.query("ROLLBACK");
-      res.status(500).json({ message: "Internal Server Error" });
-    } finally {
-      client.release();
+    // Invalidate the request if the current date is the same to the previous savings balance date
+    if (currentDate === previousSavingsBalanceDate) {
+      return res
+        .status(409)
+        .json({ message: "Error in adding daily interest." });
     }
-  },
-);
+
+    const withHoldingTax = 0.2;
+    const interestRate = 0.035 * (1 - withHoldingTax);
+    const dailyInterestAmount =
+      Number(previousSavingsBalance) * interestRate * (1 / 365);
+    const newSavingsBalance =
+      Number(previousSavingsBalance) + dailyInterestAmount;
+
+    // Insert the daily interest amount to the interest_credits table
+    await client.query(
+      "INSERT INTO interest_credits (user_id, interest_amount, interest_date) VALUES ($1, $2, $3)",
+      [userId, dailyInterestAmount, currentDate],
+    );
+
+    /* Insert the latest savings account balance to the accounts table, with the daily interest account already credited*/
+    await client.query(
+      "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
+      [userId, "savings", newSavingsBalance, currentTimestamp],
+    );
+
+    await client.query("COMMIT");
+
+    res.sendStatus(201);
+  } catch (error) {
+    console.error(error);
+    await client.query("ROLLBACK");
+    res.status(500).json({ message: "Internal Server Error" });
+  } finally {
+    client.release();
+  }
+});
 
 // Retrieve the history of a user's transactions
 router.get("/transactions/:account", authenticateUser, async (req, res) => {

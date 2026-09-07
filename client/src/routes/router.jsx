@@ -37,6 +37,10 @@ export const router = createBrowserRouter([
     loader: userDataLoader,
   },
   {
+    path: "/transfer/success",
+    element: <TransactionSuccess />,
+  },
+  {
     path: "/:transactionType",
     element: <AccountOption />,
     loader: userDataLoader,

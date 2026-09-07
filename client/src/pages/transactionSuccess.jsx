@@ -24,7 +24,7 @@ export default function TransactionSuccess() {
           <span className="font-bold">Amount: </span>
           {transactionAmount}
         </h3>
-        <div className="w-full flex flex-between gap-7">
+        <div className="w-full flex justify-between">
           <h4 className="text-xs">
             <span className="font-bold">Ref No:</span> {referenceNumber}
           </h4>

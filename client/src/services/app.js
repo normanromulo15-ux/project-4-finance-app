@@ -11,12 +11,12 @@ export async function getCurrentBalance(account) {
 }
 
 // Function to add the daily interest to the savings account
-export async function addDailyInterest(account = "savings") {
+export async function addDailyInterest() {
   try {
-    const { data } = await api.post(`/interest/${account}`);
-    return data;
+    await api.post("/interest");
+    return;
   } catch (error) {
-    throw error;
+    console.error(error);
   }
 }
 
