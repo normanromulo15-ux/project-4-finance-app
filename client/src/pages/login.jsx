@@ -77,13 +77,8 @@ export default function Login() {
           required={true}
         />
         <div
-          className={`relative  border ${incorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}  py-2 px-3 rounded-lg flex`}
+          className={`relative border ${incorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}  py-2 px-3 rounded-lg flex`}
         >
-          {incorrectCredentials && (
-            <small className="absolute text-red-600 -top-20 text-sm font-semibold w-100">
-              Incorrect email or password.
-            </small>
-          )}
           <input
             className="flex-1 text-sm"
             type={showPassword ? "text" : "password"}
@@ -104,6 +99,11 @@ export default function Login() {
             <VisibilityIcon className="scale-85" onClick={handleShowPassword} />
           )}
         </div>
+        {incorrectCredentials && (
+          <small className="text-red-600 text-sm font-semibold">
+           Incorrect password.
+          </small>
+        )}
 
         <button className="flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white text-base font-medium ">
           <p>Sign In</p>

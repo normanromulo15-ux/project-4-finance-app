@@ -148,7 +148,9 @@ router.post("/interest", authenticateUser, async (req, res) => {
   const client = await db.connect();
   try {
     const { sub: userId } = req.user;
-    const currentTimestamp = new Date().toISOString();
+
+    // Retrieve the current timestamp object
+    const currentTimestamp = new Date();
 
     // Retrieve the previous savings account of the user
     const { rows: previousSavingsBalanceData } = await client.query(
@@ -166,12 +168,11 @@ router.post("/interest", authenticateUser, async (req, res) => {
     } = previousSavingsBalanceData[0];
 
     // Retrieve the date of the previous savings account balance
-    const previousSavingsBalanceDate = previousSavingsBalanceTimestamp
-      .toISOString()
-      .split("T")[0];
+    const previousSavingsBalanceDate =
+      previousSavingsBalanceTimestamp.toLocaleDateString("en-PH");
 
     // Retrieve the current date
-    const currentDate = currentTimestamp.split("T")[0];
+    const currentDate = currentTimestamp.toLocaleDateString("en-PH");
 
     // Invalidate the request if the current date is the same to the previous savings balance date
     if (currentDate === previousSavingsBalanceDate) {
@@ -196,7 +197,7 @@ router.post("/interest", authenticateUser, async (req, res) => {
     /* Insert the latest savings account balance to the accounts table, with the daily interest account already credited*/
     await client.query(
       "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
-      [userId, "savings", newSavingsBalance, currentTimestamp],
+      [userId, "savings", newSavingsBalance, currentTimestamp.toISOString()],
     );
 
     await client.query("COMMIT");
