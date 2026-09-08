@@ -101,7 +101,7 @@ export default function Login() {
         </div>
         {incorrectCredentials && (
           <small className="text-red-600 text-sm font-semibold">
-           Incorrect password.
+            Incorrect password.
           </small>
         )}
 

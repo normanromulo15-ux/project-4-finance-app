@@ -213,65 +213,28 @@ router.post("/interest", authenticateUser, async (req, res) => {
 });
 
 // Retrieve the history of a user's transactions
-router.get("/transactions/:account", authenticateUser, async (req, res) => {
+router.get("/transactions", authenticateUser, async (req, res) => {
   try {
     const { sub: userId } = req.user;
+    const { page } = req.query;
 
-    const accountTypes = ["savings", "eWallet", "cash"];
-    const accountType = accountTypes.find((e) => e === req.params.account);
+    const pageNumber = Number(page) || 1;
+    const entryLimit = 8;
+    const offset = (pageNumber - 1) * entryLimit;
 
-    // Invalidate the request if the account type  is undefined
-    if (!accountType)
-      return res.status(404).json({ message: "Account Not Found" });
-
-    // Retrieve the transaction history of an account according the specified span
-    const { rows: transactionRecords } = await db.query(
-      "SELECT reference_id,type, amount,category, description, created_at FROM transactions WHERE user_id = $1 AND account = $2 ORDER BY created_at DESC",
-      [userId, accountType],
+    // Retrieve the transaction history of a user
+    const { rows: transactionData } = await db.query(
+      "SELECT reference_id, account, type, amount, description, created_at FROM transactions WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
+      [Number(userId), entryLimit, offset],
     );
 
-    // Tell the user that there's no initial balance yet if the transaction records is empty
-    if (transactionRecords.length === 0)
-      return res.json({
-        message: "No balance yet in this account.",
-      });
+    // Return a 404 status if there's no transaction history yet
+    if (transactionData[0]?.length === 0) return res.sendStatus(404);
 
-    // Create a new instance to format the account balances in Philippine standards
-    const phpFormatter = new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-    });
-
-    // Modify each amount element in the transaction records by formatting it in Philippine currency
-    const formattedTransactionRecords = transactionRecords.map((e) => {
-      let displayAmount = phpFormatter.format(e.amount);
-      switch (e.type) {
-        case "credit":
-          displayAmount = `+${displayAmount}`;
-          break;
-
-        case "debit":
-          displayAmount = `-${displayAmount}`;
-          break;
-      }
-
-      return {
-        ...e,
-        amount: displayAmount,
-        created_at: new Date(e.created_at).toLocaleString("en-PH", {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-        }),
-      };
-    });
-
-    res.json(formattedTransactionRecords);
+    res.json({ transactionData });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.sendStatus(500);
   }
 });
 

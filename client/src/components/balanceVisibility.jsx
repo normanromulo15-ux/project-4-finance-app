@@ -11,7 +11,7 @@ export default function BalanceVisibility(props) {
       break;
 
     case "allAccounts":
-      widthValue = "2rem";
+      widthValue = "3rem";
       break;
   }
 
