@@ -7,6 +7,9 @@ import SavingsIcon from "@mui/icons-material/Savings";
 export default function Accounts(props) {
   const { cash, eWallet, savings, formatCurrency } = props;
 
+  const [cashBalance, setCashBalance] = useState(null);
+  const [eWalletBalance, setEWalletBalance] = useState(null);
+  const [savingsBalance, setSavingsBalance] = useState(null);
   const [accountBalances, setAccountBalances] = useState([
     { accountType: "cash", balance: null },
     { accountType: "eWallet", balance: null },
@@ -15,21 +18,33 @@ export default function Accounts(props) {
   const [balanceVisibility, setBalanceVisibility] = useState(true);
 
   useEffect(() => {
+    setCashBalance(formatCurrency(cash.latestAccountBalance));
+  }, [cashBalance]);
+
+  useEffect(() => {
+    setEWalletBalance(formatCurrency(eWallet.latestAccountBalance));
+  }, [eWalletBalance]);
+
+  useEffect(() => {
+    setSavingsBalance(formatCurrency(savings.latestAccountBalance));
+  }, [savingsBalance]);
+
+  useEffect(() => {
     setAccountBalances([
       {
         accountType: "cash",
-        balance: formatCurrency(cash.latestAccountBalance),
+        balance: cashBalance,
       },
       {
         accountType: "eWallet",
-        balance: formatCurrency(eWallet.latestAccountBalance),
+        balance: eWalletBalance,
       },
       {
         accountType: "savings",
-        balance: formatCurrency(savings.latestAccountBalance),
+        balance: savingsBalance,
       },
     ]);
-  }, []);
+  }, [cashBalance, eWalletBalance, savingsBalance]);
 
   // Function to handle the visibility of a balance
   function handleBalanceVisibility() {

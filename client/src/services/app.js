@@ -49,3 +49,13 @@ export async function transferFunds(transferDetails) {
     throw error;
   }
 }
+
+// Function to retrieve the transaction history of a user
+export async function getTransactionHistory() {
+  try {
+    const { data } = await api.get("/transactions");
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}

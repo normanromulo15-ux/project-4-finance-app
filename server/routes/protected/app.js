@@ -219,7 +219,11 @@ router.get("/transactions", authenticateUser, async (req, res) => {
     const { page } = req.query;
 
     const pageNumber = Number(page) || 1;
-    const entryLimit = 8;
+
+    // Invalidate the request if the page number is less than 0
+    if (pageNumber < 0) return res.sendStatus(404);
+
+    const entryLimit = 5;
     const offset = (pageNumber - 1) * entryLimit;
 
     // Retrieve the transaction history of a user
@@ -228,7 +232,7 @@ router.get("/transactions", authenticateUser, async (req, res) => {
       [Number(userId), entryLimit, offset],
     );
 
-    // Return a 404 status if there's no transaction history yet
+    // Invalidate the request if there's no transaction history yet
     if (transactionData[0]?.length === 0) return res.sendStatus(404);
 
     res.json({ transactionData });

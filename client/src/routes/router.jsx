@@ -12,6 +12,7 @@ import TransactionSuccess from "../pages/transactionSuccess.jsx";
 
 // Loaders
 import userDataLoader from "./loaders/userDataLoader.js";
+import transactionsLoader from "./loaders/transactionsLoader.js";
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
   {
     path: "/transactions",
     element: <Transactions />,
+    loader: transactionsLoader,
   },
   {
     path: "/transfer",

@@ -1,6 +1,6 @@
 export function formatTimestamp(ISOTimestamp) {
   const formattedTimestamp = new Date(ISOTimestamp).toLocaleString("en-PH", {
-    month: "long",
+    month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
