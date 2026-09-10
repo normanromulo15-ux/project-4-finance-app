@@ -28,10 +28,11 @@ export default function LogoutButton() {
   return (
     <>
       <button
-        className="cursor-pointer absolute right-3 bottom-4 text-black scale-95"
+        className="cursor-pointer flex gap-1 items-center absolute right-3 bottom-4 text-black scale-95"
         onClick={handleShowLogoutConfirmation}
       >
-        <ExitToAppIcon />
+        <ExitToAppIcon sx={{ scale: 0.9 }} />
+        <p className="font-medium">Logout</p>
       </button>
       {showLogoutConfirmation && (
         <LogoutConfirmation

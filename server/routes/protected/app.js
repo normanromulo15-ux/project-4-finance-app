@@ -7,6 +7,11 @@ import { transactionCategories } from "../../utils/transactionCategories.js";
 
 const router = express.Router();
 
+// Route to check whether a user is authenticated
+router.get("/authentication", authenticateUser, async (_, res) => {
+  res.sendStatus(200);
+});
+
 // Add a fund transfer from one account to another account
 router.post("/transfer", authenticateUser, async (req, res) => {
   const client = await db.connect();
@@ -226,16 +231,24 @@ router.get("/transactions", authenticateUser, async (req, res) => {
     const entryLimit = 5;
     const offset = (pageNumber - 1) * entryLimit;
 
-    // Retrieve the transaction history of a user
-    const { rows: transactionData } = await db.query(
-      "SELECT reference_id, account, type, amount, description, created_at FROM transactions WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
-      [Number(userId), entryLimit, offset],
-    );
+    // Retrieve the transaction history of a user and count all of its transaction entries
+    const [firstQuery, secondQuery] = await Promise.all([
+      db.query(
+        "SELECT reference_id, account, type, amount, description, created_at FROM transactions WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
+        [Number(userId), entryLimit, offset],
+      ),
+      db.query("SELECT COUNT(*) FROM transactions WHERE user_id = $1", [
+        Number(userId),
+      ]),
+    ]);
+    const { rows: transactionData } = firstQuery;
+    const { rows: rowCount } = secondQuery;
+    const totalLength = rowCount[0].count;
 
     // Invalidate the request if there's no transaction history yet
     if (transactionData[0]?.length === 0) return res.sendStatus(404);
 
-    res.json({ transactionData });
+    res.json({ transactionData, totalLength });
   } catch (error) {
     console.error(error);
     res.sendStatus(500);

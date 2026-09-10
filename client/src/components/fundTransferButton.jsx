@@ -10,7 +10,7 @@ export default function FundTransfer() {
         navigate("/transfer");
       }}
     >
-      <CurrencyExchangeIcon/>
+      <CurrencyExchangeIcon />
       <p className="font-semibold border-b-2">Transfer</p>
     </button>
   );

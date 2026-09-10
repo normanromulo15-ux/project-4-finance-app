@@ -1,5 +1,15 @@
 import api from "./api.js";
 
+// Function to check if a user is authenticated
+export async function checkAuthentication() {
+  try {
+    await api.get("/authentication");
+    return;
+  } catch (error) {
+    throw error;
+  }
+}
+
 // Function to get a user's current balance of a certain account
 export async function getCurrentBalance(account) {
   try {
@@ -51,10 +61,9 @@ export async function transferFunds(transferDetails) {
 }
 
 // Function to retrieve the transaction history of a user
-export async function getTransactionHistory() {
+export async function getTransactionHistory(page = "1") {
   try {
-    const { data } = await api.get("/transactions");
-    return data;
+    return await api.get("/transactions", { params: { page } });
   } catch (error) {
     throw error;
   }
