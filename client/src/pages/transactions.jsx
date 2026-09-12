@@ -11,9 +11,10 @@ export default function Transactions() {
   const [totalEntries, setTotalEntries] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const page = searchParams.get("page") || "1";
+  const defaultPage = localStorage.getItem("page") || page;
 
   useEffect(() => {
-    setSearchParams({ page: "1" });
+    setSearchParams({ page: defaultPage });
   }, []);
 
   useEffect(() => {
@@ -34,7 +35,9 @@ export default function Transactions() {
 
   // Function to handle the page navigation
   function handlePageNavigation(page) {
-    setSearchParams({ page });
+    const navigatedPage = String(page);
+    localStorage.setItem("page", navigatedPage);
+    setSearchParams({ page: navigatedPage });
   }
 
   return (
@@ -66,12 +69,12 @@ export default function Transactions() {
           })}
         </section>
         <PageNavigationBar
-          entryLength={totalEntries}
+          totalEntries={totalEntries}
           handlePageNavigation={handlePageNavigation}
-          page={page}
+          currentPage={Number(page)}
         />
       </div>
-      <BackButton endpoint={"/"} />
+      <BackButton endpoint={"/"} page={"transactions"} />
     </>
   );
 }

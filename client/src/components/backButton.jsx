@@ -2,11 +2,14 @@ import { useNavigate } from "react-router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export default function BackButton(props) {
-  const { endpoint } = props;
+  const { endpoint, page } = props;
   const navigate = useNavigate();
 
   // Function to handle back navigation
   function handleBackNavigation() {
+    if (page === "transactions") {
+      localStorage.removeItem("page");
+    }
     navigate(endpoint);
   }
 

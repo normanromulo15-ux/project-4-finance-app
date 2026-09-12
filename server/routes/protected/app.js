@@ -211,7 +211,7 @@ router.post("/interest", authenticateUser, async (req, res) => {
   } catch (error) {
     console.error(error);
     await client.query("ROLLBACK");
-    res.status(500).json({ message: "Internal Server Error" });
+    res.sendStatus(500);
   } finally {
     client.release();
   }
@@ -246,7 +246,7 @@ router.get("/transactions", authenticateUser, async (req, res) => {
     const totalLength = rowCount[0].count;
 
     // Invalidate the request if there's no transaction history yet
-    if (transactionData[0]?.length === 0) return res.sendStatus(404);
+    if (transactionData.length === 0) return res.sendStatus(404);
 
     res.json({ transactionData, totalLength });
   } catch (error) {
