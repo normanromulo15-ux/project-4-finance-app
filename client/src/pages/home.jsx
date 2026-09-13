@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLoaderData } from "react-router";
 import { formatCurrency } from "../utils/formatCurrency.js";
 import { addDailyInterest } from "../services/app.js";
-import Header from "../components/header.jsx";
-import Navigation from "../components/navigation.jsx";
-import Accounts from "../components/accounts.jsx";
+import Header from "../layout/header.jsx";
+import Navigation from "../layout/navigation.jsx";
+import Accounts from "../layout/accounts.jsx";
 import LogoutButton from "../components/logoutButton.jsx";
 
 export default function Home() {

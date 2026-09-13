@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import BalanceVisibility from "./balanceVisibility.jsx";
+import BalanceVisibility from "../components/balanceVisibility.jsx";
 import MoneyIcon from "@mui/icons-material/Money";
 import WalletIcon from "@mui/icons-material/Wallet";
 import SavingsIcon from "@mui/icons-material/Savings";

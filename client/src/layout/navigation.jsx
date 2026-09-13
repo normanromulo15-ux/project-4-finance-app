@@ -1,6 +1,6 @@
-import FundTransfer from "./fundTransferButton.jsx";
-import Transactions from "./transactionsButton.jsx";
-import AccountMenu from "./profileMenu.jsx";
+import FundTransfer from "../components/fundTransferButton.jsx";
+import Transactions from "../components/transactionsButton.jsx";
+import AccountMenu from "../components/profileMenu.jsx";
 
 export default function Navigation() {
   return (

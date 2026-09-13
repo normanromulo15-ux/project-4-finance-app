@@ -2,10 +2,13 @@ export default function PageNavigationBar(props) {
   const { totalEntries, handlePageNavigation, currentPage } = props;
   const maxEntriesPerPage = 5;
   const maxVisiblePageButtons = 5;
-  const totalNumberOfPages = 8; /*Math.ceil(totalEntries / maxEntriesPerPage);*/
+  const totalNumberOfPages = Math.ceil(totalEntries / maxEntriesPerPage);
   const startingPageNumber =
     currentPage >= 4 && totalNumberOfPages > maxVisiblePageButtons
-      ? currentPage - 2
+      ? Math.min(
+          currentPage - 2,
+          totalNumberOfPages - maxVisiblePageButtons + 1,
+        )
       : 1;
   const endingPageNumber = Math.min(
     totalNumberOfPages,
