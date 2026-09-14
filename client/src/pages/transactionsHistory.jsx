@@ -57,7 +57,7 @@ export default function Transactions() {
                 <div className="flex items-center">
                   <p className="flex-3 font-semibold">{e.description}</p>
                   <p
-                    className={`flex-2 text-end font-bold ${e.type === "credit" ? "text-green-600" : "text-red-600"}`}
+                    className={`flex-2 text-end font-semibold ${e.type === "credit" ? "text-green-600" : "text-red-600"}`}
                   >
                     {e.type === "credit"
                       ? `+${formatCurrency(Number(e.amount))}`

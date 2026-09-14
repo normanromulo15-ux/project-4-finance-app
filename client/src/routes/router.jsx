@@ -6,7 +6,7 @@ import Login from "../pages/login.jsx";
 import Register from "../pages/register.jsx";
 import AccountOption from "../pages/accountOption.jsx";
 import FundTransfer from "../pages/fundTransfer.jsx";
-import Transactions from "../pages/transactions.jsx";
+import Transactions from "../pages/transactionsHistory.jsx";
 import TransactionDetails from "../pages/transactionDetails.jsx";
 import TransactionSuccess from "../pages/transactionSuccess.jsx";
 

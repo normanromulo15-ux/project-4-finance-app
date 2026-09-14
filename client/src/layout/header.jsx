@@ -1,14 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { formatCurrentTime } from "../utils/formatCurrentTime.js";
+
+// Components
 import BalanceVisibility from "../components/balanceVisibility.jsx";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 
 export default function Header(props) {
+  const defaultBalanceVisibility = localStorage.getItem(
+    "spendingBalanceVisibility",
+  );
   const { cash, eWallet, formatCurrency } = props;
   const [currentTime, setCurrentTime] = useState(null);
-  const [balanceVisibility, setBalanceVisibility] = useState(true);
+  const [balanceVisibility, setBalanceVisibility] = useState(
+    Boolean(defaultBalanceVisibility),
+  );
   const [spendingBalance, setSpendingBalance] = useState(null);
   const navigate = useNavigate();
 
@@ -31,7 +38,16 @@ export default function Header(props) {
 
   // Function to handle the visibility of a balance
   function handleBalanceVisibility() {
-    setBalanceVisibility((prev) => !prev);
+    setBalanceVisibility((prev) => {
+      switch (prev) {
+        case true:
+          localStorage.setItem("spendingBalanceVisibility", "");
+          return false;
+        case false:
+          localStorage.setItem("spendingBalanceVisibility", "Yes");
+          return true;
+      }
+    });
   }
 
   // Function to handle the transaction

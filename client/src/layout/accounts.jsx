@@ -5,8 +5,10 @@ import WalletIcon from "@mui/icons-material/Wallet";
 import SavingsIcon from "@mui/icons-material/Savings";
 
 export default function Accounts(props) {
+  const accountsBalanceVisibility = localStorage.getItem(
+    "accountsBalanceVisibility",
+  );
   const { cash, eWallet, savings, formatCurrency } = props;
-
   const [cashBalance, setCashBalance] = useState(null);
   const [eWalletBalance, setEWalletBalance] = useState(null);
   const [savingsBalance, setSavingsBalance] = useState(null);
@@ -15,7 +17,9 @@ export default function Accounts(props) {
     { accountType: "eWallet", balance: null },
     { accountType: "savings", balance: null },
   ]);
-  const [balanceVisibility, setBalanceVisibility] = useState(true);
+  const [balanceVisibility, setBalanceVisibility] = useState(
+    Boolean(accountsBalanceVisibility),
+  );
 
   useEffect(() => {
     setCashBalance(formatCurrency(cash.latestAccountBalance));
@@ -48,7 +52,16 @@ export default function Accounts(props) {
 
   // Function to handle the visibility of a balance
   function handleBalanceVisibility() {
-    setBalanceVisibility((prev) => !prev);
+    setBalanceVisibility((prev) => {
+      switch (prev) {
+        case true:
+          localStorage.setItem("accountsBalanceVisibility", "");
+          return false;
+        case false:
+          localStorage.setItem("accountsBalanceVisibility", "Yes");
+          return true;
+      }
+    });
   }
 
   return (
