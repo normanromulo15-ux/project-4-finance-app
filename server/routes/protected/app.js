@@ -454,4 +454,24 @@ router.get(
   },
 );
 
+// Retrieve the accrued daily interest of a user in his savings account
+router.get("/interest/total", authenticateUser, async (req, res) => {
+  try {
+    const { sub: userId } = req.user;
+    const { rows } = await db.query(
+      "SELECT SUM(interest_amount) FROM interest_credits WHERE user_id = $1",
+      [Number(userId)],
+    );
+
+    // Invalidate the request if there is no recorded interest
+    if (!rows) return res.sendStatus(404);
+
+    const totalEarnedInterest = rows[0].sum;
+
+    res.json({ totalEarnedInterest });
+  } catch (error) {
+    res.sendStatus(500);
+  }
+});
+
 export default router;

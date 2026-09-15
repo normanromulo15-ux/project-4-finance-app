@@ -18,7 +18,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative h-dvh flex flex-col items-center justify-start gap-8 p-8">
+    <div className="relative h-dvh flex flex-col items-center justify-start gap-12 p-8 pt-10">
       <Header cash={cash} eWallet={eWallet} formatCurrency={formatCurrency} />
       <Navigation />
       <Accounts

@@ -5,6 +5,7 @@ import { transferFunds } from "../services/app.js";
 import BackButton from "../components/backButton.jsx";
 
 export default function FundTransfer() {
+  const [amountInputType, setAmountInputType] = useState("number");
   const [transferDetails, setTransferDetails] = useState({
     originAccount: "",
     destinationAccount: "",
@@ -155,9 +156,15 @@ export default function FundTransfer() {
               min={1}
               name="transferAmount"
               placeholder="Amount must be at least ₱1.00"
+              onBlur={() => setAmountInputType("text")}
+              onFocus={() => setAmountInputType("number")}
               onChange={handleTransferDetails}
-              value={transferAmount}
-              type="number"
+              value={
+                amountInputType === "number"
+                  ? transferAmount
+                  : formatCurrency(transferAmount)
+              }
+              type={amountInputType}
               required
             />
           </div>

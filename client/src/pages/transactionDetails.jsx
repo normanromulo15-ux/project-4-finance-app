@@ -9,6 +9,7 @@ import TransactionConfirmation from "../components/overlays/transactionConfirmat
 
 export default function TransactionDetails() {
   const navigate = useNavigate();
+  const [amountInputType, setAmountInputType] = useState("number");
   const [transactionDetails, setTransactionDetails] = useState({
     account: "",
     amount: "",
@@ -82,11 +83,15 @@ export default function TransactionDetails() {
             border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium"
               id="amount"
               name="amount"
+              onBlur={() => setAmountInputType("text")}
+              onFocus={() => setAmountInputType("number")}
               onChange={handleTransactionDetailsInput}
               placeholder="Amount must be greater than ₱0.00"
               required={true}
-              type="number"
-              value={amount}
+              type={amountInputType}
+              value={
+                amountInputType === "number" ? amount : formatCurrency(amount)
+              }
             />
           </div>
           {transactionType === "debit" && (
