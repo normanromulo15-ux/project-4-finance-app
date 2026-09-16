@@ -439,7 +439,7 @@ router.post("/transaction", authenticateUser, async (req, res) => {
 
 // Retrieve the latest balance of a user's account
 router.get(
-  "/balances/:account",
+  "/balance/:account",
   authenticateUser,
   retrieveLatestBalance,
   (req, res) => {
@@ -469,6 +469,77 @@ router.get("/interest/total", authenticateUser, async (req, res) => {
     const totalEarnedInterest = rows[0].sum;
 
     res.json({ totalEarnedInterest });
+  } catch (error) {
+    res.sendStatus(500);
+  }
+});
+
+// Retrieve the history of an account according to the specified period
+router.get("/history/:account", authenticateUser, async (req, res) => {
+  try {
+    const { sub: userId } = req.user;
+    const accountType = req.params.account;
+    const selectedPeriod = req.query.period;
+
+    const accounts = ["cash", "eWallet", "savings"];
+    const periods = [
+      {
+        duration: "day",
+        numberOfSeconds: 86.4e3,
+      },
+      {
+        duration: "week",
+        numberOfSeconds: 604.8e3,
+      },
+      {
+        duration: "month",
+        numberOfSeconds: 2.592e6,
+      },
+      {
+        duration: "year",
+        numberOfSeconds: 31.536e6,
+      },
+    ];
+    const account = accounts.find((e) => e === accountType);
+    const period = periods.find((e) => e.duration === selectedPeriod);
+
+    // Invalidate the request if no account or no period is found
+    if (!account || !period) return res.sendStatus(404);
+
+    const { duration, numberOfSeconds } = period;
+
+    // Retrieve all balance history of an account
+    const { rows } = await db.query(
+      "SELECT id, balance, updated_at FROM accounts WHERE user_id = $1 AND account = $2 ORDER BY updated_at DESC",
+      [Number(userId), account],
+    );
+
+    const balanceHistory = rows.map((e) => {
+      return {
+        ...e,
+        updated_at: Math.floor(new Date(e.updated_at).valueOf() / 1e3),
+      };
+    });
+
+    // Retrieve the latest balance unix timestamp in seconds
+    const latestBalanceUnixTimeStamp = balanceHistory[0].updated_at;
+
+    // Filter balances that are only covered within the specified period
+    const filteredBalances = balanceHistory.filter(
+      (e) =>
+        e.updated_at <= latestBalanceUnixTimeStamp &&
+        e.updated_at >= latestBalanceUnixTimeStamp - numberOfSeconds,
+    );
+
+    // Format the filtered balance to a user-readable format
+    const formattedFilteredBalances = filteredBalances.map((e) => {
+      return {
+        ...e,
+        updated_at: new Date(e.updated_at * 1e3),
+      };
+    });
+
+    res.json({ account, duration, formattedFilteredBalances });
   } catch (error) {
     res.sendStatus(500);
   }

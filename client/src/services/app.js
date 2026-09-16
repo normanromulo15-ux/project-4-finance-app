@@ -13,7 +13,7 @@ export async function checkAuthentication() {
 // Function to get a user's current balance of a certain account
 export async function getCurrentBalance(account) {
   try {
-    const { data } = await api.get(`/balances/${account}`);
+    const { data } = await api.get(`/balance/${account}`);
     return data;
   } catch (error) {
     throw error;

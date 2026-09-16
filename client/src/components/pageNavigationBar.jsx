@@ -24,7 +24,7 @@ export default function PageNavigationBar(props) {
   return (
     <section className="flex justify-center gap-1">
       <button
-        className="cursor-pointer p-1 border font-medium text-sm rounded-md disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-600"
+        className="hover:bg-gray-200 cursor-pointer p-1 border font-medium text-sm rounded-md disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-600"
         disabled={currentPage === 1}
         onClick={() => {
           handlePageNavigation(currentPage - 1);
@@ -36,7 +36,7 @@ export default function PageNavigationBar(props) {
         return (
           <button
             key={pageNumber}
-            className={`cursor-pointer px-2 py-1 border font-medium rounded-md ${currentPage === pageNumber && "text-white bg-[#2830c9] border-neutral-400"}`}
+            className={`hover:bg-gray-200 cursor-pointer px-2 py-1 border font-medium rounded-md ${currentPage === pageNumber && "text-white bg-[#2830c9] border-neutral-400"}`}
             onClick={() => {
               handlePageNavigation(pageNumber);
             }}
@@ -46,7 +46,7 @@ export default function PageNavigationBar(props) {
         );
       })}
       <button
-        className="cursor-pointer p-1 border font-medium text-sm rounded-md disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-600"
+        className="hover:bg-gray-200 cursor-pointer p-1 border font-medium text-sm rounded-md disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-600"
         disabled={currentPage === totalNumberOfPages}
         onClick={() => {
           handlePageNavigation(currentPage + 1);
