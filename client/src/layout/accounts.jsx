@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import BalanceVisibility from "../components/balanceVisibility.jsx";
 import MoneyIcon from "@mui/icons-material/Money";
 import WalletIcon from "@mui/icons-material/Wallet";
@@ -20,6 +21,7 @@ export default function Accounts(props) {
   const [balanceVisibility, setBalanceVisibility] = useState(
     Boolean(accountsBalanceVisibility),
   );
+  const navigate = useNavigate();
 
   useEffect(() => {
     setCashBalance(formatCurrency(cash.latestAccountBalance));
@@ -76,7 +78,7 @@ export default function Accounts(props) {
       </div>
       <div className="grid grid-cols-2 gap-3">
         {accountBalances.map((e) => {
-          const accountBalance = e.balance;
+          const { accountType, balance: accountBalance } = e;
           let accountName;
           let AccountIcon;
 
@@ -98,7 +100,8 @@ export default function Accounts(props) {
           return (
             <div
               className="flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4"
-              key={e.accountType}
+              key={accountType}
+              onClick={() => navigate(`/accounts/${accountType}?period=week`)}
             >
               <div className="flex items-center justify-start text-xl font-semibold gap-2">
                 {AccountIcon}

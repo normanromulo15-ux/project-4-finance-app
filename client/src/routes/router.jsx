@@ -4,6 +4,7 @@ import { createBrowserRouter } from "react-router";
 import Home from "../pages/home.jsx";
 import Login from "../pages/login.jsx";
 import Register from "../pages/register.jsx";
+import AccountDashboard from "../pages/accountDashboard.jsx";
 import AccountOption from "../pages/accountOption.jsx";
 import FundTransfer from "../pages/fundTransfer.jsx";
 import Transactions from "../pages/transactionsHistory.jsx";
@@ -12,7 +13,7 @@ import TransactionSuccess from "../pages/transactionSuccess.jsx";
 
 // Loaders
 import userDataLoader from "./loaders/userDataLoader.js";
-import transactionsLoader from "./loaders/transactionsLoader.js";
+import authLoader from "./loaders/authLoader.js";
 
 export const router = createBrowserRouter([
   {
@@ -31,7 +32,7 @@ export const router = createBrowserRouter([
   {
     path: "/transactions",
     element: <Transactions />,
-    loader: transactionsLoader,
+    loader: authLoader,
   },
   {
     path: "/transfer",
@@ -41,6 +42,11 @@ export const router = createBrowserRouter([
   {
     path: "/transfer/success",
     element: <TransactionSuccess />,
+  },
+  {
+    path: "/accounts/:account",
+    element: <AccountDashboard />,
+    loader: authLoader,
   },
   {
     path: "/:transactionType",

@@ -506,7 +506,7 @@ router.get("/history/:account", authenticateUser, async (req, res) => {
     // Invalidate the request if no account or no period is found
     if (!account || !period) return res.sendStatus(404);
 
-    const { duration, numberOfSeconds } = period;
+    const { numberOfSeconds } = period;
 
     // Retrieve all balance history of an account
     const { rows } = await db.query(
@@ -525,21 +525,21 @@ router.get("/history/:account", authenticateUser, async (req, res) => {
     const latestBalanceUnixTimeStamp = balanceHistory[0].updated_at;
 
     // Filter balances that are only covered within the specified period
-    const filteredBalances = balanceHistory.filter(
+    const periodBalances = balanceHistory.filter(
       (e) =>
         e.updated_at <= latestBalanceUnixTimeStamp &&
         e.updated_at >= latestBalanceUnixTimeStamp - numberOfSeconds,
     );
 
     // Format the filtered balance to a user-readable format
-    const formattedFilteredBalances = filteredBalances.map((e) => {
+    const formattedPeriodBalances = periodBalances.map((e) => {
       return {
         ...e,
         updated_at: new Date(e.updated_at * 1e3),
       };
     });
 
-    res.json({ account, duration, formattedFilteredBalances });
+    res.json({ formattedPeriodBalances });
   } catch (error) {
     res.sendStatus(500);
   }

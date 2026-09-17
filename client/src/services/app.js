@@ -68,3 +68,17 @@ export async function getTransactionHistory(page = "1") {
     throw error;
   }
 }
+
+// Function to retrieve an account's balance history according to a specific period
+export async function getAccountBalanceHistory(account, period) {
+  try {
+    const { data } = await api.get(`/history/${account}`, {
+      params: {
+        period,
+      },
+    });
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}

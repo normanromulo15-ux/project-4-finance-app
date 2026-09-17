@@ -1,7 +1,7 @@
 import { redirect } from "react-router";
 import { checkAuthentication } from "../../services/app.js";
 
-export default async function transactionsLoader() {
+export default async function authLoader() {
   try {
     await checkAuthentication();
     return;
