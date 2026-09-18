@@ -3,16 +3,22 @@ import { useParams, useSearchParams } from "react-router";
 import { getAccountBalanceHistory } from "../services/app.js";
 import { getTotalInterest } from "../services/app.js";
 import { formatCurrency } from "../utils/formatters.js";
+import { accounts } from "../utils/constants.js";
+import NetChangeIndicator from "../components/netChangeIndicator.jsx";
 import PeriodSelector from "../components/periodSelector.jsx";
 import BalanceHistory from "../components/areaChartForBalances.jsx";
 import BackButton from "../components/backButton.jsx";
 
 export default function AccountDashboard() {
   const { account } = useParams();
+  const selectedAccount = accounts.find((e) => e.value === account);
   const [searchParams, setSearchParams] = useSearchParams();
   const period = searchParams.get("period") || "week";
   const [displayBalance, setDisplayBalance] = useState("");
   const [balances, setBalances] = useState([]);
+  const [numericBalanceDifference, setNumericBalanceDifference] = useState(0);
+  const [balanceDifference, setBalanceDifference] = useState("");
+  const [netChangePercentage, setNetChangePercentage] = useState(null);
   const [interestEarned, setInterestEarned] = useState(null);
 
   useEffect(() => {
@@ -24,16 +30,25 @@ export default function AccountDashboard() {
   }, []);
 
   useEffect(() => {
-    handleGetAccountBalanceHistory();
+    handleGetAccountBalanceInfo();
   }, [period]);
 
-  // Function to handle the retrieval of an account's balance over a specified period
-  async function handleGetAccountBalanceHistory() {
+  // Function to handle the retrieval of an account's balance info over a specified period
+  async function handleGetAccountBalanceInfo() {
     try {
       const response = await getAccountBalanceHistory(account, period);
       const { formattedPeriodBalances } = response;
-      const { balance } = formattedPeriodBalances[0];
-      setDisplayBalance(formatCurrency(Number(balance)));
+      const { balance: latestPeriodBalance } = formattedPeriodBalances[0];
+      const { balance: firstPeriodBalance } =
+        formattedPeriodBalances[formattedPeriodBalances.length - 1];
+      const balanceDifference =
+        Number(latestPeriodBalance) - Number(firstPeriodBalance);
+      setNetChangePercentage(
+        `${((balanceDifference / firstPeriodBalance) * 100).toFixed(2)}%`,
+      );
+      setNumericBalanceDifference(balanceDifference);
+      setDisplayBalance(formatCurrency(Number(latestPeriodBalance)));
+      setBalanceDifference(formatCurrency(balanceDifference));
       setBalances(formattedPeriodBalances.toReversed());
     } catch (error) {
       console.error(error);
@@ -43,9 +58,16 @@ export default function AccountDashboard() {
   return (
     <>
       <div className="h-dvh flex flex-col gap-8 p-8 pt-12">
-        <header>
-          <h1 className="font-normal text-2xl">Available Balance</h1>
+        <header className="flex flex-col gap-2">
+          <h1 className="font-normal text-2xl">
+            {selectedAccount.title} Available Balance
+          </h1>
           <h2 className="font-semibold text-4xl">{displayBalance}</h2>
+          <NetChangeIndicator
+            balanceDifference={balanceDifference}
+            netChangePercentage={netChangePercentage}
+            numericBalanceDifference={numericBalanceDifference}
+          />
         </header>
         <PeriodSelector
           period={period}
@@ -54,11 +76,11 @@ export default function AccountDashboard() {
         <BalanceHistory balances={balances} />
         {account === "savings" && (
           <div className="rounded-lg border border-[#2830C9] border-t-4 p-2 bg-blue-50 text-blue-900">
-            <h3 className="text-lg">
+            <h5 className="text-lg">
               Total Interest Earned:{" "}
               <span className="font-medium">{interestEarned}</span>
-            </h3>
-            <h4 className="text-xs">Since August 4, 2026</h4>
+            </h5>
+            <h6 className="text-xs">Since August 4, 2026</h6>
           </div>
         )}
       </div>
