@@ -1,3 +1,4 @@
+// List of transaction categories
 export const transactionCategories = [
   "Income",
   "Housing",
@@ -14,4 +15,18 @@ export const transactionCategories = [
   "Government",
   "Communication",
   "Technology",
+];
+
+// List of periods
+export const periods = [
+  {
+    title: "1D",
+    value: "day",
+  },
+  {
+    title: "1W",
+    value: "week",
+  },
+  { title: "1M", value: "month" },
+  { title: "1Y", value: "year" },
 ];

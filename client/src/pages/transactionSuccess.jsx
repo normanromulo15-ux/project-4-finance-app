@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from "react-router";
-import { formatTimestamp } from "../utils/formatTimestamp.js";
-import { formatCurrency } from "../utils/formatCurrency.js";
+import { formatTimestamp } from "../utils/formatters.js";
+import { formatCurrency } from "../utils/formatters.js";
 
 export default function TransactionSuccess() {
   const [searchParams] = useSearchParams();

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLoaderData } from "react-router";
-import { formatCurrency } from "../utils/formatCurrency.js";
+import { formatCurrency } from "../utils/formatters.js";
 import { addDailyInterest } from "../services/app.js";
 import Header from "../layout/header.jsx";
 import Navigation from "../layout/navigation.jsx";

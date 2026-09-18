@@ -82,3 +82,13 @@ export async function getAccountBalanceHistory(account, period) {
     console.error(error);
   }
 }
+
+// Function to retrieve the accrued daily interest of a user's savings account
+export async function getTotalInterest() {
+  try {
+    const { data } = await api.get("/interest/total");
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}

@@ -1,22 +1,27 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router";
 import { getAccountBalanceHistory } from "../services/app.js";
-import { formatCurrency } from "../utils/formatCurrency.js";
-import {
-  CartesianGrid,
-  AreaChart,
-  Area,
-  Line,
-  LineChart,
-  YAxis,
-} from "recharts";
+import { getTotalInterest } from "../services/app.js";
+import { formatCurrency } from "../utils/formatters.js";
+import PeriodSelector from "../components/periodSelector.jsx";
+import BalanceHistory from "../components/areaChartForBalances.jsx";
+import BackButton from "../components/backButton.jsx";
 
 export default function AccountDashboard() {
   const { account } = useParams();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const period = searchParams.get("period") || "week";
   const [displayBalance, setDisplayBalance] = useState("");
   const [balances, setBalances] = useState([]);
+  const [interestEarned, setInterestEarned] = useState(null);
+
+  useEffect(() => {
+    const totalInterest = async () => {
+      const { totalEarnedInterest } = await getTotalInterest();
+      setInterestEarned(formatCurrency(Number(totalEarnedInterest)));
+    };
+    totalInterest();
+  }, []);
 
   useEffect(() => {
     handleGetAccountBalanceHistory();
@@ -36,30 +41,25 @@ export default function AccountDashboard() {
   }
 
   return (
-    <div className="h-dvh flex flex-col gap-8 p-8 pt-10">
-      <header>
-        <h1 className="font-normal text-2xl">Latest Balance</h1>
-        <h2 className="font-semibold text-4xl">{displayBalance}</h2>
-      </header>
-      <section>
-        <AreaChart
-          style={{ width: "100%", aspectRatio: 1.618, maxWidth: 600 }}
-          responsive
-          data={balances}
-        >
-          <CartesianGrid />
-          <Area
-            fill="#C5C7F2"
-            stroke="#2830C9"
-            strokeWidth={2}
-            dataKey="balance"
-          />
-          <YAxis
-            width="auto"
-            label={{ value: "Balance", position: "insideLeft", angle: -90 }}
-          />
-        </AreaChart>
-      </section>
-    </div>
+    <>
+      <div className="h-dvh flex flex-col gap-8 p-8 pt-12">
+        <header>
+          <h1 className="font-normal text-2xl">Available Balance</h1>
+          <h2 className="font-semibold text-4xl">{displayBalance}</h2>
+        </header>
+        <PeriodSelector
+          period={period}
+          onPeriodChange={(period) => setSearchParams({ period })}
+        />
+        <BalanceHistory balances={balances} />
+        {account === "savings" && (
+          <h3 className="text-lg">
+            Total Interest Earned:{" "}
+            <span className="font-medium">{interestEarned}</span>
+          </h3>
+        )}
+      </div>
+      <BackButton endpoint={"/"} />
+    </>
   );
 }

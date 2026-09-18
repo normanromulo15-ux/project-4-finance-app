@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
-import { formatCurrency } from "../utils/formatCurrency.js";
+import { formatCurrency } from "../utils/formatters.js";
 import BackButton from "../components/backButton.jsx";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import CreditCardIcon from "@mui/icons-material/CreditCard";

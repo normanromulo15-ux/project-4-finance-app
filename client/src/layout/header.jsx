@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { formatCurrentTime } from "../utils/formatCurrentTime.js";
+import { formatCurrentTime } from "../utils/formatters.js";
 
 // Components
 import BalanceVisibility from "../components/balanceVisibility.jsx";

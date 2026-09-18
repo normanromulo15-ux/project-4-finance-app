@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 import { getTransactionHistory } from "../services/app.js";
-import { formatCurrency } from "../utils/formatCurrency.js";
-import { formatTimestamp } from "../utils/formatTimestamp.js";
+import { formatCurrency } from "../utils/formatters.js";
+import { formatTimestamp } from "../utils/formatters.js";
 import PageNavigationBar from "../components/pageNavigationBar.jsx";
 import BackButton from "../components/backButton.jsx";
 

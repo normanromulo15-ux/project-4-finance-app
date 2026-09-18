@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import { formatCurrency } from "../utils/formatCurrency.js";
+import { formatCurrency } from "../utils/formatters.js";
 import { transferFunds } from "../services/app.js";
 import BackButton from "../components/backButton.jsx";
 

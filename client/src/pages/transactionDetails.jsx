@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
 import { addTransaction } from "../services/app.js";
-import { capitalizeFirstLetter } from "../utils/capitalizeFirstLetter.js";
-import { formatCurrency } from "../utils/formatCurrency.js";
-import { transactionCategories } from "../utils/transactionCategories.js";
+import { capitalizeFirstLetter } from "../utils/formatters.js";
+import { formatCurrency } from "../utils/formatters.js";
+import { transactionCategories } from "../utils/constants.js";
 import BackButton from "../components/backButton.jsx";
 import TransactionConfirmation from "../components/overlays/transactionConfirmation.jsx";
 
