@@ -53,10 +53,13 @@ export default function AccountDashboard() {
         />
         <BalanceHistory balances={balances} />
         {account === "savings" && (
-          <h3 className="text-lg">
-            Total Interest Earned:{" "}
-            <span className="font-medium">{interestEarned}</span>
-          </h3>
+          <div className="rounded-lg border border-[#2830C9] border-t-4 p-2 bg-blue-50 text-blue-900">
+            <h3 className="text-lg">
+              Total Interest Earned:{" "}
+              <span className="font-medium">{interestEarned}</span>
+            </h3>
+            <h4 className="text-xs">Since August 4, 2026</h4>
+          </div>
         )}
       </div>
       <BackButton endpoint={"/"} />
