@@ -539,7 +539,15 @@ router.get("/history/:account", authenticateUser, async (req, res) => {
       };
     });
 
-    res.json({ formattedPeriodBalances });
+    const numericBalances = formattedPeriodBalances.map((e) =>
+      Number(e.balance),
+    );
+
+    // Compute the average balance over a specified period
+    const averagePeriodBalance =
+      numericBalances.reduce((a, b) => a + b, 0) / numericBalances.length;
+
+    res.json({ averagePeriodBalance, formattedPeriodBalances });
   } catch (error) {
     res.sendStatus(500);
   }

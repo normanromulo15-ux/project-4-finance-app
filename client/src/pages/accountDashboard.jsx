@@ -19,6 +19,7 @@ export default function AccountDashboard() {
   const [numericBalanceDifference, setNumericBalanceDifference] = useState(0);
   const [balanceDifference, setBalanceDifference] = useState("");
   const [netChangePercentage, setNetChangePercentage] = useState(null);
+  const [averagePeriodBalance, setAveragePeriodBalance] = useState(null);
   const [interestEarned, setInterestEarned] = useState(null);
 
   useEffect(() => {
@@ -37,12 +38,13 @@ export default function AccountDashboard() {
   async function handleGetAccountBalanceInfo() {
     try {
       const response = await getAccountBalanceHistory(account, period);
-      const { formattedPeriodBalances } = response;
+      const { averagePeriodBalance, formattedPeriodBalances } = response;
       const { balance: latestPeriodBalance } = formattedPeriodBalances[0];
       const { balance: firstPeriodBalance } =
         formattedPeriodBalances[formattedPeriodBalances.length - 1];
       const balanceDifference =
         Number(latestPeriodBalance) - Number(firstPeriodBalance);
+      setAveragePeriodBalance(formatCurrency(averagePeriodBalance));
       setNetChangePercentage(
         `${((balanceDifference / firstPeriodBalance) * 100).toFixed(2)}%`,
       );
@@ -57,7 +59,7 @@ export default function AccountDashboard() {
 
   return (
     <>
-      <div className="h-dvh flex flex-col gap-8 p-8 pt-12">
+      <div className="h-dvh flex flex-col gap-8 p-8 pt-14">
         <header className="flex flex-col gap-2">
           <h1 className="font-normal text-2xl">
             {selectedAccount.title} Available Balance
@@ -74,15 +76,18 @@ export default function AccountDashboard() {
           onPeriodChange={(period) => setSearchParams({ period })}
         />
         <BalanceHistory balances={balances} />
-        {account === "savings" && (
-          <div className="rounded-lg border border-[#2830C9] border-t-4 p-2 bg-blue-50 text-blue-900">
-            <h5 className="text-lg">
-              Total Interest Earned:{" "}
-              <span className="font-medium">{interestEarned}</span>
-            </h5>
-            <h6 className="text-xs">Since August 4, 2026</h6>
+        <section className="flex flex-col gap-2">
+          <div className="border-b pb-1 border-gray-500 flex justify-between">
+            <h5>Average Period Balance: </h5>
+            <h5 className="font-medium">{averagePeriodBalance}</h5>
           </div>
-        )}
+          {account === "savings" && (
+            <div className="border-b pb-1 border-gray-500 flex justify-between">
+              <h5>Total Interest Earned: </h5>
+              <h5 className="font-medium">{interestEarned}</h5>
+            </div>
+          )}
+        </section>
       </div>
       <BackButton endpoint={"/"} />
     </>
