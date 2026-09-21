@@ -69,7 +69,7 @@ export default function Accounts(props) {
   return (
     <section className="w-full">
       <div className="flex justify-between items-center px-2 pb-2 mb-4 border-b-2">
-        <h3 className="font-medium text-2xl ">Accounts</h3>
+        <h3 className="font-medium text-2xl">Accounts</h3>
         <BalanceVisibility
           balance={"allAccounts"}
           balanceVisibility={balanceVisibility}

@@ -5,8 +5,8 @@ import LogoutButton from "../components/logoutButton.jsx";
 
 export default function Profile() {
   const [userFullName, setUserFullName] = useState({
-    firstName: null,
-    lastName: null,
+    firstName: "",
+    lastName: "",
   });
   const { firstName, lastName } = userFullName;
   const { fullName } = useLoaderData();
@@ -20,10 +20,10 @@ export default function Profile() {
 
   return (
     <>
-      <div className="h-dvh p-8 pt-14 flex flex-col gap-12">
+      <main className="h-dvh p-8 pt-14 flex flex-col gap-12">
         <h1 className="text-3xl">Hello, {firstName}</h1>
         <LogoutButton />
-      </div>
+      </main>
       <BackButton endpoint={"/"} />
     </>
   );

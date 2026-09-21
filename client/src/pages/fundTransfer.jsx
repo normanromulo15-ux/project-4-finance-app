@@ -24,6 +24,7 @@ export default function FundTransfer() {
     displayName: null,
   });
   const [finalTransferAmount, setFinalTransferAmount] = useState(null);
+  const [amountExceedBalance, setAmountExceedBalance] = useState(false);
   const { cash, eWallet, savings } = useLoaderData();
   const navigate = useNavigate();
   const accountBalances = [
@@ -150,8 +151,8 @@ export default function FundTransfer() {
               Amount To Transfer (₱):
             </label>
             <input
-              className="cursor-text rounded-lg
-            border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium"
+              className={`cursor-text rounded-lg
+                border p-2 placeholder:text-sm font-medium border-gray-600 bg-gray-100`}
               id="amount"
               min={1}
               name="transferAmount"

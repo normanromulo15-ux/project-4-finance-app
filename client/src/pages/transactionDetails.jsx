@@ -6,6 +6,7 @@ import { formatCurrency } from "../utils/formatters.js";
 import { transactionCategories } from "../utils/constants.js";
 import BackButton from "../components/backButton.jsx";
 import TransactionConfirmation from "../components/overlays/transactionConfirmation.jsx";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 export default function TransactionDetails() {
   const navigate = useNavigate();
@@ -23,8 +24,22 @@ export default function TransactionDetails() {
   const [accountName, setAccountName] = useState("");
   const [showTransactionConfirmation, setShowTransactionConfirmation] =
     useState(false);
+  const [amountExceedBalance, setAmountExceedBalance] = useState(false);
+  const [accountAvailableBalance, setAccountAvailableBalance] = useState(null);
   const { transactionType, accountType } = useParams();
   const { firstName, lastName } = useLoaderData().fullName;
+  const { cash, eWallet } = useLoaderData();
+  const transactionAccounts = [
+    { name: "cash", value: cash },
+    { name: "eWallet", value: eWallet },
+  ];
+
+  useEffect(() => {
+    setAccountAvailableBalance(
+      transactionAccounts.find((e) => e.name === accountType).value
+        .latestAccountBalance,
+    );
+  }, []);
 
   useEffect(() => {
     setAccountName(`${firstName} ${lastName}`);
@@ -34,8 +49,10 @@ export default function TransactionDetails() {
   // Function to handle user's transaction details input
   function handleTransactionDetailsInput(e) {
     const { name, value } = e.target;
-
     setTransactionDetails((prev) => ({ ...prev, [name]: value }));
+    if (name === "amount" && transactionType === "debit") {
+      setAmountExceedBalance(value > accountAvailableBalance);
+    }
   }
 
   // Function to handle the display of transaction confirmation
@@ -74,25 +91,44 @@ export default function TransactionDetails() {
         <BackButton endpoint={`/${transactionType}`} />
         <h1 className="text-3xl font-bold">Transaction Details</h1>
         <form className="w-full flex flex-col gap-6">
-          <div className="flex flex-col gap-1">
+          <div className="relative flex flex-col gap-1">
             <label className="font-semibold" htmlFor="amount">
               Enter an amount (₱):
             </label>
-            <input
-              className="cursor-text rounded-lg
-            border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium"
-              id="amount"
-              name="amount"
-              onBlur={() => setAmountInputType("text")}
-              onFocus={() => setAmountInputType("number")}
-              onChange={handleTransactionDetailsInput}
-              placeholder="Amount must be greater than ₱0.00"
-              required={true}
-              type={amountInputType}
-              value={
-                amountInputType === "number" ? amount : formatCurrency(amount)
-              }
-            />
+            <div
+              className={`w-full relative items-center cursor-text rounded-lg
+                border font-medium ${amountExceedBalance ? "border-red-500 bg-red-100" : "border-gray-600 bg-gray-100"}`}
+            >
+              <input
+                className="w-full rounded-lg p-2 placeholder:text-sm"
+                id="amount"
+                name="amount"
+                onBlur={() => setAmountInputType("text")}
+                onFocus={() => setAmountInputType("number")}
+                onChange={handleTransactionDetailsInput}
+                placeholder="Amount must be greater than ₱0.00"
+                required={true}
+                type={amountInputType}
+                value={
+                  amountInputType === "number" ? amount : formatCurrency(amount)
+                }
+              />
+              {amountExceedBalance && (
+                <div className="absolute right-1 top-1.5">
+                  <WarningAmberIcon sx={{ color: "red", scale: 0.8 }} />
+                </div>
+              )}
+            </div>
+
+            {amountExceedBalance ? (
+              <p className="font-medium text-sm text-red-500 flex items-center">
+                Amount exceeded the account balance
+              </p>
+            ) : (
+              <h2 className="font-medium text-sm">
+                Available balance: {formatCurrency(accountAvailableBalance)}
+              </h2>
+            )}
           </div>
           {transactionType === "debit" && (
             <div className="flex flex-col gap-1">
@@ -150,6 +186,7 @@ export default function TransactionDetails() {
         <button
           className="w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:bg-gray-300 disabled:cursor-not-allowed"
           disabled={
+            amountExceedBalance ||
             Number(amount) <= 0 ||
             !amount.trim() ||
             (!transactionCategories.includes(category) &&
