@@ -5,7 +5,6 @@ import { addDailyInterest } from "../services/app.js";
 import Header from "../layout/header.jsx";
 import Navigation from "../layout/navigation.jsx";
 import Accounts from "../layout/accounts.jsx";
-import LogoutButton from "../components/logoutButton.jsx";
 
 export default function Home() {
   const { cash, eWallet, savings } = useLoaderData();
@@ -18,7 +17,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative h-dvh flex flex-col items-center justify-start gap-12 p-8 pt-10">
+    <div className="relative h-dvh flex flex-col items-center gap-12 p-8 pt-10">
       <Header cash={cash} eWallet={eWallet} formatCurrency={formatCurrency} />
       <Navigation />
       <Accounts
@@ -28,7 +27,6 @@ export default function Home() {
         formatCurrency={formatCurrency}
       />
 
-      <LogoutButton />
     </div>
   );
 }

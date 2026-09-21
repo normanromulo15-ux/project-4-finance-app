@@ -1,14 +1,15 @@
 import { createBrowserRouter } from "react-router";
 
 // Pages
-import Home from "../pages/home.jsx";
-import Login from "../pages/login.jsx";
-import Register from "../pages/register.jsx";
 import AccountDashboard from "../pages/accountDashboard.jsx";
 import AccountOption from "../pages/accountOption.jsx";
 import FundTransfer from "../pages/fundTransfer.jsx";
-import Transactions from "../pages/transactionsHistory.jsx";
+import Home from "../pages/home.jsx";
+import Login from "../pages/login.jsx";
+import Profile from "../pages/profile.jsx";
+import Register from "../pages/register.jsx";
 import TransactionDetails from "../pages/transactionDetails.jsx";
+import Transactions from "../pages/transactionsHistory.jsx";
 import TransactionSuccess from "../pages/transactionSuccess.jsx";
 
 // Loaders
@@ -22,8 +23,18 @@ export const router = createBrowserRouter([
     loader: userDataLoader,
   },
   {
+    path: "/accounts/:account",
+    element: <AccountDashboard />,
+    loader: authLoader,
+  },
+  {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+    loader: userDataLoader,
   },
   {
     path: "/register",
@@ -43,11 +54,7 @@ export const router = createBrowserRouter([
     path: "/transfer/success",
     element: <TransactionSuccess />,
   },
-  {
-    path: "/accounts/:account",
-    element: <AccountDashboard />,
-    loader: authLoader,
-  },
+
   {
     path: "/:transactionType",
     element: <AccountOption />,

@@ -1,15 +1,18 @@
+import { useNavigate } from "react-router";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
-export default function AccountMenu() {
+export default function ProfileMenu() {
+  const navigate = useNavigate();
+
   return (
     <button
       className="flex flex-col items-center justify-center"
       onClick={() => {
-        console.log("Account menu option got clicked.");
+        navigate("/profile");
       }}
     >
       <AccountCircleIcon />
-      <p className="font-semibold border-b-2">Account</p>
+      <p className="font-semibold border-b-2">Profile</p>
     </button>
   );
 }

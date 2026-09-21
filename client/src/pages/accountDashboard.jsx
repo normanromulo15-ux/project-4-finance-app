@@ -61,7 +61,7 @@ export default function AccountDashboard() {
     <>
       <div className="h-dvh flex flex-col gap-8 p-8 pt-14">
         <header className="flex flex-col gap-2">
-          <h1 className="font-normal text-2xl">
+          <h1 className="font-medium text-2xl">
             {selectedAccount.title} Available Balance
           </h1>
           <h2 className="font-semibold text-4xl">{displayBalance}</h2>
@@ -77,12 +77,12 @@ export default function AccountDashboard() {
         />
         <BalanceHistory balances={balances} />
         <section className="flex flex-col gap-2">
-          <div className="border-b pb-1 border-gray-500 flex justify-between">
+          <div className="border-b pb-1 border-gray-400 flex justify-between">
             <h5>Average Period Balance: </h5>
             <h5 className="font-medium">{averagePeriodBalance}</h5>
           </div>
           {account === "savings" && (
-            <div className="border-b pb-1 border-gray-500 flex justify-between">
+            <div className="border-b pb-1 border-gray-400 flex justify-between">
               <h5>Total Interest Earned: </h5>
               <h5 className="font-medium">{interestEarned}</h5>
             </div>

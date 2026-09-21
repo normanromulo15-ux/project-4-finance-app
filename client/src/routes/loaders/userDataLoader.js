@@ -12,6 +12,8 @@ export default async function userDataLoader() {
       getCurrentBalance("savings"),
     ]);
 
+    console.log(fullName);
+
     return { fullName, cash, eWallet, savings };
   } catch (error) {
     console.error(error);

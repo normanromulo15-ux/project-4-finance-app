@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { logoutUser } from "../services/auth.js";
 import LogoutConfirmation from "./overlays/logoutConfirmation.jsx";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function LogoutButton() {
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
@@ -29,10 +29,10 @@ export default function LogoutButton() {
   return (
     <>
       <button
-        className="cursor-pointer flex gap-1 items-center absolute right-3 bottom-4 text-black scale-95"
+        className="cursor-pointer flex gap-1 items-center"
         onClick={handleShowLogoutConfirmation}
       >
-        <ExitToAppIcon sx={{ scale: 0.9 }} />
+        <LogoutIcon />
         <p className="font-medium">Logout</p>
       </button>
       {showLogoutConfirmation && (

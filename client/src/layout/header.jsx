@@ -66,7 +66,7 @@ export default function Header(props) {
           handleBalanceVisibility={handleBalanceVisibility}
         />
       </div>
-      <h2 className="font-bold text-3xl">
+      <h2 className="font-medium text-3xl">
         {balanceVisibility ? spendingBalance : "₱·····"}
       </h2>
       <div className="flex items-center justify-center gap-4">

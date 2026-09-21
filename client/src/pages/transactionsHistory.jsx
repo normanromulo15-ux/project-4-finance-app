@@ -42,12 +42,13 @@ export default function Transactions() {
 
   return (
     <>
-      <div className="h-dvh flex flex-col pt-16 justify-between p-8">
-        <section className="flex flex-col gap-4">
-          {transactions.map((e) => {
+      <div className="h-dvh flex flex-col pt-16 gap-4 p-8">
+        <h1 className="font-bold text-3xl">Transaction History</h1>
+        <section className="flex flex-col flex-1">
+          {transactions.map((e, i) => {
             return (
               <div
-                className="cursor-pointer p-2 border-b-2 flex flex-col gap-1"
+                className={`cursor-pointer px-2 py-3 border-b border-gray-500 flex flex-col gap-1 ${i % 2 !== 0 && "bg-gray-100"} ${i === 0 && "border-t border-gray-500"}`}
                 key={e.reference_id}
               >
                 <p className="text-sm font-medium">
