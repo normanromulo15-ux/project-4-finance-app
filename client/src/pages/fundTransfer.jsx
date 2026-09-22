@@ -166,7 +166,7 @@ export default function FundTransfer() {
               Amount To Transfer (₱):
             </label>
             <div
-              className={`relative disabled:cursor-not-allowed 
+              className={`relative disabled:cursor-not-allowed disabled:text-gray-400 disabled:placeholder:text-gray-400
                 cursor-text rounded-lg
                 border font-medium ${amountExceedBalance ? "border-red-500 bg-red-100 text-red-500" : "border-gray-600 bg-gray-100"}`}
             >
@@ -189,30 +189,39 @@ export default function FundTransfer() {
                 disabled={!originAccount || !destinationAccount}
               />
               {amountExceedBalance && (
-                <p className="absolute font-medium text-sm text-red-500">
-                  Amount exceeded the account balance
-                </p>
+                <>
+                  <p className="absolute font-medium text-sm text-red-500">
+                    Amount exceeded the account balance
+                  </p>
+                  <div className="absolute right-1 top-1.5">
+                    <WarningAmberIcon sx={{ color: "red", scale: 0.8 }} />
+                  </div>
+                </>
               )}
             </div>
           </div>
           <div className="flex flex-col gap-2">
             <label className="font-semibold" htmlFor="transfer-fee">
-              Transfer Fee Percentage (0% - 2%):
+              Transfer Fee Percentage:
             </label>
-            <input
-              className="cursor-text rounded-lg
-            border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium"
+            <select
+              className="disabled:cursor-not-allowed disabled:text-gray-400 disabled:placeholder:text-gray-400 cursor-pointer border-gray-600 bg-gray-100 border-2 p-2 font-medium rounded-lg"
               id="transfer-fee"
-              min={0}
-              max={2}
               name="transferFeePercentage"
-              placeholder="Value must be equal or greater than 0"
-              type="number"
-              value={transferFeePercentage}
               onChange={handleTransferDetails}
               required={true}
-              disabled={!originAccount || !destinationAccount}
-            />
+              disabled={
+                !originAccount ||
+                !destinationAccount ||
+                !transferAmount ||
+                amountExceedBalance
+              }
+            >
+              <option value="">--Select a percentage--</option>
+              <option value={0}>N/A (0%)</option>
+              <option value={1}>1%</option>
+              <option value={2}>2%</option>
+            </select>
           </div>
           <h2 className="font-semibold">
             Amount To Be Transferred:{" "}
