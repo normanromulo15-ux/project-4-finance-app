@@ -97,7 +97,7 @@ export default function TransactionDetails() {
             </label>
             <div
               className={`w-full relative items-center cursor-text rounded-lg
-                border font-medium ${amountExceedBalance ? "border-red-500 bg-red-100" : "border-gray-600 bg-gray-100"}`}
+                border font-medium ${amountExceedBalance ? "border-red-500 bg-red-100 text-red-500" : "border-gray-600 bg-gray-100"}`}
             >
               <input
                 className="w-full rounded-lg p-2 placeholder:text-sm"
@@ -121,7 +121,7 @@ export default function TransactionDetails() {
             </div>
 
             {amountExceedBalance ? (
-              <p className="font-medium text-sm text-red-500 flex items-center">
+              <p className="font-medium text-sm text-red-500">
                 Amount exceeded the account balance
               </p>
             ) : (

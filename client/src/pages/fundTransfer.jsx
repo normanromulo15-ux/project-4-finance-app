@@ -3,6 +3,7 @@ import { useLoaderData, useNavigate } from "react-router";
 import { formatCurrency } from "../utils/formatters.js";
 import { transferFunds } from "../services/app.js";
 import BackButton from "../components/backButton.jsx";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 export default function FundTransfer() {
   const [amountInputType, setAmountInputType] = useState("number");
@@ -20,9 +21,11 @@ export default function FundTransfer() {
   } = transferDetails;
   const [selectedOriginAccount, setSelectedOriginAccount] = useState({
     account: null,
-    balance: null,
+    displayBalance: null,
     displayName: null,
+    numericBalance: 0,
   });
+  const { numericBalance: originAccountBalance } = selectedOriginAccount;
   const [finalTransferAmount, setFinalTransferAmount] = useState(null);
   const [amountExceedBalance, setAmountExceedBalance] = useState(false);
   const { cash, eWallet, savings } = useLoaderData();
@@ -30,18 +33,21 @@ export default function FundTransfer() {
   const accountBalances = [
     {
       account: "cash",
-      balance: formatCurrency(Number(cash.latestAccountBalance)),
+      displayBalance: formatCurrency(Number(cash.latestAccountBalance)),
       displayName: "Cash",
+      numericBalance: Number(cash.latestAccountBalance),
     },
     {
       account: "eWallet",
-      balance: formatCurrency(Number(eWallet.latestAccountBalance)),
+      displayBalance: formatCurrency(Number(eWallet.latestAccountBalance)),
       displayName: "E-Wallet",
+      numericBalance: Number(eWallet.latestAccountBalance),
     },
     {
       account: "savings",
-      balance: formatCurrency(Number(savings.latestAccountBalance)),
+      displayBalance: formatCurrency(Number(savings.latestAccountBalance)),
       displayName: "Savings",
+      numericBalance: Number(savings.latestAccountBalance),
     },
   ];
 
@@ -54,16 +60,25 @@ export default function FundTransfer() {
   // Function to handle the user's inputs of the transfer details
   function handleTransferDetails(e) {
     const { name, value } = e.target;
-    if (name === "originAccount" && value !== "") {
+    if (name === "originAccount" && value) {
       const selectedAccount = accountBalances.find((e) => e.account === value);
-      const { account, balance, displayName } = selectedAccount;
-      setSelectedOriginAccount({ account, balance, displayName });
-    } else if (name === "originAccount" && value === "") {
+      const { account, displayBalance, displayName, numericBalance } =
+        selectedAccount;
+      setSelectedOriginAccount({
+        account,
+        displayBalance,
+        displayName,
+        numericBalance,
+      });
+    } else if (name === "originAccount" && !value) {
       setSelectedOriginAccount({
         account: null,
-        balance: null,
+        displayBalance: null,
         displayName: null,
+        numericBalance: null,
       });
+    } else if (name === "transferAmount") {
+      setAmountExceedBalance(value > originAccountBalance);
     }
     setTransferDetails((prev) => ({ ...prev, [name]: value }));
   }
@@ -118,8 +133,8 @@ export default function FundTransfer() {
             </select>
             <p className="text-sm font-medium">
               Available balance:{" "}
-              {selectedOriginAccount.balance
-                ? selectedOriginAccount.balance
+              {selectedOriginAccount.displayBalance
+                ? selectedOriginAccount.displayBalance
                 : "TBD"}
             </p>
           </div>
@@ -150,24 +165,35 @@ export default function FundTransfer() {
             <label className="font-semibold" htmlFor="amount">
               Amount To Transfer (₱):
             </label>
-            <input
-              className={`cursor-text rounded-lg
-                border p-2 placeholder:text-sm font-medium border-gray-600 bg-gray-100`}
-              id="amount"
-              min={1}
-              name="transferAmount"
-              placeholder="Amount must be at least ₱1.00"
-              onBlur={() => setAmountInputType("text")}
-              onFocus={() => setAmountInputType("number")}
-              onChange={handleTransferDetails}
-              value={
-                amountInputType === "number"
-                  ? transferAmount
-                  : formatCurrency(transferAmount)
-              }
-              type={amountInputType}
-              required
-            />
+            <div
+              className={`relative disabled:cursor-not-allowed 
+                cursor-text rounded-lg
+                border font-medium ${amountExceedBalance ? "border-red-500 bg-red-100 text-red-500" : "border-gray-600 bg-gray-100"}`}
+            >
+              <input
+                className="placeholder:text-sm p-2 w-full rounded-lg"
+                id="amount"
+                min={1}
+                name="transferAmount"
+                placeholder="Amount must be at least ₱1.00"
+                onBlur={() => setAmountInputType("text")}
+                onFocus={() => setAmountInputType("number")}
+                onChange={handleTransferDetails}
+                value={
+                  amountInputType === "number"
+                    ? transferAmount
+                    : formatCurrency(transferAmount)
+                }
+                type={amountInputType}
+                required={true}
+                disabled={!originAccount || !destinationAccount}
+              />
+              {amountExceedBalance && (
+                <p className="absolute font-medium text-sm text-red-500">
+                  Amount exceeded the account balance
+                </p>
+              )}
+            </div>
           </div>
           <div className="flex flex-col gap-2">
             <label className="font-semibold" htmlFor="transfer-fee">
@@ -184,12 +210,15 @@ export default function FundTransfer() {
               type="number"
               value={transferFeePercentage}
               onChange={handleTransferDetails}
-              required
+              required={true}
+              disabled={!originAccount || !destinationAccount}
             />
           </div>
           <h2 className="font-semibold">
             Amount To Be Transferred:{" "}
-            <span className={`font-bold text-[#2830c9]`}>
+            <span
+              className={`font-bold ${amountExceedBalance ? "text-red-500" : "text-[#2830c9]"}`}
+            >
               {finalTransferAmount}
             </span>
           </h2>
