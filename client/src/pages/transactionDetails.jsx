@@ -148,20 +148,20 @@ export default function TransactionDetails() {
                 value={category}
               />
               <datalist id="transaction-categories">
-                <option value="Communication" />
-                <option value="Education" />
-                <option value="Financial" />
-                <option value="Food" />
-                <option value="Government" />
-                <option value="Health" />
-                <option value="Housing" />
-                <option value="Leisure" />
-                <option value="Personal" />
-                <option value="Social" />
-                <option value="Technology" />
-                <option value="Transportation" />
-                <option value="Utilities" />
-                <option value="Work" />
+                <option value="Communication"></option>
+                <option value="Education"></option>
+                <option value="Financial"></option>
+                <option value="Food"></option>
+                <option value="Government"></option>
+                <option value="Health"></option>
+                <option value="Housing"></option>
+                <option value="Leisure"></option>
+                <option value="Personal"></option>
+                <option value="Social"></option>
+                <option value="Technology"></option>
+                <option value="Transportation"></option>
+                <option value="Utilities"></option>
+                <option value="Work"></option>
               </datalist>
             </div>
           )}
