@@ -5,12 +5,12 @@ export function capitalizeFirstLetter(string) {
 
 // Function to format a number to Philippine Peso
 export function formatCurrency(value) {
-  const phpFormatter = new Intl.NumberFormat("en-PH", {
+  const formatter = new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
   });
 
-  return phpFormatter.format(value);
+  return formatter.format(value);
 }
 
 // Function to format the current time in Philippine format
@@ -34,3 +34,8 @@ export function formatTimestamp(ISOTimestamp) {
   return formattedTimestamp;
 }
 
+// Function to format a number into a human-readable string
+export function formatNumber(number) {
+  const formatter = new Intl.NumberFormat("en-PH");
+  return formatter.format(number);
+}

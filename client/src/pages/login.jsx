@@ -63,7 +63,7 @@ export default function Login() {
       <main className="px-10 md:px-30">
         <section className="flex flex-col gap-2">
           <form
-            className="relative flex flex-col justify-center gap-4 text-sm md:text-lg"
+            className="relative flex flex-col justify-center gap-4 md:text-lg"
             onSubmit={handleUserCredentialsSubmission}
           >
             <input
@@ -105,9 +105,9 @@ export default function Login() {
               )}
             </div>
             {incorrectCredentials && (
-              <small className="text-red-600 text-center font-semibold">
+              <p className="text-red-600 text-center font-semibold text-sm">
                 Incorrect email or password.
-              </small>
+              </p>
             )}
 
             <button className="flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white  font-medium ">

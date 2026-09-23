@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 import { getTransactionHistory } from "../services/app.js";
 import { formatCurrency } from "../utils/formatters.js";
+import { formatNumber } from "../utils/formatters.js";
 import { formatTimestamp } from "../utils/formatters.js";
 import PageNavigationBar from "../components/pageNavigationBar.jsx";
 import BackButton from "../components/backButton.jsx";
@@ -12,9 +13,11 @@ export default function Transactions() {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = searchParams.get("page") || "1";
   const defaultPage = localStorage.getItem("page") || page;
+  const category = searchParams.get("category") || "all";
+  const defaultCategory = localStorage.getItem("category") || category;
 
   useEffect(() => {
-    setSearchParams({ page: defaultPage });
+    setSearchParams({ page: defaultPage, category: defaultCategory });
   }, []);
 
   useEffect(() => {
@@ -37,7 +40,20 @@ export default function Transactions() {
   function handlePageNavigation(page) {
     const navigatedPage = String(page);
     localStorage.setItem("page", navigatedPage);
-    setSearchParams({ page: navigatedPage });
+    setSearchParams((prev) => {
+      prev.set("page", navigatedPage);
+      return prev;
+    });
+  }
+
+  // Function to handle the account category choice
+  function handleAccountCategoryChoice(e) {
+    const { name } = e.target;
+    localStorage.setItem("category", name);
+    setSearchParams((prev) => {
+      prev.set("category", name);
+      return prev;
+    });
   }
 
   return (
@@ -46,7 +62,30 @@ export default function Transactions() {
         <header>
           <h1 className="font-bold text-3xl">Transaction History</h1>
         </header>
-        <main className="flex-1">
+        <main className="flex-1 flex flex-col gap-4">
+          <div className="flex justify-center gap-4 text-xs">
+            <button
+              className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "all" && "text-white bg-black"}`}
+              name="all"
+              onClick={handleAccountCategoryChoice}
+            >
+              All ({formatNumber(totalEntries)})
+            </button>
+            <button
+              className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "cash" && "text-white bg-black"}`}
+              name="cash"
+              onClick={handleAccountCategoryChoice}
+            >
+              Cash (432)
+            </button>
+            <button
+              className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "eWallet" && "text-white bg-black"}`}
+              name="eWallet"
+              onClick={handleAccountCategoryChoice}
+            >
+              E-Wallet (311)
+            </button>
+          </div>
           <section className="flex flex-col ">
             {transactions.map((e, i) => {
               return (

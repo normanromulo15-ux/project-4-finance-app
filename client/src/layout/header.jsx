@@ -77,7 +77,7 @@ export default function Header(props) {
           onClick={handleTransaction}
         >
           <AddIcon />
-          <p className="text-sm font-medium">Save</p>
+          <p className="text-sm font-medium">Income</p>
         </button>
         <button
           className="cursor-pointer flex flex-1 flex-col justify-center items-center text-[#2830c9] border rounded-xl py-2"
@@ -86,7 +86,7 @@ export default function Header(props) {
           onClick={handleTransaction}
         >
           <RemoveIcon />
-          <p className="text-sm font-medium">Spend</p>
+          <p className="text-sm font-medium">Expense</p>
         </button>
       </div>
     </header>
