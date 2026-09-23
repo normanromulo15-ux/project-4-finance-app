@@ -57,75 +57,76 @@ export default function Login() {
 
   return (
     <div className="h-dvh flex flex-col justify-between">
-      <header className="bg-[#2830c9] text-white flex flex-col items-center gap-2 p-6">
-        <h1 className="text-3xl">Finances</h1>
+      <header className="bg-[#2830c9] text-white flex flex-col items-center p-6">
+        <h1 className="text-3xl md:text-5xl">Finances</h1>
       </header>
-      <section className="flex flex-col gap-2">
-        <form
-          className="relative flex flex-col justify-center px-10 gap-4"
-          onSubmit={handleUserCredentialsSubmission}
-        >
-          <input
-            className="bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg text-sm"
-            type="text"
-            id="email"
-            name="email"
-            value={email}
-            onChange={handleUserCredentialsInput}
-            placeholder="Email"
-            autoFocus={true}
-            autoComplete="on"
-            required={true}
-          />
-          <div
-            className={`relative border ${incorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}  py-2 px-3 rounded-lg flex`}
+      <main className="px-10 md:px-30">
+        <section className="flex flex-col gap-2">
+          <form
+            className="relative flex flex-col justify-center gap-4 text-sm md:text-lg"
+            onSubmit={handleUserCredentialsSubmission}
           >
             <input
-              className="flex-1 text-sm"
-              type={showPassword ? "text" : "password"}
-              id="password"
-              minLength={8}
-              name="password"
-              value={password}
+              className="bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
+              type="text"
+              id="email"
+              name="email"
+              value={email}
               onChange={handleUserCredentialsInput}
-              placeholder="Password"
+              placeholder="Email"
+              autoFocus={true}
+              autoComplete="on"
               required={true}
             />
-            {showPassword ? (
-              <VisibilityOffIcon
-                className="scale-85"
-                onClick={handleShowPassword}
+            <div
+              className={`relative border ${incorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}  py-2 px-3 rounded-lg flex`}
+            >
+              <input
+                className="flex-1"
+                type={showPassword ? "text" : "password"}
+                id="password"
+                minLength={8}
+                name="password"
+                value={password}
+                onChange={handleUserCredentialsInput}
+                placeholder="Password"
+                required={true}
               />
-            ) : (
-              <VisibilityIcon
-                className="scale-85"
-                onClick={handleShowPassword}
-              />
+              {showPassword ? (
+                <VisibilityOffIcon
+                  className="scale-85"
+                  onClick={handleShowPassword}
+                />
+              ) : (
+                <VisibilityIcon
+                  className="scale-85"
+                  onClick={handleShowPassword}
+                />
+              )}
+            </div>
+            {incorrectCredentials && (
+              <small className="text-red-600 text-center font-semibold">
+                Incorrect email or password.
+              </small>
             )}
-          </div>
-          {incorrectCredentials && (
-            <small className="text-red-600 text-sm text-center font-semibold">
-              Incorrect email or password.
-            </small>
-          )}
 
-          <button className="flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white text-base font-medium ">
-            <p>Sign In</p>
-          </button>
-        </form>
-        <p className="text-center text-sm ">
-          Don't have an account?{" "}
-          <span
-            className="font-semibold text-[#2830c9]"
-            onClick={() => {
-              console.log("Script to redirect to the register page.");
-            }}
-          >
-            Register here.
-          </span>
-        </p>
-      </section>
-
+            <button className="flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white  font-medium ">
+              <p>Sign In</p>
+            </button>
+          </form>
+          <p className="text-center text-sm md:text-base">
+            Don't have an account?{" "}
+            <span
+              className="font-semibold text-[#2830c9]"
+              onClick={() => {
+                console.log("Script to redirect to the register page.");
+              }}
+            >
+              Register here.
+            </span>
+          </p>
+        </section>
+      </main>
       <Footer />
     </div>
   );

@@ -188,11 +188,9 @@ router.post("/interest", authenticateUser, async (req, res) => {
 
     const withHoldingTax = 0.2;
     const interestRate = 0.035 * (1 - withHoldingTax);
-    const dailyInterestAmount = Number(
-      (Number(previousSavingsBalance) * interestRate * (1 / 365))
-        .toString()
-        .slice(0, 4),
-    );
+    const dailyInterestAmount =
+      Number(previousSavingsBalance) * interestRate * (1 / 365);
+
     const newSavingsBalance =
       Number(previousSavingsBalance) + dailyInterestAmount;
 

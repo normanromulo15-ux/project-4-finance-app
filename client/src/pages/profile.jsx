@@ -20,10 +20,20 @@ export default function Profile() {
 
   return (
     <>
-      <main className="h-dvh p-8 pt-14 flex flex-col gap-12">
-        <h1 className="text-3xl">Hello, {firstName}</h1>
-        <LogoutButton />
-      </main>
+      <div className="h-dvh p-8 pt-14 flex flex-col gap-10  ">
+        <header>
+          <h1 className="text-3xl font-semibold">Profile Settings</h1>
+        </header>
+        <main className="flex flex-col gap-4">
+          <section className="flex items-center justify-between">
+            <h2>Full Name:</h2>
+            <h2 className="font-semibold px-2 py-1 border bg-gray-50 rounded-lg">
+              {firstName} {lastName}
+            </h2>
+          </section>
+          <LogoutButton />
+        </main>
+      </div>
       <BackButton endpoint={"/"} />
     </>
   );

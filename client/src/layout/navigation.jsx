@@ -4,7 +4,7 @@ import ProfileMenu from "../components/profileMenu.jsx";
 
 export default function Navigation() {
   return (
-    <nav className="w-full flex items-center justify-center gap-8">
+    <nav className="w-full flex items-center justify-center gap-8 md:gap-24">
       <FundTransfer />
       <Transactions />
       <ProfileMenu />

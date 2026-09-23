@@ -69,7 +69,7 @@ export default function Header(props) {
       <h2 className="font-bold text-3xl">
         {balanceVisibility ? spendingBalance : "₱·····"}
       </h2>
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-5">
         <button
           className="cursor-pointer flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] border rounded-xl py-2"
           name="credit"

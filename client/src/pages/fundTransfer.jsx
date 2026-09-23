@@ -11,7 +11,7 @@ export default function FundTransfer() {
     originAccount: "",
     destinationAccount: "",
     transferAmount: "",
-    transferFeePercentage: 0,
+    transferFeePercentage: "",
   });
   const {
     originAccount,
@@ -237,11 +237,7 @@ export default function FundTransfer() {
               !originAccount ||
               !destinationAccount ||
               !transferAmount ||
-              !(
-                transferFeePercentage >= 0 &&
-                transferFeePercentage <= 100 &&
-                transferFeePercentage !== ""
-              )
+              transferFeePercentage === ""
             }
             type="submit"
           >
