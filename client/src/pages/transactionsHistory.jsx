@@ -9,10 +9,13 @@ import PageNavigationBar from "../components/pageNavigationBar.jsx";
 import BackButton from "../components/backButton.jsx";
 
 export default function Transactions() {
-  const [totalEntries, setTotalEntries] = useState(0);
-  const [cashNumberOfEntries, setCashNumberOfEntries] = useState(0);
-  const [eWalletNumberOfEntries, setEWalletNumberOfEntries] = useState(0);
-  const [savingsNumberOfEntries, setSavingsNumberOfEntries] = useState(0);
+  const [entryCounts, setEntryCounts] = useState({
+    cash: 0,
+    eWallet: 0,
+    savings: 0,
+    current: 0,
+    total: 0,
+  });
   const [transactions, setTransactions] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const page = searchParams.get("page") || "1";
@@ -22,15 +25,12 @@ export default function Transactions() {
 
   useEffect(() => {
     setSearchParams({ page: defaultPage, category: defaultCategory });
+    getAccountTransactionHistories();
   }, []);
 
   useEffect(() => {
     handleAllTransactionHistory();
   }, [page]);
-
-  useEffect(() => {
-    handleAccountTransactionHistory();
-  }, [category]);
 
   // Function to handle the page navigation
   function handlePageNavigation(page) {
@@ -47,6 +47,7 @@ export default function Transactions() {
     const { name: accountType } = e.target;
     localStorage.setItem("category", accountType);
     setSearchParams((prev) => {
+      prev.set("page", 1);
       prev.set("category", accountType);
       return prev;
     });
@@ -54,11 +55,13 @@ export default function Transactions() {
       handleAllTransactionHistory();
       return;
     }
-    const { accountTransactions } = await getAccountTransactionHistory(
-      accountType,
-      page,
-    );
+    const { accountNumberOfTransactions, accountTransactions } =
+      await getAccountTransactionHistory(accountType, page);
     setTransactions(accountTransactions);
+    setEntryCounts((prev) => ({
+      ...prev,
+      current: Number(accountNumberOfTransactions),
+    }));
   }
 
   // Function to handle the retrieval of the paginated transaction history
@@ -67,14 +70,18 @@ export default function Transactions() {
       const response = await getTransactionHistory(page);
       const { allTransactions, totalNumberOfTransactions } = response;
       setTransactions(allTransactions);
-      setTotalEntries(Number(totalNumberOfTransactions));
+      setEntryCounts((prev) => ({
+        ...prev,
+        current: Number(totalNumberOfTransactions),
+        total: Number(totalNumberOfTransactions),
+      }));
     } catch (error) {
       console.error(error);
     }
   }
 
-  // Function to handle the retrieval of an account's transaction history
-  async function handleAccountTransactionHistory() {
+  // Function to retrieve the account's transaction histories
+  async function getAccountTransactionHistories() {
     try {
       const [cashEntries, eWalletEntries, savingsEntries] = await Promise.all([
         getAccountTransactionHistory("cash", page),
@@ -84,9 +91,14 @@ export default function Transactions() {
       const { accountNumberOfTransactions: cashCount } = cashEntries;
       const { accountNumberOfTransactions: eWalletCount } = eWalletEntries;
       const { accountNumberOfTransactions: savingsCount } = savingsEntries;
-      setCashNumberOfEntries(cashCount);
-      setEWalletNumberOfEntries(eWalletCount);
-      setSavingsNumberOfEntries(savingsCount);
+      setEntryCounts((prev) => {
+        return {
+          ...prev,
+          cash: Number(cashCount),
+          eWallet: Number(eWalletCount),
+          savings: Number(savingsCount),
+        };
+      });
     } catch (error) {
       console.error(error);
     }
@@ -105,28 +117,28 @@ export default function Transactions() {
               name="all"
               onClick={handleAccountCategoryChoice}
             >
-              All ({formatNumber(totalEntries)})
+              All ({formatNumber(entryCounts.total)})
             </button>
             <button
               className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "cash" && "text-white bg-black"}`}
               name="cash"
               onClick={handleAccountCategoryChoice}
             >
-              Cash ({cashNumberOfEntries})
+              Cash ({formatNumber(entryCounts.cash)})
             </button>
             <button
               className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "eWallet" && "text-white bg-black"}`}
               name="eWallet"
               onClick={handleAccountCategoryChoice}
             >
-              E-Wallet ({eWalletNumberOfEntries})
+              E-Wallet ({formatNumber(entryCounts.eWallet)})
             </button>
             <button
               className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "savings" && "text-white bg-black"}`}
               name="savings"
               onClick={handleAccountCategoryChoice}
             >
-              Savings ({savingsNumberOfEntries})
+              Savings ({formatNumber(entryCounts.savings)})
             </button>
           </div>
           <section className="flex flex-col ">
@@ -157,7 +169,7 @@ export default function Transactions() {
         </main>
         <footer>
           <PageNavigationBar
-            totalEntries={totalEntries}
+            totalEntries={entryCounts.current}
             handlePageNavigation={handlePageNavigation}
             currentPage={Number(page)}
           />
