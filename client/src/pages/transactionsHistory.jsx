@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 import { getTransactionHistory } from "../services/app.js";
+import { getAccountTransactionHistory } from "../services/app.js";
 import { formatCurrency } from "../utils/formatters.js";
 import { formatNumber } from "../utils/formatters.js";
 import { formatTimestamp } from "../utils/formatters.js";
@@ -8,8 +9,11 @@ import PageNavigationBar from "../components/pageNavigationBar.jsx";
 import BackButton from "../components/backButton.jsx";
 
 export default function Transactions() {
-  const [transactions, setTransactions] = useState([]);
   const [totalEntries, setTotalEntries] = useState(0);
+  const [cashNumberOfEntries, setCashNumberOfEntries] = useState(0);
+  const [eWalletNumberOfEntries, setEWalletNumberOfEntries] = useState(0);
+  const [savingsNumberOfEntries, setSavingsNumberOfEntries] = useState(0);
+  const [transactions, setTransactions] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const page = searchParams.get("page") || "1";
   const defaultPage = localStorage.getItem("page") || page;
@@ -21,20 +25,12 @@ export default function Transactions() {
   }, []);
 
   useEffect(() => {
-    handleTransactionHistory();
+    handleAllTransactionHistory();
   }, [page]);
 
-  // Function to handle the retrieval of the paginated transaction history
-  async function handleTransactionHistory() {
-    try {
-      const { data } = await getTransactionHistory(page);
-      const { transactionData, totalLength } = data;
-      setTransactions(transactionData);
-      setTotalEntries(Number(totalLength));
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  useEffect(() => {
+    handleAccountTransactionHistory();
+  }, [category]);
 
   // Function to handle the page navigation
   function handlePageNavigation(page) {
@@ -47,13 +43,53 @@ export default function Transactions() {
   }
 
   // Function to handle the account category choice
-  function handleAccountCategoryChoice(e) {
-    const { name } = e.target;
-    localStorage.setItem("category", name);
+  async function handleAccountCategoryChoice(e) {
+    const { name: accountType } = e.target;
+    localStorage.setItem("category", accountType);
     setSearchParams((prev) => {
-      prev.set("category", name);
+      prev.set("category", accountType);
       return prev;
     });
+    if (accountType === "all") {
+      handleAllTransactionHistory();
+      return;
+    }
+    const { accountTransactions } = await getAccountTransactionHistory(
+      accountType,
+      page,
+    );
+    setTransactions(accountTransactions);
+  }
+
+  // Function to handle the retrieval of the paginated transaction history
+  async function handleAllTransactionHistory() {
+    try {
+      const response = await getTransactionHistory(page);
+      const { allTransactions, totalNumberOfTransactions } = response;
+      setTransactions(allTransactions);
+      setTotalEntries(Number(totalNumberOfTransactions));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // Function to handle the retrieval of an account's transaction history
+  async function handleAccountTransactionHistory() {
+    try {
+      const [cashEntries, eWalletEntries, savingsEntries] = await Promise.all([
+        getAccountTransactionHistory("cash", page),
+        getAccountTransactionHistory("eWallet", page),
+        getAccountTransactionHistory("savings", page),
+      ]);
+      const { accountNumberOfTransactions: cashCount } = cashEntries;
+      const { accountNumberOfTransactions: eWalletCount } = eWalletEntries;
+      const { accountNumberOfTransactions: savingsCount } = savingsEntries;
+      setCashNumberOfEntries(cashCount);
+      setEWalletNumberOfEntries(eWalletCount);
+      setSavingsNumberOfEntries(savingsCount);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -63,7 +99,7 @@ export default function Transactions() {
           <h1 className="font-bold text-3xl">Transaction History</h1>
         </header>
         <main className="flex-1 flex flex-col gap-4">
-          <div className="flex justify-center gap-4 text-xs">
+          <div className="flex justify-center gap-2 text-xs">
             <button
               className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "all" && "text-white bg-black"}`}
               name="all"
@@ -76,14 +112,21 @@ export default function Transactions() {
               name="cash"
               onClick={handleAccountCategoryChoice}
             >
-              Cash (432)
+              Cash ({cashNumberOfEntries})
             </button>
             <button
               className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "eWallet" && "text-white bg-black"}`}
               name="eWallet"
               onClick={handleAccountCategoryChoice}
             >
-              E-Wallet (311)
+              E-Wallet ({eWalletNumberOfEntries})
+            </button>
+            <button
+              className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "savings" && "text-white bg-black"}`}
+              name="savings"
+              onClick={handleAccountCategoryChoice}
+            >
+              Savings ({savingsNumberOfEntries})
             </button>
           </div>
           <section className="flex flex-col ">

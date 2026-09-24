@@ -60,12 +60,28 @@ export async function transferFunds(transferDetails) {
   }
 }
 
-// Function to retrieve the transaction history of a user
-export async function getTransactionHistory(page = "1") {
+// Function to retrieve all transaction history of a user
+export async function getTransactionHistory(page) {
   try {
-    return await api.get("/transactions", { params: { page } });
+    const { data } = await api.get("/transactions", { params: { page } });
+    return data;
   } catch (error) {
     throw error;
+  }
+}
+
+// Function to retrieve a specific user account's transaction history
+export async function getAccountTransactionHistory(account, page) {
+  try {
+    const { data } = await api.get(`/transactions/${account}`, {
+      params: {
+        page,
+      },
+    });
+
+    return data;
+  } catch (error) {
+    console.error(error);
   }
 }
 

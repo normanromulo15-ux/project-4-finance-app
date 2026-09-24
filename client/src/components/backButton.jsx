@@ -9,6 +9,7 @@ export default function BackButton(props) {
   function handleBackNavigation() {
     if (page === "transactions") {
       localStorage.removeItem("page");
+      localStorage.removeItem("category");
     }
     navigate(endpoint);
   }
