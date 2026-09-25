@@ -25,63 +25,24 @@ export default function Transactions() {
 
   useEffect(() => {
     setSearchParams({ page: defaultPage, category: defaultCategory });
-    getAccountTransactionHistories();
+    getAccountsEntryCounts();
   }, []);
 
   useEffect(() => {
-    handleAllTransactionHistory();
-  }, [page]);
-
-  // Function to handle the page navigation
-  function handlePageNavigation(page) {
-    const navigatedPage = String(page);
-    localStorage.setItem("page", navigatedPage);
     setSearchParams((prev) => {
-      prev.set("page", navigatedPage);
+      prev.set("page", "1");
       return prev;
     });
-  }
+  }, [category]);
 
-  // Function to handle the account category choice
-  async function handleAccountCategoryChoice(e) {
-    const { name: accountType } = e.target;
-    localStorage.setItem("category", accountType);
-    setSearchParams((prev) => {
-      prev.set("page", 1);
-      prev.set("category", accountType);
-      return prev;
-    });
-    if (accountType === "all") {
-      handleAllTransactionHistory();
-      return;
-    }
-    const { accountNumberOfTransactions, accountTransactions } =
-      await getAccountTransactionHistory(accountType, page);
-    setTransactions(accountTransactions);
-    setEntryCounts((prev) => ({
-      ...prev,
-      current: Number(accountNumberOfTransactions),
-    }));
-  }
+  useEffect(() => {
+    category === "all"
+      ? getAllTransactionHistory()
+      : getOneAccountTransactionHistory();
+  }, [page, category]);
 
-  // Function to handle the retrieval of the paginated transaction history
-  async function handleAllTransactionHistory() {
-    try {
-      const response = await getTransactionHistory(page);
-      const { allTransactions, totalNumberOfTransactions } = response;
-      setTransactions(allTransactions);
-      setEntryCounts((prev) => ({
-        ...prev,
-        current: Number(totalNumberOfTransactions),
-        total: Number(totalNumberOfTransactions),
-      }));
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  // Function to retrieve the account's transaction histories
-  async function getAccountTransactionHistories() {
+  // Function to retrieve the account's transaction entry counts
+  async function getAccountsEntryCounts() {
     try {
       const [cashEntries, eWalletEntries, savingsEntries] = await Promise.all([
         getAccountTransactionHistory("cash", page),
@@ -102,6 +63,57 @@ export default function Transactions() {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  // Function to handle the retrieval of the paginated transaction history
+  async function getAllTransactionHistory() {
+    try {
+      const response = await getTransactionHistory(page);
+      const { allTransactions, totalNumberOfTransactions } = response;
+      setTransactions(allTransactions);
+      setEntryCounts((prev) => ({
+        ...prev,
+        current: Number(totalNumberOfTransactions),
+        total: Number(totalNumberOfTransactions),
+      }));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // Function to retrieve a specific account's transaction history
+  async function getOneAccountTransactionHistory() {
+    try {
+      const { accountNumberOfTransactions, accountTransactions } =
+        await getAccountTransactionHistory(category, page);
+      setTransactions(accountTransactions);
+      setEntryCounts((prev) => ({
+        ...prev,
+        current: Number(accountNumberOfTransactions),
+      }));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // Function to handle the page navigation
+  function handlePageNavigation(page) {
+    const navigatedPage = String(page);
+    localStorage.setItem("page", navigatedPage);
+    setSearchParams((prev) => {
+      prev.set("page", navigatedPage);
+      return prev;
+    });
+  }
+
+  // Function to handle the account category choice
+  function handleAccountCategoryChoice(e) {
+    const { name: accountType } = e.target;
+    localStorage.setItem("category", accountType);
+    setSearchParams((prev) => {
+      prev.set("category", accountType);
+      return prev;
+    });
   }
 
   return (
