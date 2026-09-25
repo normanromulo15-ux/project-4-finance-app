@@ -52,12 +52,18 @@ export default function Transactions() {
       const { accountNumberOfTransactions: cashCount } = cashEntries;
       const { accountNumberOfTransactions: eWalletCount } = eWalletEntries;
       const { accountNumberOfTransactions: savingsCount } = savingsEntries;
+      const entries = [
+        Number(cashCount),
+        Number(eWalletCount),
+        Number(savingsCount),
+      ];
       setEntryCounts((prev) => {
         return {
           ...prev,
-          cash: Number(cashCount),
-          eWallet: Number(eWalletCount),
-          savings: Number(savingsCount),
+          cash: entries[0],
+          eWallet: entries[1],
+          savings: entries[2],
+          total: entries.reduce((a, b) => a + b, 0),
         };
       });
     } catch (error) {
@@ -74,7 +80,6 @@ export default function Transactions() {
       setEntryCounts((prev) => ({
         ...prev,
         current: Number(totalNumberOfTransactions),
-        total: Number(totalNumberOfTransactions),
       }));
     } catch (error) {
       console.error(error);

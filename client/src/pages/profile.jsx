@@ -20,9 +20,9 @@ export default function Profile() {
 
   return (
     <>
-      <div className="h-dvh p-8 pt-14 flex flex-col gap-10  ">
+      <div className="h-dvh p-8 pt-14 flex flex-col gap-8">
         <header>
-          <h1 className="text-3xl font-semibold">Profile Settings</h1>
+          <h1 className="text-3xl font-semibold">Profile</h1>
         </header>
         <main className="flex flex-col gap-4">
           <section className="flex items-center justify-between">
