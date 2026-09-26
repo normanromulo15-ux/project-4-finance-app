@@ -158,16 +158,30 @@ export default function Transactions() {
               Savings ({formatNumber(entryCounts.savings)})
             </button>
           </div>
-          <section className="flex flex-col ">
+          <section className="flex flex-col">
             {transactions.map((e, i) => {
+              let accountType;
+              switch (e.account) {
+                case "cash":
+                  accountType = "Cash";
+                  break;
+                case "eWallet":
+                  accountType = "E-Wallet";
+                  break;
+                case "savings":
+                  accountType = "Savings";
+                  break;
+              }
+
               return (
                 <div
                   className={`cursor-pointer px-2 py-3 border-b border-gray-500 flex flex-col gap-1 ${i % 2 !== 0 && "bg-gray-100"} ${i === 0 && "border-t border-gray-500"}`}
                   key={e.reference_id}
                 >
-                  <p className="text-sm font-medium">
-                    {formatTimestamp(e.created_at)}
-                  </p>
+                  <div className="flex justify-between text-sm font-medium">
+                    <p>{formatTimestamp(e.created_at)}</p>
+                    <p>{accountType}</p>
+                  </div>
 
                   <div className="flex items-center">
                     <p className="flex-3 font-semibold">{e.description}</p>
