@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 import { getTransactionHistory } from "../services/app.js";
-import { getAccountTransactionHistory } from "../services/app.js";
 import { formatCurrency } from "../utils/formatters.js";
 import { formatNumber } from "../utils/formatters.js";
 import { formatTimestamp } from "../utils/formatters.js";
@@ -37,22 +36,22 @@ export default function Transactions() {
 
   useEffect(() => {
     category === "all"
-      ? getAllTransactionHistory()
-      : getOneAccountTransactionHistory();
+      ? getAllTransactionsHistory()
+      : getOneAccountTransactionsHistory();
   }, [page, category]);
 
   // Function to retrieve the account's transaction entry counts
   async function getAccountsEntryCounts() {
     try {
       const [cashEntries, eWalletEntries, savingsEntries] = await Promise.all([
-        getAccountTransactionHistory("cash", page),
-        getAccountTransactionHistory("eWallet", page),
-        getAccountTransactionHistory("savings", page),
+        getTransactionHistory(page, "cash"),
+        getTransactionHistory(page, "eWallet"),
+        getTransactionHistory(page, "savings"),
       ]);
-      const { accountNumberOfTransactions: cashCount } = cashEntries;
-      const { accountNumberOfTransactions: eWalletCount } = eWalletEntries;
-      const { accountNumberOfTransactions: savingsCount } = savingsEntries;
-      const entries = [
+      const { accountTransactionCount: cashCount } = cashEntries;
+      const { accountTransactionCount: eWalletCount } = eWalletEntries;
+      const { accountTransactionCount: savingsCount } = savingsEntries;
+      const entryCounts = [
         Number(cashCount),
         Number(eWalletCount),
         Number(savingsCount),
@@ -60,10 +59,10 @@ export default function Transactions() {
       setEntryCounts((prev) => {
         return {
           ...prev,
-          cash: entries[0],
-          eWallet: entries[1],
-          savings: entries[2],
-          total: entries.reduce((a, b) => a + b, 0),
+          cash: entryCounts[0],
+          eWallet: entryCounts[1],
+          savings: entryCounts[2],
+          total: entryCounts.reduce((a, b) => a + b, 0),
         };
       });
     } catch (error) {
@@ -72,14 +71,14 @@ export default function Transactions() {
   }
 
   // Function to handle the retrieval of the paginated transaction history
-  async function getAllTransactionHistory() {
+  async function getAllTransactionsHistory() {
     try {
       const response = await getTransactionHistory(page);
-      const { allTransactions, totalNumberOfTransactions } = response;
-      setTransactions(allTransactions);
+      const { allPaginatedTransactions, totalTransactionsCount } = response;
+      setTransactions(allPaginatedTransactions);
       setEntryCounts((prev) => ({
         ...prev,
-        current: Number(totalNumberOfTransactions),
+        current: Number(totalTransactionsCount),
       }));
     } catch (error) {
       console.error(error);
@@ -87,14 +86,14 @@ export default function Transactions() {
   }
 
   // Function to retrieve a specific account's transaction history
-  async function getOneAccountTransactionHistory() {
+  async function getOneAccountTransactionsHistory() {
     try {
-      const { accountNumberOfTransactions, accountTransactions } =
-        await getAccountTransactionHistory(category, page);
-      setTransactions(accountTransactions);
+      const { accountPaginatedTransactions, accountTransactionCount } =
+        await getTransactionHistory(page, category);
+      setTransactions(accountPaginatedTransactions);
       setEntryCounts((prev) => ({
         ...prev,
-        current: Number(accountNumberOfTransactions),
+        current: Number(accountTransactionCount),
       }));
     } catch (error) {
       console.error(error);

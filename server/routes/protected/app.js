@@ -222,77 +222,63 @@ router.post("/interest", authenticateUser, async (req, res) => {
 router.get("/transactions", authenticateUser, async (req, res) => {
   try {
     const { sub: userId } = req.user;
-    const { page } = req.query;
-
+    const { page, account } = req.query;
     const pageNumber = Number(page) || 1;
-
-    // Invalidate the request if the page number is less than 0
-    if (pageNumber < 0) return res.sendStatus(404);
-
     const entryLimit = 5;
     const offset = (pageNumber - 1) * entryLimit;
+    const accounts = ["cash", "eWallet", "savings"];
+    const selectedAccount = accounts.find((item) => item === account) || "all";
 
-    // Retrieve the transaction history of a user and count all of its transaction entries
-    const [firstQuery, secondQuery] = await Promise.all([
+    // Invalidate the request if the page number is less than or equal to 0
+    if (pageNumber <= 0) return res.sendStatus(404);
+
+    // Retrieve all transaction history and count its number of entries if no account type is specified
+    if (selectedAccount === "all") {
+      const [
+        allPaginatedTransactionsResponse,
+        allPaginatedTransactionsResponseCount,
+      ] = await Promise.all([
+        db.query(
+          "SELECT reference_id, account, type, amount, description, created_at FROM transactions WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
+          [Number(userId), entryLimit, offset],
+        ),
+        db.query("SELECT COUNT(*) FROM transactions WHERE user_id = $1", [
+          Number(userId),
+        ]),
+      ]);
+      const { rows: allPaginatedTransactions } =
+        allPaginatedTransactionsResponse;
+      const { rows: allTransactionsCount } =
+        allPaginatedTransactionsResponseCount;
+      const totalTransactionsCount = allTransactionsCount[0].count;
+
+      // Invalidate the request if there's no transaction history yet
+      if (allPaginatedTransactions.length === 0) return res.sendStatus(404);
+
+      return res.json({ allPaginatedTransactions, totalTransactionsCount });
+    }
+
+    // Retrieve the specific account's transaction history and its entry count if the account type is specified
+    const [
+      accountPaginatedTransactionsResponse,
+      accountPaginatedTransactionsResponseCount,
+    ] = await Promise.all([
       db.query(
-        "SELECT reference_id, account, type, amount, description, created_at FROM transactions WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",
-        [Number(userId), entryLimit, offset],
-      ),
-      db.query("SELECT COUNT(*) FROM transactions WHERE user_id = $1", [
-        Number(userId),
-      ]),
-    ]);
-    const { rows: allTransactions } = firstQuery;
-    const { rows: rowCount } = secondQuery;
-    const totalNumberOfTransactions = rowCount[0].count;
-
-    // Invalidate the request if there's no transaction history yet
-    if (allTransactions.length === 0) return res.sendStatus(404);
-
-    res.json({ allTransactions, totalNumberOfTransactions });
-  } catch (error) {
-    console.error(error);
-    res.sendStatus(500);
-  }
-});
-
-// Retrieve the transaction history of a user for a specific account
-router.get("/transactions/:account", authenticateUser, async (req, res) => {
-  try {
-    const { sub: userId } = req.user;
-    const page = Number(req.query.page) || 1;
-    const maxEntriesPerPage = 5;
-    const offset = (page - 1) * maxEntriesPerPage;
-
-    const transactionAccounts = ["cash", "eWallet", "savings"];
-    const account = transactionAccounts.find((e) => e === req.params.account);
-
-    // Invalidate the request if the account's name is invalid
-    if (!account) return res.sendStatus(404);
-
-    // Retrieve the transaction history of an account as well as its total number of entries
-    const [firstQuery, secondQuery] = await Promise.all([
-      db.query(
-        "SELECT id, account, type, amount, description, created_at FROM transactions WHERE user_id = $1 AND account = $2 ORDER BY created_at DESC LIMIT $3 OFFSET $4",
-        [Number(userId), account, maxEntriesPerPage, offset],
+        "SELECT reference_id, account, type, amount, description, created_at FROM transactions WHERE user_id = $1 AND account = $2 ORDER BY created_at DESC LIMIT $3 OFFSET $4",
+        [Number(userId), selectedAccount, entryLimit, offset],
       ),
       db.query(
         "SELECT COUNT(*) FROM transactions WHERE user_id = $1 AND account = $2",
-        [Number(userId), account],
+        [Number(userId), selectedAccount],
       ),
     ]);
-    const { rows: accountTransactions } = firstQuery;
-
-    // Invalidate the request if the accountTransactions array is empty
-    if (accountTransactions.length === 0)
-      return res.status(404).json({ message: "No entries found." });
-
-    // Retrieve the total number of entries of the specified account's transactions
-    const { rows: rowCountArray } = secondQuery;
-
-    const accountNumberOfTransactions = rowCountArray[0].count;
-
-    res.json({ accountNumberOfTransactions, accountTransactions });
+    const { rows: accountPaginatedTransactions } =
+      accountPaginatedTransactionsResponse;
+    const { rows: accountPaginatedTransactionsCountArray } =
+      accountPaginatedTransactionsResponseCount;
+    const accountTransactionCount =
+      accountPaginatedTransactionsCountArray[0].count;
+    res.json({ accountPaginatedTransactions, accountTransactionCount });
   } catch (error) {
     console.error(error);
     res.sendStatus(500);
