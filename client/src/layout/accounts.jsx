@@ -99,7 +99,7 @@ export default function Accounts(props) {
 
           return (
             <div
-              className="flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4"
+              className="cursor-pointer flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4"
               key={accountType}
               onClick={() => navigate(`/accounts/${accountType}?period=week`)}
             >

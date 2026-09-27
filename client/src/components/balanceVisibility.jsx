@@ -16,7 +16,7 @@ export default function BalanceVisibility(props) {
   }
 
   return (
-    <>
+    <div className="cursor-pointer">
       {!balanceVisibility ? (
         <VisibilityIcon
           onClick={handleBalanceVisibility}
@@ -28,6 +28,6 @@ export default function BalanceVisibility(props) {
           sx={{ width: widthValue }}
         />
       )}
-    </>
+    </div>
   );
 }

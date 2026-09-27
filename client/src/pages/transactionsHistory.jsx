@@ -130,28 +130,28 @@ export default function Transactions() {
         <main className="flex-1 flex flex-col gap-4">
           <div className="flex justify-center gap-2 text-xs">
             <button
-              className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "all" && "text-white bg-black"}`}
+              className={`cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "all" && "text-white bg-black"}`}
               name="all"
               onClick={handleAccountCategoryChoice}
             >
               All ({formatNumber(entryCounts.total)})
             </button>
             <button
-              className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "cash" && "text-white bg-black"}`}
+              className={`cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "cash" && "text-white bg-black"}`}
               name="cash"
               onClick={handleAccountCategoryChoice}
             >
               Cash ({formatNumber(entryCounts.cash)})
             </button>
             <button
-              className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "eWallet" && "text-white bg-black"}`}
+              className={`cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "eWallet" && "text-white bg-black"}`}
               name="eWallet"
               onClick={handleAccountCategoryChoice}
             >
               E-Wallet ({formatNumber(entryCounts.eWallet)})
             </button>
             <button
-              className={`px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "savings" && "text-white bg-black"}`}
+              className={`cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "savings" && "text-white bg-black"}`}
               name="savings"
               onClick={handleAccountCategoryChoice}
             >

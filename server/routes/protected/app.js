@@ -218,7 +218,7 @@ router.post("/interest", authenticateUser, async (req, res) => {
   }
 });
 
-// Retrieve all incoming and spending transactions of a user
+// Retrieve all account transactions of a user
 router.get("/transactions", authenticateUser, async (req, res) => {
   try {
     const { sub: userId } = req.user;
