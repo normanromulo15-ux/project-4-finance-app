@@ -87,12 +87,11 @@ export default function TransactionDetails() {
 
   return (
     <>
-      <main className="h-dvh flex flex-col justify-center items-center px-8 pb-8 pt-40 gap-8">
-        <BackButton endpoint={`/${transactionType}`} />
-        <h1 className="text-3xl font-bold">Transaction Details</h1>
-        <form className="w-full flex flex-col gap-6">
+      <main className="h-dvh flex flex-col justify-center items-center px-8 pb-8 pt-40 gap-8 md:px-25 md:pt-60 md:pb-16 md:gap-16">
+        <h1 className="text-3xl font-bold md:text-4xl">Transaction Details</h1>
+        <form className="w-full flex flex-col gap-6 md:gap-8">
           <div className="relative flex flex-col gap-1">
-            <label className="font-semibold" htmlFor="amount">
+            <label className="font-semibold md:text-lg" htmlFor="amount">
               Enter an amount (₱):
             </label>
             <div
@@ -100,7 +99,7 @@ export default function TransactionDetails() {
                 border font-medium ${amountExceedBalance ? "border-red-500 bg-red-100 text-red-500" : "border-gray-600 bg-gray-100"}`}
             >
               <input
-                className="w-full rounded-lg p-2 placeholder:text-sm"
+                className="w-full rounded-lg p-2 placeholder:text-sm md:placeholder:text-base"
                 id="amount"
                 name="amount"
                 onBlur={() => setAmountInputType("text")}
@@ -119,26 +118,23 @@ export default function TransactionDetails() {
                 </div>
               )}
             </div>
-
-            {amountExceedBalance ? (
-              <p className="font-medium text-sm text-red-500">
-                Amount exceeded the account balance
-              </p>
-            ) : (
-              <h2 className="font-medium text-sm">
-                Available balance: {formatCurrency(accountAvailableBalance)}
-              </h2>
-            )}
+            <p
+              className={`font-medium text-sm ${amountExceedBalance && "text-red-500"} md:text-base`}
+            >
+              {amountExceedBalance
+                ? " Amount exceeded the account balance"
+                : `Available balance: ${formatCurrency(accountAvailableBalance)}`}
+            </p>
           </div>
           {transactionType === "debit" && (
             <div className="flex flex-col gap-1">
-              <label className="font-semibold" htmlFor="category">
+              <label className="font-semibold md:text-lg" htmlFor="category">
                 Category:
               </label>
               <input
                 type="text"
                 className="cursor-text rounded-lg
-              border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium"
+                border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium md:placeholder:text-base"
                 id="category"
                 list="transaction-categories"
                 name="category"
@@ -167,13 +163,13 @@ export default function TransactionDetails() {
           )}
 
           <div className="flex flex-col gap-1">
-            <label className="font-semibold" htmlFor="description">
+            <label className="font-semibold md:text-lg" htmlFor="description">
               Description:
             </label>
             <input
               type="text"
               className="cursor-text rounded-lg
-            border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium"
+              border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium md:placeholder:text-base"
               id="description"
               name="description"
               onChange={handleTransactionDetailsInput}
@@ -184,7 +180,7 @@ export default function TransactionDetails() {
           </div>
         </form>
         <button
-          className="w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:bg-gray-300 disabled:cursor-not-allowed md:text-xl md:py-3"
           disabled={
             amountExceedBalance ||
             Number(amount) <= 0 ||
@@ -213,6 +209,7 @@ export default function TransactionDetails() {
           }
         />
       )}
+      <BackButton endpoint={`/${transactionType}`} />
     </>
   );
 }

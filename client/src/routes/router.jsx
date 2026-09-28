@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router";
 
 // Pages
 import AccountDashboard from "../pages/accountDashboard.jsx";
-import AccountOption from "../pages/accountOption.jsx";
+import AccountOption from "../pages/transactionAccountOption.jsx";
 import FundTransfer from "../pages/fundTransfer.jsx";
 import Home from "../pages/home.jsx";
 import Login from "../pages/login.jsx";

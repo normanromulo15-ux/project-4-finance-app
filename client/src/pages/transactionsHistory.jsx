@@ -122,12 +122,14 @@ export default function Transactions() {
 
   return (
     <>
-      <div className="h-dvh flex flex-col pt-16 gap-4 p-8">
+      <div className="h-dvh flex flex-col pt-14 gap-4 p-8 md:gap-8 md:px-25 md:pt-28">
         <header>
-          <h1 className="font-bold text-3xl">Transaction History</h1>
+          <h1 className="font-bold text-3xl text-center md:text-4xl">
+            Transaction History
+          </h1>
         </header>
-        <main className="flex-1 flex flex-col gap-4">
-          <div className="flex justify-center gap-2 text-xs">
+        <main className="flex-1 flex flex-col gap-4 md:gap-8">
+          <div className="flex justify-center gap-2 text-xs md:text-base md:gap-4">
             <button
               className={`cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "all" && "text-white bg-black"}`}
               name="all"
@@ -157,7 +159,7 @@ export default function Transactions() {
               Savings ({formatNumber(entryCounts.savings)})
             </button>
           </div>
-          <section className="flex flex-col">
+          <section className="flex flex-col md:text-lg">
             {transactions.map((e, i) => {
               let accountType;
               switch (e.account) {

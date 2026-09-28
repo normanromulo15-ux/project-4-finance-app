@@ -22,7 +22,7 @@ export default function PageNavigationBar(props) {
   );
 
   return (
-    <section className="flex justify-center gap-1">
+    <section className="flex justify-center gap-1 md:gap-2">
       <button
         className="hover:bg-gray-200 cursor-pointer p-1 border font-medium text-sm rounded-md disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-600"
         disabled={currentPage === 1}

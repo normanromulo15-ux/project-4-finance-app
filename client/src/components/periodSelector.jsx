@@ -9,12 +9,12 @@ export default function PeriodSelector(props) {
   });
 
   return (
-    <nav className="flex justify-center gap-4">
+    <nav className="flex justify-center gap-4 md:gap-8">
       {periodOptions.map((e) => {
         return (
           <div
             key={e.value}
-            className={`font-medium px-2 py-1 ${period === e.value ? "rounded-full bg-gray-100 text-[#2830c9]" : "text-gray-700"}`}
+            className={`font-medium px-2 py-1 md:text-lg ${period === e.value ? "rounded-full bg-gray-100 text-[#2830c9]" : "text-gray-700"}`}
             onClick={() => onPeriodChange(e.value)}
           >
             {e.title}

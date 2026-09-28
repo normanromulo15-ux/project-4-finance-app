@@ -6,7 +6,7 @@ export default function ProfileMenu() {
 
   return (
     <button
-      className="flex flex-col items-center justify-center cursor-pointer"
+      className="flex flex-col items-center justify-center cursor-pointer md:text-xl"
       onClick={() => {
         navigate("/profile");
       }}

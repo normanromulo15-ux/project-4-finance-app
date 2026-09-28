@@ -20,12 +20,12 @@ export default function Profile() {
 
   return (
     <>
-      <div className="h-dvh p-8 pt-14 flex flex-col gap-8">
+      <div className="h-dvh p-8 pt-14 flex flex-col gap-8 md:px-25 md:py-28">
         <header>
-          <h1 className="text-3xl font-semibold">Profile</h1>
+          <h1 className="text-center text-3xl font-bold">Profile</h1>
         </header>
         <main className="flex flex-col gap-4">
-          <section className="flex items-center justify-between">
+          <section className="flex items-center justify-between md:text-lg">
             <h2>Full Name:</h2>
             <h2 className="font-semibold px-2 py-1 border bg-gray-50 rounded-lg">
               {firstName} {lastName}

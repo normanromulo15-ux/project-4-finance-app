@@ -29,7 +29,7 @@ export default function LogoutButton() {
   return (
     <>
       <button
-        className="cursor-pointer flex gap-1 items-center"
+        className="cursor-pointer flex gap-1 items-center md:text-lg"
         onClick={handleShowLogoutConfirmation}
       >
         <LogoutIcon />

@@ -6,7 +6,7 @@ import { formatCurrency } from "../utils/formatters.js";
 import { accounts } from "../utils/constants.js";
 import NetChangeIndicator from "../components/netChangeIndicator.jsx";
 import PeriodSelector from "../components/periodSelector.jsx";
-import BalanceHistory from "../components/areaChartForBalances.jsx";
+import BalanceHistory from "../components/balanceHistoryChart.jsx";
 import BackButton from "../components/backButton.jsx";
 
 export default function AccountDashboard() {
@@ -59,12 +59,14 @@ export default function AccountDashboard() {
 
   return (
     <>
-      <div className="h-dvh flex flex-col gap-8 p-8 pt-14">
+      <div className="h-dvh flex flex-col gap-8 p-8 pt-14 md:px-25 md:py-28">
         <header className="flex flex-col gap-2">
-          <h1 className="font-medium text-2xl">
+          <h1 className="font-medium text-2xl md:text-3xl">
             {selectedAccount.title} Available Balance
           </h1>
-          <h2 className="font-semibold text-4xl">{displayBalance}</h2>
+          <h2 className="font-semibold text-4xl md:text-5xl">
+            {displayBalance}
+          </h2>
           <NetChangeIndicator
             balanceDifference={balanceDifference}
             netChangePercentage={netChangePercentage}
@@ -76,7 +78,7 @@ export default function AccountDashboard() {
           onPeriodChange={(period) => setSearchParams({ period })}
         />
         <BalanceHistory balances={balances} />
-        <section className="flex flex-col gap-2">
+        <section className="flex flex-col gap-2 md:text-lg">
           <div className="border-b pb-1 border-gray-400 flex justify-between">
             <h5>Average Period Balance: </h5>
             <h5 className="font-medium">{averagePeriodBalance}</h5>

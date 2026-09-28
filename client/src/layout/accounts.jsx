@@ -68,15 +68,15 @@ export default function Accounts(props) {
 
   return (
     <section className="w-full">
-      <div className="flex justify-between items-center px-2 pb-2 mb-4 border-b-2">
-        <h3 className="font-semibold text-2xl">Accounts</h3>
+      <div className="flex justify-between items-center px-2 pb-2 mb-4 border-b-2 text-2xl md:text-3xl md:mb-8">
+        <h3 className="font-semibold">Accounts</h3>
         <BalanceVisibility
           balance={"allAccounts"}
           balanceVisibility={balanceVisibility}
           handleBalanceVisibility={handleBalanceVisibility}
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:gap-x-10 md:gap-y-6">
         {accountBalances.map((e) => {
           const { accountType, balance: accountBalance } = e;
           let accountName;
@@ -99,15 +99,15 @@ export default function Accounts(props) {
 
           return (
             <div
-              className="cursor-pointer flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4"
+              className="cursor-pointer flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4 md:p-5"
               key={accountType}
               onClick={() => navigate(`/accounts/${accountType}?period=week`)}
             >
-              <div className="flex items-center justify-start text-xl font-semibold gap-2">
+              <div className="flex items-center justify-start text-xl font-semibold gap-2 md:text-2xl">
                 {AccountIcon}
                 <h3>{accountName}</h3>
               </div>
-              <h4 className="overflow-hidden font-bold text-lg">
+              <h4 className="overflow-hidden font-bold text-lg md:text-xl">
                 {balanceVisibility ? accountBalance : "₱·····"}
               </h4>
             </div>
