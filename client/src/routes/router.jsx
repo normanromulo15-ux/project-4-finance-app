@@ -26,6 +26,7 @@ export const router = createBrowserRouter([
   {
     path: "/accounts/:account",
     element: <AccountDashboard />,
+    errorElement: <PageNotFound />,
     loader: authLoader,
   },
   {
@@ -57,21 +58,20 @@ export const router = createBrowserRouter([
   },
 
   {
-    path: "/:transactionType",
+    path: "/transaction/:transactionType",
     element: <AccountOption />,
+    errorElement: <PageNotFound />,
     loader: userDataLoader,
   },
   {
-    path: "/:transactionType/:accountType",
+    path: "/transaction/:transactionType/:accountType",
     element: <TransactionDetails />,
+    errorElement: <PageNotFound />,
     loader: userDataLoader,
   },
   {
-    path: "/:transactionType/:accountType/success",
+    path: "/transaction/:transactionType/:accountType/success",
     element: <TransactionSuccess />,
-  },
-  {
-    path: "/not-found",
-    element: <PageNotFound />,
+    errorElement: <PageNotFound />,
   },
 ]);

@@ -17,7 +17,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="h-dvh flex flex-col items-center gap-12 p-8 pt-10 pt-14 md:p-20 md:px-25 md:gap-16">
+    <div className="h-dvh flex flex-col items-center gap-12 p-8 pt-14 md:p-20 md:px-25 md:gap-16">
       <Header cash={cash} eWallet={eWallet} formatCurrency={formatCurrency} />
       <Navigation />
       <Accounts

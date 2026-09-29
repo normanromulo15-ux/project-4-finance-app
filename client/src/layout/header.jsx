@@ -53,7 +53,7 @@ export default function Header(props) {
   // Function to handle the transaction
   function handleTransaction(e) {
     const { name } = e.currentTarget;
-    navigate(`/${name}`);
+    navigate(`/transaction/${name}`);
   }
 
   return (

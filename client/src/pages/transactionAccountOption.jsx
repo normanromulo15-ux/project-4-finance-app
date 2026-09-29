@@ -25,7 +25,7 @@ export default function AccountOption() {
 
   // Function to handle the account navigation due to a click of the next button
   function handleNextButtonClick() {
-    navigate(`/${transactionType}/${accountChoice}`);
+    navigate(`/transaction/${transactionType}/${accountChoice}`);
   }
 
   return (

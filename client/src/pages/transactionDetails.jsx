@@ -78,7 +78,7 @@ export default function TransactionDetails() {
       } = response;
 
       navigate(
-        `/${transactionType}/${accountType}/success?amount=${transactionAmount}&refNo=${refNo}&timestamp=${timestamp}`,
+        `/transaction/${transactionType}/${accountType}/success?amount=${transactionAmount}&refNo=${refNo}&timestamp=${timestamp}`,
       );
     } catch (error) {
       console.error(error);
@@ -209,7 +209,7 @@ export default function TransactionDetails() {
           }
         />
       )}
-      <BackButton endpoint={`/${transactionType}`} />
+      <BackButton endpoint={`/transaction/${transactionType}`} />
     </>
   );
 }

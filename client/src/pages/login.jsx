@@ -15,6 +15,7 @@ export default function Login() {
   });
   const [incorrectCredentials, setIncorrectCredentials] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [disableSigIn, setDisableSignIn] = useState(false);
   const navigate = useNavigate();
 
   const { email, password } = userCredentials;
@@ -40,17 +41,21 @@ export default function Login() {
   async function handleUserCredentialsSubmission(e) {
     e.preventDefault();
     try {
+      setDisableSignIn(true);
       const response = await loginUser(userCredentials);
       setAccessToken(response.accessToken);
       setUserCredentials({
         email: "",
         password: "",
       });
+      setDisableSignIn(false);
     } catch (error) {
       console.error(error);
       setIncorrectCredentials(true);
+      setDisableSignIn(true);
       setTimeout(() => {
         setIncorrectCredentials(false);
+        setDisableSignIn(false);
       }, 1000);
     }
   }
@@ -110,7 +115,10 @@ export default function Login() {
               </p>
             )}
 
-            <button className="flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white  font-medium ">
+            <button
+              className="flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+              disabled={disableSigIn}
+            >
               <p>Sign In</p>
             </button>
           </form>
