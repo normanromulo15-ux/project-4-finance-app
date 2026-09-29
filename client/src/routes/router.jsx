@@ -11,6 +11,7 @@ import Register from "../pages/register.jsx";
 import TransactionDetails from "../pages/transactionDetails.jsx";
 import Transactions from "../pages/transactionsHistory.jsx";
 import TransactionSuccess from "../pages/transactionSuccess.jsx";
+import PageNotFound from "../pages/pageNotFound.jsx";
 
 // Loaders
 import userDataLoader from "./loaders/userDataLoader.js";
@@ -68,5 +69,9 @@ export const router = createBrowserRouter([
   {
     path: "/:transactionType/:accountType/success",
     element: <TransactionSuccess />,
+  },
+  {
+    path: "/not-found",
+    element: <PageNotFound />,
   },
 ]);

@@ -31,8 +31,8 @@ export default function Profile() {
               {firstName} {lastName}
             </h2>
           </section>
-          <LogoutButton />
         </main>
+        <LogoutButton />
       </div>
       <BackButton endpoint={"/"} />
     </>
