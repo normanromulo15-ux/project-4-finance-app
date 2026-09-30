@@ -4,6 +4,7 @@ import { addTransaction } from "../services/app.js";
 import { capitalizeFirstLetter } from "../utils/formatters.js";
 import { formatCurrency } from "../utils/formatters.js";
 import { transactionCategories } from "../utils/constants.js";
+import TransactionCategoriesDropdown from "../components/transactionCategoriesDropdown.jsx";
 import BackButton from "../components/backButton.jsx";
 import TransactionConfirmation from "../components/overlays/transactionConfirmation.jsx";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
@@ -127,41 +128,13 @@ export default function TransactionDetails() {
             </p>
           </div>
           {transactionType === "debit" && (
-            <div className="flex flex-col gap-1">
-              <label className="font-semibold md:text-lg" htmlFor="category">
-                Category:
-              </label>
-              <input
-                type="text"
-                className="cursor-text rounded-lg
-                border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium md:placeholder:text-base"
-                id="category"
-                list="transaction-categories"
-                name="category"
-                onChange={handleTransactionDetailsInput}
-                placeholder="Type or search a category..."
-                required={true}
-                value={category}
-              />
-              <datalist id="transaction-categories">
-                <option value="Communication"></option>
-                <option value="Education"></option>
-                <option value="Financial"></option>
-                <option value="Food"></option>
-                <option value="Government"></option>
-                <option value="Health"></option>
-                <option value="Housing"></option>
-                <option value="Leisure"></option>
-                <option value="Personal"></option>
-                <option value="Social"></option>
-                <option value="Technology"></option>
-                <option value="Transportation"></option>
-                <option value="Utilities"></option>
-                <option value="Work"></option>
-              </datalist>
-            </div>
+            <TransactionCategoriesDropdown
+              handleTransactionDetailsInput={handleTransactionDetailsInput}
+              category={category}
+              amount={amount}
+              setTransactionDetails={setTransactionDetails}
+            />
           )}
-
           <div className="flex flex-col gap-1">
             <label className="font-semibold md:text-lg" htmlFor="description">
               Description:

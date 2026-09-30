@@ -1,20 +1,19 @@
 // List of transaction categories
 export const transactionCategories = [
-  "Income",
-  "Housing",
+  "Communication",
+  "Education",
+  "Financial",
   "Food",
+  "Government",
+  "Health", 
+  "Housing",
+  "Leisure",
+  "Personal",
+  "Social",
+  "Technology",
   "Transportation",
   "Utilities",
-  "Health",
-  "Personal",
-  "Financial",
-  "Social",
-  "Education",
   "Work",
-  "Leisure",
-  "Government",
-  "Communication",
-  "Technology",
 ];
 
 // List of periods

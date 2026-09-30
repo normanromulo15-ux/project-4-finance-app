@@ -39,10 +39,10 @@ export default function TransactionConfirmation(props) {
         <h2 className="w-full text-left md:text-lg">
           <span className="font-semibold">Description:</span> {description}
         </h2>
-        <p className="w-full text-sm font-medium pt-2 border-t-2 md:text-base">
+        <p className="w-full text-sm font-medium py-2 border-t-2 md:text-base">
           Please review the transaction details. This action can't be undone.
         </p>
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-5">
           <button
             className="bg-neutral-300 text-gray-700 font-medium px-3 py-2 rounded-lg "
             onClick={handleDisplayTransactionConfirmation}

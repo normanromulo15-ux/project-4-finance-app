@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { useLoaderData } from "react-router";
 import BackButton from "../components/backButton.jsx";
 import LogoutButton from "../components/logoutButton.jsx";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import ToggleOffIcon from "@mui/icons-material/ToggleOff";
+import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 
 export default function Profile() {
   const [userFullName, setUserFullName] = useState({
@@ -24,12 +28,18 @@ export default function Profile() {
         <header>
           <h1 className="text-center text-3xl font-bold">Profile</h1>
         </header>
-        <main className="flex flex-col gap-4">
-          <section className="flex items-center justify-between md:text-lg">
+        <main className="flex flex-col gap-4 md:text-lg">
+          <section className="flex items-center justify-between">
             <h2>Full Name:</h2>
-            <h2 className="font-semibold px-2 py-1 border bg-gray-50 rounded-lg">
+            <h2 className="font-medium">
               {firstName} {lastName}
             </h2>
+          </section>
+          <section className="flex justify-between items-center">
+            <h2>Display Setting:</h2>
+            <div className="flex flex-col gap-1">
+              <ToggleOffIcon sx={{ scale: 1.1 }} />
+            </div>
           </section>
         </main>
         <LogoutButton />

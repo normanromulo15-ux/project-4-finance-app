@@ -32,7 +32,7 @@ export default function BalanceHistory(props) {
         />
       </AreaChart>
       <p className="text-sm md:text-base">
-        Scale: <span className="font-bold">Thousands (1,000)</span>
+        Balance Scale: <span className="font-bold">Thousands (1,000)</span>
       </p>
     </section>
   );
