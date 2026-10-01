@@ -33,7 +33,7 @@ export default function AccountOption() {
       <main className="h-dvh flex flex-col gap-8 items-center px-8 pb-8 pt-40 md:px-25 md:pt-60 md:pb-16 md:gap-14">
         <h1 className="text-3xl font-bold md:text-5xl">Select an account:</h1>
         <button
-          className={`relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "cash" && "scale-105"}`}
+          className={`transition relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "cash" && "scale-105"}`}
           name="cash"
           value="cash"
           onClick={handleAccountChoice}
@@ -54,7 +54,7 @@ export default function AccountOption() {
           </div>
         </button>
         <button
-          className={`relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "eWallet" && "scale-105"}`}
+          className={`transition relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "eWallet" && "scale-105"}`}
           name="eWallet"
           value="eWallet"
           onClick={handleAccountChoice}

@@ -116,7 +116,7 @@ export default function FundTransfer() {
               className="font-semibold md:text-lg"
               htmlFor="origin-account"
             >
-              From:
+              From: {!originAccount && <span className="text-red-500">*</span>}
             </label>
             <select
               className="cursor-pointer border-gray-600 bg-gray-100 border-2 p-2 font-medium rounded-lg"
@@ -146,7 +146,8 @@ export default function FundTransfer() {
               className="font-semibold md:text-lg"
               htmlFor="destination-account"
             >
-              To:
+              To:{" "}
+              {!destinationAccount && <span className="text-red-500">*</span>}
             </label>
             <select
               className="cursor-pointer border-gray-600 bg-gray-100 border-2 p-2 font-medium rounded-lg"
@@ -169,7 +170,8 @@ export default function FundTransfer() {
           </div>
           <div className="flex flex-col gap-2">
             <label className="font-semibold md:text-lg" htmlFor="amount">
-              Amount To Transfer (₱):
+              Amount To Transfer (₱):{" "}
+              {!transferAmount && <span className="text-red-500">*</span>}
             </label>
             <div
               className={`relative disabled:cursor-not-allowed disabled:text-gray-400 disabled:placeholder:text-gray-400
@@ -181,7 +183,7 @@ export default function FundTransfer() {
                 id="amount"
                 min={1}
                 name="transferAmount"
-                placeholder="Amount must be at least ₱1.00"
+                placeholder="Amount must be greater than ₱0.00"
                 onBlur={() => setAmountInputType("text")}
                 onFocus={() => setAmountInputType("number")}
                 onChange={handleTransferDetails}
@@ -208,7 +210,10 @@ export default function FundTransfer() {
           </div>
           <div className="flex flex-col gap-2">
             <label className="font-semibold" htmlFor="transfer-fee">
-              Transfer Fee Percentage:
+              Transfer Fee Percentage:{" "}
+              {transferFeePercentage === "" && (
+                <span className="text-red-500">*</span>
+              )}
             </label>
             <select
               className="disabled:cursor-not-allowed disabled:text-gray-400 disabled:placeholder:text-gray-400 cursor-pointer border-gray-600 bg-gray-100 border-2 p-2 font-medium rounded-lg"
@@ -220,6 +225,7 @@ export default function FundTransfer() {
                 !originAccount ||
                 !destinationAccount ||
                 !transferAmount ||
+                Number(transferAmount) <= 0 ||
                 amountExceedBalance
               }
             >
@@ -232,7 +238,7 @@ export default function FundTransfer() {
           <h2 className="font-semibold">
             Amount To Be Transferred:{" "}
             <span
-              className={`font-bold ${amountExceedBalance ? "text-red-500" : "text-[#2830c9]"}`}
+              className={`font-bold ${amountExceedBalance && "text-red-500"}`}
             >
               {finalTransferAmount}
             </span>

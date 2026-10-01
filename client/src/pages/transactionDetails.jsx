@@ -34,6 +34,10 @@ export default function TransactionDetails() {
     { name: "cash", value: cash },
     { name: "eWallet", value: eWallet },
   ];
+  const isDescriptionRequired =
+    (transactionType === "debit" &&
+      (!amount || !category || !description.trim())) ||
+    (transactionType === "credit" && (!amount || !description.trim()));
 
   useEffect(() => {
     setAccountAvailableBalance(
@@ -93,7 +97,8 @@ export default function TransactionDetails() {
         <form className="w-full flex flex-col gap-6 md:gap-8">
           <div className="relative flex flex-col gap-1">
             <label className="font-semibold md:text-lg" htmlFor="amount">
-              Enter an amount (₱):
+              Enter an amount (₱):{" "}
+              {!amount && <span className="text-red-500 ">*</span>}
             </label>
             <div
               className={`w-full relative items-center cursor-text rounded-lg
@@ -133,11 +138,13 @@ export default function TransactionDetails() {
               category={category}
               amount={amount}
               setTransactionDetails={setTransactionDetails}
+              amountExceedBalance={amountExceedBalance}
             />
           )}
           <div className="flex flex-col gap-1">
             <label className="font-semibold md:text-lg" htmlFor="description">
-              Description:
+              Description:{" "}
+              {isDescriptionRequired && <span className="text-red-500">*</span>}
             </label>
             <input
               type="text"
@@ -149,6 +156,11 @@ export default function TransactionDetails() {
               placeholder="Write a transaction description..."
               required={true}
               value={description}
+              disabled={
+                (transactionType === "debit" &&
+                  (!amount.trim() || !category.trim())) ||
+                (transactionType === "credit" && !amount.trim())
+              }
             />
           </div>
         </form>
