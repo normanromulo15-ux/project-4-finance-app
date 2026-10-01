@@ -176,7 +176,7 @@ export default function FundTransfer() {
             <div
               className={`relative disabled:cursor-not-allowed disabled:text-gray-400 disabled:placeholder:text-gray-400
                 cursor-text rounded-lg
-                border font-medium  ${amountExceedBalance ? "border-red-500 bg-red-100 text-red-500" : "border-gray-600 bg-gray-100"}`}
+                border-2 font-medium  ${amountExceedBalance ? "border-red-500 bg-red-100 text-red-500" : "border-gray-600 bg-gray-100"}`}
             >
               <input
                 className="placeholder:text-sm p-2 w-full rounded-lg md:placeholder:text-base"
@@ -215,8 +215,8 @@ export default function FundTransfer() {
                 <span className="text-red-500">*</span>
               )}
             </label>
-            <select
-              className="disabled:cursor-not-allowed disabled:text-gray-400 disabled:placeholder:text-gray-400 cursor-pointer border-gray-600 bg-gray-100 border-2 p-2 font-medium rounded-lg"
+            <fieldset
+              className="disabled:cursor-not-allowed disabled:text-gray-400 disabled:placeholder:text-gray-400 border-gray-600 bg-gray-100 flex justify-evenly border-2 p-2 font-medium rounded-lg"
               id="transfer-fee"
               name="transferFeePercentage"
               onChange={handleTransferDetails}
@@ -229,11 +229,23 @@ export default function FundTransfer() {
                 amountExceedBalance
               }
             >
-              <option value="">--Select a percentage--</option>
-              <option value={0}>N/A (0%)</option>
-              <option value={1}>1%</option>
-              <option value={2}>2%</option>
-            </select>
+              {[0, 1, 2].map((percentage) => (
+                <div
+                  key={percentage}
+                  className="flex gap-1 items-center cursor-pointer"
+                >
+                  <input
+                    type="radio"
+                    id={String(percentage)}
+                    name="transferFeePercentage"
+                    value={String(percentage)}
+                  />
+                  <label className="font-medium" htmlFor={String(percentage)}>
+                    {String(percentage)}%
+                  </label>
+                </div>
+              ))}
+            </fieldset>
           </div>
           <h2 className="font-semibold">
             Amount To Be Transferred:{" "}
