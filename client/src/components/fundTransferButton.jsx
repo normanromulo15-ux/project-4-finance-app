@@ -11,7 +11,7 @@ export default function FundTransfer() {
       }}
     >
       <CurrencyExchangeIcon />
-      <p className="font-semibold border-b-2">Transfer</p>
+      <p className="font-semibold">Transfer</p>
     </button>
   );
 }

@@ -57,21 +57,21 @@ export default function Header(props) {
   }
 
   return (
-    <header className="w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-3 py-2 gap-2 md:gap-3">
-      <div className="flex items-center justify-between text-sm font-medium md:text-base">
+    <header className="w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-4 py-2 gap-2 md:gap-3">
+      <div className="flex items-center justify-between text-xs font-medium md:text-base">
         <h1>SPENDING BALANCE AS OF {currentTime}:</h1>
         <BalanceVisibility
           balance={"spending"}
           balanceVisibility={balanceVisibility}
           handleBalanceVisibility={handleBalanceVisibility}
         />
-      </div>  
+      </div>
       <h2 className="font-bold text-3xl md:text-4xl">
         {balanceVisibility ? spendingBalance : "₱·····"}
       </h2>
-      <div className="flex items-center justify-center gap-5 md:gap-15">
+      <div className="flex items-center justify-center gap-4 md:gap-15">
         <button
-          className="cursor-pointer flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] border rounded-xl py-2"
+          className="cursor-pointer flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2"
           name="credit"
           value="credit"
           onClick={handleTransaction}
@@ -80,7 +80,7 @@ export default function Header(props) {
           <p className="text-sm font-medium">Income</p>
         </button>
         <button
-          className="cursor-pointer flex flex-1 flex-col justify-center items-center text-[#2830c9] border rounded-xl py-2"
+          className="cursor-pointer flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2"
           name="debit"
           value="debit"
           onClick={handleTransaction}

@@ -12,7 +12,7 @@ export default function ProfileMenu() {
       }}
     >
       <AccountCircleIcon />
-      <p className="font-semibold border-b-2">Profile</p>
+      <p className="font-semibold">Profile</p>
     </button>
   );
 }

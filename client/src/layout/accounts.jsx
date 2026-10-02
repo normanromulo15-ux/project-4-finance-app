@@ -4,6 +4,7 @@ import BalanceVisibility from "../components/balanceVisibility.jsx";
 import MoneyIcon from "@mui/icons-material/Money";
 import WalletIcon from "@mui/icons-material/Wallet";
 import SavingsIcon from "@mui/icons-material/Savings";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 export default function Accounts(props) {
   const accountsBalanceVisibility = localStorage.getItem(
@@ -76,7 +77,7 @@ export default function Accounts(props) {
           handleBalanceVisibility={handleBalanceVisibility}
         />
       </div>
-      <div className="grid grid-cols-2 gap-3 md:gap-x-10 md:gap-y-6">
+      <div className="flex flex-col gap-4 md:gap-4">
         {accountBalances.map((e) => {
           const { accountType, balance: accountBalance } = e;
           let accountName;
@@ -99,17 +100,22 @@ export default function Accounts(props) {
 
           return (
             <div
-              className="cursor-pointer flex flex-col gap-2 border border-t-4 border-[#2830c9] rounded-2xl p-4 md:p-5"
+              className="cursor-pointer flex justify-between items-center border border-t-4 border-[#2830c9] px-4 py-2 rounded-2xl md:p-5"
               key={accountType}
               onClick={() => navigate(`/accounts/${accountType}?period=week`)}
             >
-              <div className="flex items-center justify-start text-xl font-semibold gap-2 md:text-2xl">
-                {AccountIcon}
-                <h3>{accountName}</h3>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center text-xl font-semibold gap-2 md:text-2xl">
+                  {AccountIcon}
+                  <h3>{accountName}</h3>
+                </div>
+                <h4 className="overflow-hidden font-bold text-lg md:text-xl">
+                  {balanceVisibility ? accountBalance : "₱·····"}
+                </h4>
               </div>
-              <h4 className="overflow-hidden font-bold text-lg md:text-xl">
-                {balanceVisibility ? accountBalance : "₱·····"}
-              </h4>
+              <div>
+                <ArrowForwardIcon />
+              </div>
             </div>
           );
         })}

@@ -94,7 +94,10 @@ export default function TransactionDetails() {
     <>
       <main className="h-dvh flex flex-col justify-center items-center px-8 pb-8 pt-40 gap-8 md:px-25 md:pt-60 md:pb-16 md:gap-16">
         <h1 className="text-3xl font-bold md:text-4xl">Transaction Details</h1>
-        <form className="w-full flex flex-col gap-6 md:gap-8">
+        <form
+          autoComplete="off"
+          className="w-full flex flex-col gap-6 md:gap-8"
+        >
           <div className="relative flex flex-col gap-1">
             <label className="font-semibold md:text-lg" htmlFor="amount">
               Enter an amount (₱):{" "}

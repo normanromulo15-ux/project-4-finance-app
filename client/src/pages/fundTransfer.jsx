@@ -108,6 +108,7 @@ export default function FundTransfer() {
           Transfer Funds
         </h1>
         <form
+          autoComplete="off"
           className="w-full flex-1 flex flex-col gap-5"
           onSubmit={handleFundTransferSubmission}
         >
@@ -247,14 +248,14 @@ export default function FundTransfer() {
               ))}
             </fieldset>
           </div>
-          <h2 className="font-semibold">
+          <p className="font-semibold">
             Amount To Be Transferred:{" "}
             <span
               className={`font-bold ${amountExceedBalance && "text-red-500"}`}
             >
               {finalTransferAmount}
             </span>
-          </h2>
+          </p>
           <button
             className="w-full mt-auto bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:bg-gray-300 disabled:cursor-not-allowed"
             disabled={

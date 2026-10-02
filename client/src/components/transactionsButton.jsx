@@ -11,7 +11,7 @@ export default function TransactionButton() {
       }}
     >
       <HistoryIcon />
-      <p className="font-semibold border-b-2">Transactions</p>
+      <p className="font-semibold">Transactions</p>
     </button>
   );
 }
