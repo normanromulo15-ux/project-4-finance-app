@@ -4,7 +4,7 @@ import BalanceVisibility from "../components/balanceVisibility.jsx";
 import MoneyIcon from "@mui/icons-material/Money";
 import WalletIcon from "@mui/icons-material/Wallet";
 import SavingsIcon from "@mui/icons-material/Savings";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 export default function Accounts(props) {
   const accountsBalanceVisibility = localStorage.getItem(
@@ -114,7 +114,7 @@ export default function Accounts(props) {
                 </h4>
               </div>
               <div>
-                <ArrowForwardIcon />
+                <ArrowForwardIosIcon />
               </div>
             </div>
           );

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 export default function BackButton(props) {
   const { endpoint, page } = props;
@@ -19,7 +19,7 @@ export default function BackButton(props) {
       className="cursor-pointer fixed left-4 top-6 md:left-8 md:top-8"
       onClick={handleBackNavigation}
     >
-      <ArrowBackIcon />
+      <ArrowBackIosNewIcon />
     </button>
   );
 }
