@@ -14,7 +14,7 @@ export default function TransactionSuccess() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center justify-around h-dvh inset-0 p-8">
+    <div className="flex flex-col items-center justify-around min-h-dvh inset-0 p-8">
       <h1 className="text-3xl font-bold text-[#2830c9]">
         Transaction Success!
       </h1>

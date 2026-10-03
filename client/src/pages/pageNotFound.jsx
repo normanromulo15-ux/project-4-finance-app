@@ -4,7 +4,7 @@ export default function PageNotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="h-dvh flex flex-col items-center justify-center gap-10 px-8">
+    <div className="min-h-dvh flex flex-col items-center justify-center gap-10 px-8">
       <div className="flex flex-col items-center justify-center gap-2 ">
         <h1 className="font-bold text-4xl">404</h1>
         <h2 className="font-medium text-2xl">Page Not Found</h2>

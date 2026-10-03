@@ -61,7 +61,7 @@ export default function Login() {
   }
 
   return (
-    <div className="h-dvh flex flex-col justify-between">
+    <div className="min-h-dvh flex flex-col justify-between">
       <header className="bg-[#2830c9] text-white flex flex-col items-center p-6">
         <h1 className="text-3xl md:text-5xl">Finances</h1>
       </header>

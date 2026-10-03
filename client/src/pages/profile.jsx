@@ -24,7 +24,7 @@ export default function Profile() {
 
   return (
     <>
-      <div className="h-dvh p-8 pt-14 flex flex-col gap-8 md:px-25 md:py-28">
+      <div className="min-h-dvh p-8 pt-14 flex flex-col gap-8 md:px-25 md:py-28">
         <header>
           <h1 className="text-center text-3xl font-bold">Profile</h1>
         </header>

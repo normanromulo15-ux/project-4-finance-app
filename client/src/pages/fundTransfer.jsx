@@ -103,7 +103,7 @@ export default function FundTransfer() {
 
   return (
     <>
-      <main className="relative h-dvh flex flex-col gap-12 p-8 pt-14 md:px-25 md:pt-28">
+      <main className="relative min-h-dvh flex flex-col gap-12 p-8 pt-14 md:px-25 md:pt-28">
         <h1 className="text-center text-3xl font-bold w-full">
           Transfer Funds
         </h1>

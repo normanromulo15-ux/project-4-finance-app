@@ -59,7 +59,7 @@ export default function AccountDashboard() {
 
   return (
     <>
-      <div className="h-dvh flex flex-col gap-8 p-8 pt-14 md:px-25 md:py-28">
+      <div className="min-h-dvh flex flex-col gap-8 p-8 pt-14 md:px-25 md:py-28">
         <header className="flex flex-col gap-2">
           <h1 className="font-medium text-2xl md:text-3xl">
             {selectedAccount.title} Available Balance
