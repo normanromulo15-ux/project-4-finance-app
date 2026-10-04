@@ -68,7 +68,7 @@ export default function Accounts(props) {
   }
 
   return (
-    <section className="w-full">
+    <section className="order-2 w-full">
       <div className="flex justify-between items-center px-2 pb-2 mb-4 border-b-2 text-2xl md:text-3xl md:mb-8">
         <h3 className="font-semibold">Accounts</h3>
         <BalanceVisibility
@@ -100,7 +100,7 @@ export default function Accounts(props) {
 
           return (
             <div
-              className="cursor-pointer flex justify-between items-center border border-t-4 border-[#2830c9] px-4 py-2 rounded-2xl md:p-5"
+              className="cursor-pointer flex justify-between items-center border border-t-4 border-[#2830c9] px-4 py-2 rounded-2xl md:p-5 lg:border-2 lg:border-t-6 lg:rounded-3xl"
               key={accountType}
               onClick={() => navigate(`/accounts/${accountType}?period=week`)}
             >

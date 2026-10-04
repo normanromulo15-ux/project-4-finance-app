@@ -11,8 +11,10 @@ export default function ProfileMenu() {
         navigate("/profile");
       }}
     >
-      <AccountCircleIcon />
-      <p className="font-semibold">Profile</p>
+      <div className="lg:hidden">
+        <AccountCircleIcon />
+      </div>
+      <p className="font-semibold lg:font-normal">Profile</p>
     </button>
   );
 }

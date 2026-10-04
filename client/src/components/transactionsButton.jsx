@@ -10,8 +10,10 @@ export default function TransactionButton() {
         navigate("/transactions");
       }}
     >
-      <HistoryIcon />
-      <p className="font-semibold">Transactions</p>
+      <div className="lg:hidden">
+        <HistoryIcon />
+      </div>
+      <p className="font-semibold lg:font-normal">Transactions</p>
     </button>
   );
 }
