@@ -16,7 +16,7 @@ export default function BalanceVisibility(props) {
   }
 
   return (
-    <div className="cursor-pointer">
+    <div className="cursor-pointer active:scale-90">
       {!balanceVisibility ? (
         <VisibilityIcon
           onClick={handleBalanceVisibility}
