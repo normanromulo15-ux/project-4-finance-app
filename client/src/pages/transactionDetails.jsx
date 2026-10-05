@@ -92,11 +92,11 @@ export default function TransactionDetails() {
 
   return (
     <>
-      <main className="min-h-dvh flex flex-col justify-center items-center px-8 pb-8 pt-40 gap-8 md:px-25 md:pt-60 md:pb-16 md:gap-16">
+      <main className="min-h-dvh flex flex-col justify-center items-center px-8 pb-8 pt-40 gap-8 md:px-25 md:pt-60 md:pb-16 md:gap-16  lg:py-12">
         <h1 className="text-3xl font-bold md:text-4xl">Transaction Details</h1>
         <form
           autoComplete="off"
-          className="w-full flex flex-col gap-6 md:gap-8"
+          className="w-full flex flex-col gap-6 md:gap-8 lg:w-1/4"
         >
           <div className="relative flex flex-col gap-1">
             <label className="font-semibold md:text-lg" htmlFor="amount">
@@ -151,7 +151,7 @@ export default function TransactionDetails() {
             </label>
             <input
               type="text"
-              className="cursor-text rounded-lg
+              className="cursor-text disabled:cursor-not-allowed rounded-lg
               border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium md:placeholder:text-base"
               id="description"
               name="description"
@@ -168,7 +168,7 @@ export default function TransactionDetails() {
           </div>
         </form>
         <button
-          className="w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:bg-gray-300 disabled:cursor-not-allowed md:text-xl md:py-3"
+          className="transition-all cursor-pointer hover:bg-[#2228A8] active:scale-95  w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:bg-gray-300 disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0 lg:w-1/4"
           disabled={
             amountExceedBalance ||
             Number(amount) <= 0 ||

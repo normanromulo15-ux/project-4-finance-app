@@ -64,7 +64,7 @@ export default function TransactionCategoriesDropdown(props) {
       >
         <input
           type="text"
-          className="w-full disabled:cursor-not-allowed  cursor-text rounded-lg
+          className="cursor-pointer w-full disabled:cursor-not-allowed rounded-lg
           border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium md:placeholder:text-base"
           id="category"
           name="category"
@@ -77,7 +77,7 @@ export default function TransactionCategoriesDropdown(props) {
         {showTransactionsCategory &&
           (transactionCategories.length > 0 ? (
             <ul
-              className="absolute -bottom-40 z-10 w-full overflow-y-auto h-36 flex flex-col gap-3 border-2 bg-gray-50 rounded-lg p-4 md:h-72 md:-bottom-76"
+              className="absolute -bottom-40 z-10 w-full overflow-y-auto h-36 flex flex-col gap-3 border-2 bg-gray-50 rounded-lg p-4 md:h-72 md:-bottom-72 lg:-bottom-72"
               id="transaction-categories"
             >
               {transactionCategories.map((transactionCategory) => {
@@ -171,7 +171,7 @@ export default function TransactionCategoriesDropdown(props) {
                 return (
                   <li
                     key={transactionCategory}
-                    className="flex gap-2 items-center font-medium p-2 rounded-xl border bg-gray-200"
+                    className="transition-all duration-200 cursor-pointer hover:bg-gray-300 active:scale-95 flex gap-2 items-center font-medium p-2 rounded-xl border bg-gray-200"
                     onClick={() => {
                       setTransactionDetails((prev) => ({
                         ...prev,
