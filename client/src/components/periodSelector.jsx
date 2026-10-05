@@ -14,7 +14,7 @@ export default function PeriodSelector(props) {
         return (
           <div
             key={e.value}
-            className={`font-medium px-2 py-1 md:text-lg ${period === e.value ? "rounded-full bg-gray-100 text-[#2830c9]" : "text-gray-700"}`}
+            className={`transition-all duration-75 cursor-pointer active:scale-90 font-medium px-2 py-1 md:px-4 md:text-lg ${period === e.value ? "rounded-full bg-gray-200 text-[#2830c9]" : "text-gray-700"}`}
             onClick={() => onPeriodChange(e.value)}
           >
             {e.title}

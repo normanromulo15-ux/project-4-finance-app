@@ -7,7 +7,7 @@ export default function NetChangeIndicator(props) {
   const returnComponent = () => {
     if (numericBalanceDifference === 0) {
       return (
-        <h3 className="text-xl font-medium text-gray-500 md:text-2xl">
+        <h3 className="text-xl font-medium text-gray-500 md:text-2xl lg:text-3xl">
           No net change for this period
         </h3>
       );
@@ -23,7 +23,7 @@ export default function NetChangeIndicator(props) {
               scale: 0.85,
             }}
           />
-          <span className="text-[#046E00] text-xl font-medium md:text-2xl">
+          <span className="text-[#046E00] text-xl font-medium md:text-2xl lg:text-3xl">
             +{netChangePercentage} (+{balanceDifference})
           </span>
         </h3>
@@ -40,7 +40,7 @@ export default function NetChangeIndicator(props) {
               scale: 0.85,
             }}
           />
-          <span className="text-[#C0151D] text-xl font-medium md:text-2xl">
+          <span className="text-[#C0151D] text-xl font-medium md:text-2xl lg:text-3xl">
             {netChangePercentage} ({balanceDifference})
           </span>
         </h3>

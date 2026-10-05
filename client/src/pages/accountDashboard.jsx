@@ -59,37 +59,43 @@ export default function AccountDashboard() {
 
   return (
     <>
-      <div className="min-h-dvh flex flex-col gap-8 p-8 pt-14 md:px-25 md:py-28">
-        <header className="flex flex-col gap-2">
-          <h1 className="font-medium text-2xl md:text-3xl">
-            {selectedAccount.title} Available Balance
-          </h1>
-          <h2 className="font-semibold text-4xl md:text-5xl">
-            {displayBalance}
-          </h2>
-          <NetChangeIndicator
-            balanceDifference={balanceDifference}
-            netChangePercentage={netChangePercentage}
-            numericBalanceDifference={numericBalanceDifference}
-          />
-        </header>
-        <PeriodSelector
-          period={period}
-          onPeriodChange={(period) => setSearchParams({ period })}
-        />
-        <BalanceHistory balances={balances} />
-        <section className="flex flex-col gap-2 md:text-lg">
-          <div className="border-b pb-1 border-gray-400 flex justify-between">
-            <h5>Average Period Balance: </h5>
-            <h5 className="font-medium">{averagePeriodBalance}</h5>
-          </div>
-          {account === "savings" && (
-            <div className="border-b pb-1 border-gray-400 flex justify-between">
-              <h5>Total Interest Earned: </h5>
-              <h5 className="font-medium">{interestEarned}</h5>
-            </div>
-          )}
-        </section>
+      <div className="min-h-dvh flex flex-col gap-8 p-8 pt-14 md:px-25 md:py-28 lg:px-40 lg:py-20 lg:justify-center">
+        <div className="flex flex-col gap-8 lg:flex-row lg:gap-20">
+          <header className="flex flex-col gap-8 lg:flex-2">
+            <section className="flex flex-col gap-2">
+              <h1 className="font-medium text-2xl md:text-3xl lg:text-4xl">
+                {selectedAccount.title} Available Balance
+              </h1>
+              <h2 className="font-semibold text-4xl md:text-5xl lg:text-6xl">
+                {displayBalance}
+              </h2>
+              <NetChangeIndicator
+                balanceDifference={balanceDifference}
+                netChangePercentage={netChangePercentage}
+                numericBalanceDifference={numericBalanceDifference}
+              />
+            </section>
+            <section className="flex flex-col gap-2 md:text-lg lg:text-xl">
+              <div className="border-b pb-1 border-gray-400 flex justify-between">
+                <h5>Average Period Balance: </h5>
+                <h5 className="font-medium">{averagePeriodBalance}</h5>
+              </div>
+              {account === "savings" && (
+                <div className="border-b pb-1 border-gray-400 flex justify-between">
+                  <h5>Total Interest Earned: </h5>
+                  <h5 className="font-medium">{interestEarned}</h5>
+                </div>
+              )}
+            </section>
+          </header>
+          <section className="flex flex-col gap-8 lg:flex-3">
+            <PeriodSelector
+              period={period}
+              onPeriodChange={(period) => setSearchParams({ period })}
+            />
+            <BalanceHistory balances={balances} />
+          </section>
+        </div>
       </div>
       <BackButton endpoint={"/"} />
     </>
