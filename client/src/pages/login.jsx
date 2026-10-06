@@ -61,11 +61,11 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-dvh flex flex-col justify-between">
-      <header className="bg-[#2830c9] text-white flex flex-col items-center p-6">
+    <div className="min-h-dvh flex flex-col justify-between items-center">
+      <header className="bg-[#2830c9] text-white w-full flex flex-col items-center p-6">
         <h1 className="text-3xl md:text-5xl">Finances</h1>
       </header>
-      <main className="px-10 md:px-30">
+      <main className="w-4/5 md:w-2/3 lg:w-1/4">
         <section className="flex flex-col gap-2">
           <form
             className="relative flex flex-col justify-center gap-4 md:text-lg"
@@ -98,15 +98,19 @@ export default function Login() {
                 required={true}
               />
               {showPassword ? (
-                <VisibilityOffIcon
-                  className="scale-85"
-                  onClick={handleShowPassword}
-                />
+                <div className="cursor-pointer active:scale-95">
+                  <VisibilityOffIcon
+                    className="scale-85"
+                    onClick={handleShowPassword}
+                  />
+                </div>
               ) : (
-                <VisibilityIcon
-                  className="scale-85"
-                  onClick={handleShowPassword}
-                />
+                <div className="cursor-pointer active:scale-95">
+                  <VisibilityIcon
+                    className="scale-85"
+                    onClick={handleShowPassword}
+                  />
+                </div>
               )}
             </div>
             {incorrectCredentials && (
@@ -116,7 +120,7 @@ export default function Login() {
             )}
 
             <button
-              className="flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="transition-all duration-200 cursor-pointer active:scale-95 hover:bg-[#2228A8] flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
               disabled={disableSigIn}
             >
               <p>Sign In</p>
