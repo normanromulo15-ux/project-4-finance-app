@@ -34,7 +34,7 @@ export default function AccountOption() {
         <h1 className="text-3xl font-bold md:text-5xl">Select an account:</h1>
         <div className="w-full flex flex-col gap-8 items-center md:gap-10 lg:flex-row lg:w-1/2">
           <button
-            className={`transition-all cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "cash" && "scale-105 "}`}
+            className={`transition-all cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "cash" && "scale-105 bg-gray-100"}`}
             name="cash"
             value="cash"
             onClick={handleAccountChoice}
@@ -45,17 +45,18 @@ export default function AccountOption() {
               </div>
             )}
             <AttachMoneyIcon />
-            <div className="flex flex-col items-start flex-1 ">
-              <h2 className="w-full text-lg text-left font-medium pb-1 border-b md:text-2xl">
+            <div className="flex flex-col items-start flex-1">
+              <h2 className="w-full text-lg text-left font-bold pb-1 border-b md:text-2xl">
                 Cash
               </h2>
-              <h3 className="w-full text-sm text-left font-medium mt-2  md:text-xl">
-                AVAILABLE BALANCE: <span>{displayCashBalance}</span>
+              <h3 className="w-full text-sm text-left mt-2 md:text-xl">
+                AVAILABLE BALANCE:
+                <span className="font-semibold">{displayCashBalance}</span>
               </h3>
             </div>
           </button>
           <button
-            className={`transition-all cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "eWallet" && "scale-105"}`}
+            className={`transition-all cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "eWallet" && "scale-105 bg-gray-100"}`}
             name="eWallet"
             value="eWallet"
             onClick={handleAccountChoice}
@@ -67,11 +68,14 @@ export default function AccountOption() {
             )}
             <CreditCardIcon />
             <div className="flex flex-col items-start flex-1 ">
-              <h2 className="w-full text-lg text-left font-medium pb-1 border-b md:text-2xl">
+              <h2 className="w-full text-lg text-left font-bold pb-1 border-b md:text-2xl">
                 Digital Wallet
               </h2>
-              <h3 className="w-full text-sm text-left font-medium mt-2 md:text-xl">
-                AVAILABLE BALANCE: <span>{displayDigitalWalletBalance}</span>
+              <h3 className="w-full text-sm text-left mt-2 md:text-xl">
+                AVAILABLE BALANCE:{" "}
+                <span className="font-semibold">
+                  {displayDigitalWalletBalance}
+                </span>
               </h3>
             </div>
           </button>

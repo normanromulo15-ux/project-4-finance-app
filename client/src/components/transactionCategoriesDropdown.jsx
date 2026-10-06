@@ -205,7 +205,11 @@ export default function TransactionCategoriesDropdown(props) {
           <div
             className="absolute right-8 top-1.5 cursor-pointer hover:scale-105 active:scale-95"
             onClick={() => {
-              setTransactionDetails((prev) => ({ ...prev, category: "", description: "" }));
+              setTransactionDetails((prev) => ({
+                ...prev,
+                category: "",
+                description: "",
+              }));
             }}
           >
             <CloseIcon />

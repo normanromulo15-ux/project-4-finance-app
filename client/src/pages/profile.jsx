@@ -24,7 +24,7 @@ export default function Profile() {
 
   return (
     <>
-      <div className="min-h-dvh p-8 pt-14 flex flex-col gap-8 md:px-25 md:py-28 lg:px-40">
+      <div className="min-h-dvh p-8 pt-14  gap-8 md:px-25 md:py-28 lg:px-40">
         <header>
           <h1 className="text-center text-3xl font-bold lg:text-4xl">
             Profile
@@ -37,7 +37,7 @@ export default function Profile() {
               {firstName} {lastName}
             </h2>
           </section>
-          <section className="flex justify-between items-center">
+          <section className="flex justify-between items-center mb-4">
             <h2>Display Setting:</h2>
             <div className="flex flex-col gap-1">
               <ToggleOffIcon sx={{ scale: 1.1 }} />

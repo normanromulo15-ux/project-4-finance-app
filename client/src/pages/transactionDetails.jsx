@@ -120,6 +120,7 @@ export default function TransactionDetails() {
                 value={
                   amountInputType === "number" ? amount : formatCurrency(amount)
                 }
+                min={0}
               />
               {amountExceedBalance && (
                 <div className="absolute right-1 top-1.5">

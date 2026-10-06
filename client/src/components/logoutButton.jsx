@@ -26,10 +26,11 @@ export default function LogoutButton() {
       console.error(error);
     }
   }
+
   return (
     <>
       <button
-        className="cursor-pointer flex gap-1 items-center justify-end md:text-lg"
+        className="transition-all active:scale-95 cursor-pointer flex gap-1 items-center justify-end md:text-lg"
         onClick={handleShowLogoutConfirmation}
       >
         <LogoutIcon />
