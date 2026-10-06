@@ -136,13 +136,13 @@ export default function Transactions() {
 
   return (
     <>
-      <div className="min-h-dvh flex flex-col pt-14 gap-4 p-8 md:gap-8 md:px-25 md:pt-28 lg:px-40 lg:py-12">
+      <div className="min-h-dvh flex flex-col pt-18 gap-4 p-8 md:gap-8 md:px-25 md:pt-28 lg:px-40 lg:py-12">
         <header>
           <h1 className="font-bold text-3xl text-center md:text-4xl">
             Transaction History
           </h1>
         </header>
-        <main className="flex-1 flex flex-col items-center gap-4 md:gap-8">
+        <main className="flex-1 flex flex-col gap-4 md:gap-8 lg:items-center">
           <div className="flex justify-center gap-2 text-xs md:text-base md:gap-4 lg:gap-6">
             {accountOptions.map((option) => {
               return (

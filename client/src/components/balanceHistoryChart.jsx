@@ -8,7 +8,7 @@ export default function BalanceHistory(props) {
   return (
     <section>
       <AreaChart
-        style={{ width: "100%", aspectRatio: 1.618, maxWidth: 600 }}
+        style={{ width: "100%", aspectRatio: 1.618, maxWidth: 650 }}
         responsive
         data={scaledBalances}
       >

@@ -103,7 +103,7 @@ export default function FundTransfer() {
 
   return (
     <>
-      <main className="relative min-h-dvh flex flex-col gap-12 p-8 pt-14 md:px-25 md:pt-28 lg:justify-center lg:items-center lg:py-12 lg:gap-6">
+      <main className="relative min-h-dvh flex flex-col gap-12 p-8 pt-18 md:px-25 md:pt-28 lg:justify-center lg:items-center lg:py-12 lg:gap-6">
         <h1 className="text-center text-3xl font-bold w-full lg:text-4xl">
           Transfer Funds
         </h1>

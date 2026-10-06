@@ -24,20 +24,20 @@ export default function Profile() {
 
   return (
     <>
-      <div className="min-h-dvh p-8 pt-14  gap-8 md:px-25 md:py-28 lg:px-40">
+      <div className="min-h-dvh p-8 pt-18 gap-8 md:px-25 md:py-28 lg:px-40">
         <header>
           <h1 className="text-center text-3xl font-bold lg:text-4xl">
             Profile
           </h1>
         </header>
-        <main className="flex flex-col gap-4 md:text-lg">
+        <main className="flex flex-col gap-4 my-8 md:text-lg">
           <section className="flex items-center justify-between">
             <h2>Full Name:</h2>
             <h2 className="font-medium">
               {firstName} {lastName}
             </h2>
           </section>
-          <section className="flex justify-between items-center mb-4">
+          <section className="flex justify-between items-center">
             <h2>Display Setting:</h2>
             <div className="flex flex-col gap-1">
               <ToggleOffIcon sx={{ scale: 1.1 }} />

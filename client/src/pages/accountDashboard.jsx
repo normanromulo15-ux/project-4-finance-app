@@ -59,7 +59,7 @@ export default function AccountDashboard() {
 
   return (
     <>
-      <div className="min-h-dvh flex flex-col gap-8 p-8 pt-14 md:px-25 md:py-28 lg:px-40 lg:py-12 lg:justify-center">
+      <div className="min-h-dvh flex flex-col gap-8 p-8 pt-18 md:px-25 md:py-28 lg:px-40 lg:py-12 lg:justify-center">
         <div className="flex flex-col gap-8 lg:flex-row lg:gap-20">
           <header className="flex flex-col gap-8 lg:flex-2">
             <section className="flex flex-col gap-2">
