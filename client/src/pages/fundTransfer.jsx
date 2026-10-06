@@ -103,13 +103,13 @@ export default function FundTransfer() {
 
   return (
     <>
-      <main className="relative min-h-dvh flex flex-col gap-12 p-8 pt-14 md:px-25 md:pt-28">
-        <h1 className="text-center text-3xl font-bold w-full">
+      <main className="relative min-h-dvh flex flex-col gap-12 p-8 pt-14 md:px-25 md:pt-28 lg:justify-center lg:items-center lg:py-12 lg:gap-6">
+        <h1 className="text-center text-3xl font-bold w-full lg:text-4xl">
           Transfer Funds
         </h1>
         <form
           autoComplete="off"
-          className="w-full flex-1 flex flex-col gap-5"
+          className="w-full flex-1 flex flex-col gap-6 lg:flex-0 lg:w-1/4"
           onSubmit={handleFundTransferSubmission}
         >
           <div className="flex flex-col gap-2">
@@ -231,12 +231,10 @@ export default function FundTransfer() {
               }
             >
               {[0, 1, 2].map((percentage) => (
-                <div
-                  key={percentage}
-                  className="flex gap-1 items-center cursor-pointer"
-                >
+                <div key={percentage} className="flex gap-1 items-center">
                   <input
                     type="radio"
+                    className="cursor-pointer"
                     id={String(percentage)}
                     name="transferFeePercentage"
                     value={String(percentage)}
@@ -257,7 +255,7 @@ export default function FundTransfer() {
             </span>
           </p>
           <button
-            className="w-full mt-auto bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="transition-all duration-200 cursor-pointer active:scale-95 hover:bg-[#2228A8] w-full mt-auto bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:bg-gray-300 disabled:cursor-not-allowed lg:mt-0"
             disabled={
               !originAccount ||
               !destinationAccount ||

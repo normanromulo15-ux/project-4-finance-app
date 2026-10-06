@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { transactionCategories as categories } from "../utils/constants.js";
+import CloseIcon from "@mui/icons-material/Close";
 import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import SchoolIcon from "@mui/icons-material/School";
 import PaymentsIcon from "@mui/icons-material/Payments";
@@ -58,6 +59,7 @@ export default function TransactionCategoriesDropdown(props) {
         )}
       </label>
       <div
+        className="relative"
         onFocus={() => {
           setShowTransactionsCategory(true);
         }}
@@ -199,6 +201,16 @@ export default function TransactionCategoriesDropdown(props) {
         <div className="absolute bottom-2 right-2">
           <ArrowDropDownIcon />
         </div>
+        {category.trim() && (
+          <div
+            className="absolute right-8 top-1.5 cursor-pointer hover:scale-105 active:scale-95"
+            onClick={() => {
+              setTransactionDetails((prev) => ({ ...prev, category: "", description: "" }));
+            }}
+          >
+            <CloseIcon />
+          </div>
+        )}
       </div>
     </div>
   );

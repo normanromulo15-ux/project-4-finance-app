@@ -21,6 +21,20 @@ export default function Transactions() {
   const defaultPage = localStorage.getItem("page") || page;
   const category = searchParams.get("category") || "all";
   const defaultCategory = localStorage.getItem("category") || category;
+  const accountOptions = [
+    { label: "All", value: "all", count: formatNumber(entryCounts.total) },
+    { label: "Cash", value: "cash", count: formatNumber(entryCounts.cash) },
+    {
+      label: "E-Wallet",
+      value: "eWallet",
+      count: formatNumber(entryCounts.eWallet),
+    },
+    {
+      label: "Savings",
+      value: "savings",
+      count: formatNumber(entryCounts.savings),
+    },
+  ];
 
   useEffect(() => {
     setSearchParams({ page: defaultPage, category: defaultCategory });
@@ -122,44 +136,28 @@ export default function Transactions() {
 
   return (
     <>
-      <div className="min-h-dvh flex flex-col pt-14 gap-4 p-8 md:gap-8 md:px-25 md:pt-28">
+      <div className="min-h-dvh flex flex-col pt-14 gap-4 p-8 md:gap-8 md:px-25 md:pt-28 lg:px-40 lg:py-12">
         <header>
           <h1 className="font-bold text-3xl text-center md:text-4xl">
             Transaction History
           </h1>
         </header>
-        <main className="flex-1 flex flex-col gap-4 md:gap-8">
-          <div className="flex justify-center gap-2 text-xs md:text-base md:gap-4">
-            <button
-              className={`cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "all" && "text-white bg-black"}`}
-              name="all"
-              onClick={handleAccountCategoryChoice}
-            >
-              All ({formatNumber(entryCounts.total)})
-            </button>
-            <button
-              className={`cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "cash" && "text-white bg-black"}`}
-              name="cash"
-              onClick={handleAccountCategoryChoice}
-            >
-              Cash ({formatNumber(entryCounts.cash)})
-            </button>
-            <button
-              className={`cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "eWallet" && "text-white bg-black"}`}
-              name="eWallet"
-              onClick={handleAccountCategoryChoice}
-            >
-              E-Wallet ({formatNumber(entryCounts.eWallet)})
-            </button>
-            <button
-              className={`cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === "savings" && "text-white bg-black"}`}
-              name="savings"
-              onClick={handleAccountCategoryChoice}
-            >
-              Savings ({formatNumber(entryCounts.savings)})
-            </button>
+        <main className="flex-1 flex flex-col items-center gap-4 md:gap-8">
+          <div className="flex justify-center gap-2 text-xs md:text-base md:gap-4 lg:gap-6">
+            {accountOptions.map((option) => {
+              return (
+                <button
+                  key={option.value}
+                  className={`transition-all duration-200 active:scale-95 active:bg-gray-200 hover:scale-105 cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === option.value && "text-white bg-black"}`}
+                  name={option.value}
+                  onClick={handleAccountCategoryChoice}
+                >
+                  {option.label} ({option.count})
+                </button>
+              );
+            })}
           </div>
-          <section className="flex flex-col md:text-lg">
+          <section className="flex flex-col md:text-lg lg:w-3/4">
             {transactions.map((e, i) => {
               let accountType;
               switch (e.account) {
@@ -176,7 +174,7 @@ export default function Transactions() {
 
               return (
                 <div
-                  className={`cursor-pointer px-2 py-3 border-b border-gray-500 flex flex-col gap-1 ${i % 2 !== 0 && "bg-gray-100"} ${i === 0 && "border-t border-gray-500"}`}
+                  className={`px-2 py-3 border-b border-gray-500 flex flex-col gap-1 ${i % 2 !== 0 && "bg-gray-100"} ${i === 0 && "border-t border-gray-500"}`}
                   key={e.reference_id}
                 >
                   <div className="flex justify-between text-sm font-medium">
