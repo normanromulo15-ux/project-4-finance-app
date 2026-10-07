@@ -63,6 +63,9 @@ export default function TransactionCategoriesDropdown(props) {
         onFocus={() => {
           setShowTransactionsCategory(true);
         }}
+        onBlur={() => {
+          setShowTransactionsCategory(false);
+        }}
       >
         <input
           type="text"
@@ -173,8 +176,8 @@ export default function TransactionCategoriesDropdown(props) {
                 return (
                   <li
                     key={transactionCategory}
-                    className="transition-all duration-200 cursor-pointer hover:bg-gray-300 active:scale-95 flex gap-2 items-center font-medium p-2 rounded-xl border bg-gray-200"
-                    onClick={() => {
+                    className="transition-all duration-200 active:scale-95 cursor-pointer hover:bg-gray-300 flex gap-2 items-center font-medium p-2 rounded-xl border bg-gray-200"
+                    onMouseDown={() => {
                       setTransactionDetails((prev) => ({
                         ...prev,
                         category: transactionCategory,
@@ -198,13 +201,18 @@ export default function TransactionCategoriesDropdown(props) {
               <p className="text-medium text-gray-500">No results found.</p>
             </div>
           ))}
-        <div className="absolute bottom-2 right-2">
+        <div
+          className="transition-all active:scale-95 cursor-pointer absolute bottom-2 right-2"
+          onMouseDown={() => {
+            setShowTransactionsCategory(true);
+          }}
+        >
           <ArrowDropDownIcon />
         </div>
         {category.trim() && (
           <div
             className="absolute right-8 top-1.5 cursor-pointer hover:scale-105 active:scale-95"
-            onClick={() => {
+            onMouseDown={() => {
               setTransactionDetails((prev) => ({
                 ...prev,
                 category: "",
