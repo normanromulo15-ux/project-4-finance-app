@@ -177,7 +177,8 @@ export default function TransactionCategoriesDropdown(props) {
                   <li
                     key={transactionCategory}
                     className="transition-all duration-200 active:scale-95 cursor-pointer hover:bg-gray-300 flex gap-2 items-center font-medium p-2 rounded-xl border bg-gray-200"
-                    onMouseDown={() => {
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
                       setTransactionDetails((prev) => ({
                         ...prev,
                         category: transactionCategory,
@@ -197,7 +198,7 @@ export default function TransactionCategoriesDropdown(props) {
               })}
             </ul>
           ) : (
-            <div className="absolute -bottom-40 z-10 w-full overflow-y-auto h-36 flex flex-col items-center justify-center border-2 bg-gray-50 rounded-lg p-4">
+            <div className="absolute -bottom-40 z-10 w-full overflow-y-auto h-36 flex flex-col items-center justify-center border-2 bg-gray-50 rounded-lg p-4 md:-bottom-36">
               <p className="text-medium text-gray-500">No results found.</p>
             </div>
           ))}

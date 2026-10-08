@@ -1,13 +1,35 @@
-import FundTransfer from "../components/fundTransferButton.jsx";
-import Transactions from "../components/transactionsButton.jsx";
-import ProfileMenu from "../components/profileMenuButton.jsx";
+import { useNavigate } from "react-router";
+import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
+import HistoryIcon from "@mui/icons-material/History";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 export default function Navigation() {
+  const navigate = useNavigate();
+  const options = [
+    {
+      endpoint: "/transfer",
+      label: "Transfer",
+      icon: <CurrencyExchangeIcon />,
+    },
+    { endpoint: "/transactions", label: "Transactions", icon: <HistoryIcon /> },
+    { endpoint: "/profile", label: "Profile", icon: <AccountCircleIcon /> },
+  ];
+
   return (
     <nav className="order-1 w-full flex items-center justify-center gap-8 md:justify-around lg:order-0 lg:justify-center lg:gap-16">
-      <FundTransfer />
-      <Transactions />
-      <ProfileMenu />
+      {options.map((option) => {
+        return (
+          <button
+            className="transition-all duration-200 active:scale-90 hover:bg-blue-50 border-b-3 border-transparent hover:border-[#2830c9] flex flex-col items-center justify-center cursor-pointer px-3 py-1 md:text-xl lg:flex-row lg:gap-2"
+            onClick={() => {
+              navigate(option.endpoint);
+            }}
+          >
+            <div>{option.icon}</div>
+            <p className="font-semibold lg:font-normal">{option.label}</p>
+          </button>
+        );
+      })}
     </nav>
   );
 }
