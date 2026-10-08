@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router";
 import { transactionCategories as categories } from "../utils/constants.js";
 import CloseIcon from "@mui/icons-material/Close";
@@ -19,6 +19,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 export default function TransactionCategoriesDropdown(props) {
+  const inputRef = useRef(null);
   const { transactionType } = useParams();
   const {
     handleTransactionDetailsInput,
@@ -50,6 +51,11 @@ export default function TransactionCategoriesDropdown(props) {
     setTransactionCategories(filteredCategories);
   }
 
+  // Function to handle category input focus
+  function handleCategoryInputFocus() {
+    inputRef.current.focus();
+  }
+
   return (
     <div className="relative flex flex-col gap-1">
       <label className="font-semibold md:text-lg" htmlFor="category">
@@ -58,26 +64,25 @@ export default function TransactionCategoriesDropdown(props) {
           <span className="text-red-500 ">*</span>
         )}
       </label>
-      <div
-        className="relative"
-        onFocus={() => {
-          setShowTransactionsCategory(true);
-        }}
-        onBlur={() => {
-          setShowTransactionsCategory(false);
-        }}
-      >
+      <div className="relative">
         <input
+          ref={inputRef}
           type="text"
-          className="cursor-pointer w-full disabled:cursor-not-allowed rounded-lg
+          className="cursor-text w-full disabled:cursor-not-allowed rounded-lg
           border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium md:placeholder:text-base"
           id="category"
           name="category"
+          value={category}
           onChange={handleTransactionDetailsInput}
+          onFocus={() => {
+            setShowTransactionsCategory(true);
+          }}
+          onBlur={() => {
+            setShowTransactionsCategory(false);
+          }}
           disabled={!amount || Number(amount) <= 0 || amountExceedBalance}
           placeholder="Select a category..."
           required={true}
-          value={category}
         />
         {showTransactionsCategory &&
           (transactionCategories.length > 0 ? (
@@ -202,18 +207,21 @@ export default function TransactionCategoriesDropdown(props) {
               <p className="text-medium text-gray-500">No results found.</p>
             </div>
           ))}
-        <div
-          className="transition-all active:scale-95 cursor-pointer absolute bottom-2 right-2"
-          onMouseDown={() => {
+        <button
+          className="transition-all active:scale-85 cursor-pointer disabled:cursor-not-allowed absolute bottom-2 right-2"
+          disabled={!amount || Number(amount) <= 0 || amountExceedBalance}
+          onClick={() => {
+            handleCategoryInputFocus();
             setShowTransactionsCategory(true);
           }}
         >
           <ArrowDropDownIcon />
-        </div>
+        </button>
         {category.trim() && (
-          <div
+          <button
             className="absolute right-8 top-1.5 cursor-pointer hover:scale-105 active:scale-95"
-            onMouseDown={() => {
+            onClick={() => {
+              handleCategoryInputFocus();
               setTransactionDetails((prev) => ({
                 ...prev,
                 category: "",
@@ -222,7 +230,7 @@ export default function TransactionCategoriesDropdown(props) {
             }}
           >
             <CloseIcon />
-          </div>
+          </button>
         )}
       </div>
     </div>
