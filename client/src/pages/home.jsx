@@ -17,7 +17,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-dvh flex flex-col items-center gap-12 p-8 pt-14 md:p-20 md:px-25 md:gap-16 lg:px-40 lg:py-12">
+    <div className="bg-[#F2F4F7] min-h-dvh flex flex-col items-center gap-12 p-8 pt-14 md:p-20 md:px-25 md:gap-16 lg:px-40 lg:py-12">
       <Navigation />
       <div className="w-full flex flex-col gap-12 lg:flex-row lg:gap-20">
         <Header cash={cash} eWallet={eWallet} formatCurrency={formatCurrency} />

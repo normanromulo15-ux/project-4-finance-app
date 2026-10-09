@@ -136,7 +136,7 @@ export default function Transactions() {
 
   return (
     <>
-      <div className="min-h-dvh flex flex-col pt-18 gap-4 p-8 md:gap-8 md:px-25 md:pt-28 lg:px-40 lg:py-12">
+      <div className="min-h-dvh flex flex-col gap-4 pt-18 p-8 md:gap-8 md:px-25 md:pt-28 lg:px-40 lg:py-12">
         <header>
           <h1 className="font-bold text-3xl text-center md:text-4xl">
             Transaction History

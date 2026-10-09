@@ -57,7 +57,7 @@ export default function Header(props) {
   }
 
   return (
-    <header className="w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-4 py-2 gap-2 md:gap-3 lg:px-10 lg:py-20   lg:justify-around lg:border-3 lg:border-t-10 lg:rounded-3xl">
+    <header className="bg-white w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-4 py-2 gap-2 md:gap-3 lg:px-10 lg:py-20   lg:justify-around lg:border-3 lg:border-t-10 lg:rounded-3xl">
       <div className="flex items-center justify-between text-xs font-medium md:text-base lg:text-xl">
         <h1>SPENDING BALANCE AS OF {currentTime}:</h1>
         <BalanceVisibility
@@ -71,7 +71,8 @@ export default function Header(props) {
       </h2>
       <div className="flex items-center justify-center gap-4 md:gap-15 lg:gap-20">
         <button
-          className="transition-all duration-200 cursor-pointer active:scale-95 hover:bg-[#2228A8] flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2 lg:py-4 lg:rounded-2xl"
+          className="transition-all duration-78
+          cursor-pointer active:scale-95 hover:bg-[#2228A8] flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2 lg:py-4 lg:rounded-2xl"
           name="credit"
           value="credit"
           onClick={handleTransaction}
@@ -80,7 +81,7 @@ export default function Header(props) {
           <p className="text-sm font-medium lg:text-xl">Income</p>
         </button>
         <button
-          className="transition-all duration-200 cursor-pointer active:scale-95 hover:bg-[#2228A8] flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2 lg:py-4 lg:rounded-2xl"
+          className="transition-all duration-75 cursor-pointer active:scale-95 hover:bg-[#2228A8] flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2 lg:py-4 lg:rounded-2xl"
           name="debit"
           value="debit"
           onClick={handleTransaction}

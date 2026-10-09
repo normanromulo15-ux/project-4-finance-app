@@ -34,7 +34,7 @@ export default function AccountOption() {
         <h1 className="text-3xl font-bold md:text-5xl">Select an account:</h1>
         <div className="w-full flex flex-col gap-8 items-center md:gap-10 lg:flex-row lg:w-1/2">
           <button
-            className={`transition-all cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "cash" && "scale-105 bg-gray-100"}`}
+            className={`transition-all duration-75 cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "cash" && "scale-105 bg-gray-100"}`}
             name="cash"
             value="cash"
             onClick={handleAccountChoice}
@@ -56,7 +56,7 @@ export default function AccountOption() {
             </div>
           </button>
           <button
-            className={`transition-all cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "eWallet" && "scale-105 bg-gray-100"}`}
+            className={`transition-all duration-75 cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "eWallet" && "scale-105 bg-gray-100"}`}
             name="eWallet"
             value="eWallet"
             onClick={handleAccountChoice}
@@ -82,7 +82,7 @@ export default function AccountOption() {
         </div>
 
         <button
-          className="transition-all cursor-pointer active:scale-95 hover:bg-[#2228A8] w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:bg-gray-300 disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0 lg:w-1/4"
+          className="transition-all duration-75 cursor-pointer active:scale-95 hover:bg-[#2228A8] w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:bg-gray-300 disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0 lg:w-1/4"
           disabled={!accountChoice}
           onClick={handleNextButtonClick}
         >

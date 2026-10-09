@@ -24,7 +24,7 @@ export default function PageNavigationBar(props) {
   return (
     <section className="flex justify-center gap-1 md:gap-2">
       <button
-        className="transition-all duration-200 active:scale-90 hover:bg-gray-200 cursor-pointer p-1 border border-gray-500 font-medium text-sm rounded-md disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-600"
+        className="transition-all duration-75 active:scale-95 hover:bg-gray-200 cursor-pointer p-1 border border-gray-500 font-medium text-sm rounded-md disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-600"
         disabled={currentPage === 1}
         onClick={() => {
           handlePageNavigation(currentPage - 1);
@@ -36,7 +36,7 @@ export default function PageNavigationBar(props) {
         return (
           <button
             key={pageNumber}
-            className={`transition-all duration-200 active:scale-90 hover:bg-gray-200 cursor-pointer px-2 py-1 border border-gray-500 font-medium rounded-md ${currentPage === pageNumber && "text-white bg-[#2830c9] border-neutral-400"}`}
+            className={`transition-all duration-75 active:scale-95 hover:bg-gray-200 cursor-pointer px-2 py-1 border border-gray-500 font-medium rounded-md ${currentPage === pageNumber && "text-white bg-[#2830c9] border-neutral-400"}`}
             onClick={() => {
               handlePageNavigation(pageNumber);
             }}
@@ -46,7 +46,7 @@ export default function PageNavigationBar(props) {
         );
       })}
       <button
-        className="transition-all duration-200 active:scale-90 hover:bg-gray-200 cursor-pointer p-1 border border-gray-500 font-medium text-sm rounded-md disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-600"
+        className="transition-all duration-75 active:scale-95 hover:bg-gray-200 cursor-pointer p-1 border border-gray-500 font-medium text-sm rounded-md disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-600"
         disabled={currentPage === totalNumberOfPages}
         onClick={() => {
           handlePageNavigation(currentPage + 1);
