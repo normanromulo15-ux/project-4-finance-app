@@ -1,5 +1,6 @@
 export default function TransactionConfirmation(props) {
   const {
+    isDisableSubmit,
     handleTransactionSubmission,
     transactionType,
     formatAmount,
@@ -44,15 +45,17 @@ export default function TransactionConfirmation(props) {
         </p>
         <div className="flex items-center justify-center gap-5">
           <button
-            className="transition-all cursor-pointer active:scale-95 hover:bg-neutral-400 hover:text-gray-800 bg-neutral-300 text-gray-700 font-medium px-3 py-2 rounded-lg"
+            className="transition-all cursor-pointer active:scale-95 hover:bg-neutral-400 hover:text-gray-800 disabled:bg-neutral-300/85 disabled:cursor-not-allowed bg-neutral-300 text-gray-700 font-medium px-3 py-2 rounded-lg"
             onClick={handleDisplayTransactionConfirmation}
             type="button"
+            disabled={isDisableSubmit}
           >
             Close
           </button>
           <button
-            className="transition-all cursor-pointer active:scale-95 hover:bg-[#2228A8] bg-[#2830c9] text-white font-medium px-3 py-2 rounded-lg"
+            className="transition-all cursor-pointer active:scale-95 hover:bg-[#2228A8] bg-[#2830c9] text-white font-medium px-3 py-2 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg"
             type="submit"
+            disabled={isDisableSubmit}
           >
             Confirm
           </button>

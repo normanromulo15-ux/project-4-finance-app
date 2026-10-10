@@ -27,6 +27,7 @@ export default function TransactionDetails() {
     useState(false);
   const [amountExceedBalance, setAmountExceedBalance] = useState(false);
   const [accountAvailableBalance, setAccountAvailableBalance] = useState(null);
+  const [isDisableSubmit, setIsDisableSubmit] = useState(false);
   const { transactionType, accountType } = useParams();
   const { firstName, lastName } = useLoaderData().fullName;
   const { cash, eWallet } = useLoaderData();
@@ -75,7 +76,9 @@ export default function TransactionDetails() {
   async function handleTransactionSubmission(e) {
     e.preventDefault();
     try {
+      setIsDisableSubmit(true);
       const response = await addTransaction(transactionDetails);
+      setIsDisableSubmit(false);
       const {
         storedTransactionAmount: transactionAmount,
         transactionReferenceId: refNo,
@@ -185,6 +188,7 @@ export default function TransactionDetails() {
       </main>
       {showTransactionConfirmation && (
         <TransactionConfirmation
+          isDisableSubmit={isDisableSubmit}
           handleTransactionSubmission={handleTransactionSubmission}
           transactionType={transactionType}
           formatAmount={formatAmount}
