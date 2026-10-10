@@ -8,6 +8,7 @@ import Accounts from "../layout/accounts.jsx";
 
 export default function Home() {
   const { cash, eWallet, savings } = useLoaderData();
+  const theme = localStorage.getItem("theme");
 
   useEffect(() => {
     async function addInterestToSavings() {
@@ -17,9 +18,13 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="bg-[#F2F4F7] min-h-dvh flex flex-col items-center gap-12 p-8 pt-14 md:p-20 md:px-25 md:gap-16 lg:px-40 lg:py-12">
+    <div
+      className={`min-h-dvh flex flex-col items-center gap-12 p-8 pt-14 md:p-20 md:px-25 md:gap-16 lg:px-40 lg:py-12 ${theme === "dark" ? "bg-gray-950" : "bg-[#F2F4F7]"}`}
+    >
       <Navigation />
-      <div className="w-full flex flex-col gap-12 lg:flex-row lg:gap-20">
+      <div
+        className={`w-full flex flex-col gap-12 lg:flex-row lg:gap-20 ${theme === "dark" && "text-white"}`}
+      >
         <Header cash={cash} eWallet={eWallet} formatCurrency={formatCurrency} />
         <Accounts
           cash={cash}

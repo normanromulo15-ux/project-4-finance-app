@@ -8,6 +8,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 
 export default function Header(props) {
+  const theme = localStorage.getItem("theme");
   const defaultBalanceVisibility = localStorage.getItem(
     "spendingBalanceVisibility",
   );
@@ -57,7 +58,9 @@ export default function Header(props) {
   }
 
   return (
-    <header className="bg-white w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-4 py-2 gap-2 md:gap-3 lg:px-10 lg:py-20   lg:justify-around lg:border-3 lg:border-t-10 lg:rounded-3xl">
+    <header
+      className={`w-full flex flex-col border border-t-8 border-[#2830c9] rounded-2xl px-4 py-2 gap-2 md:gap-3 lg:px-10 lg:py-20   lg:justify-around lg:border-3 lg:border-t-10 lg:rounded-3xl ${theme === "dark" ? "bg-gray-900" : "bg-white"}`}
+    >
       <div className="flex items-center justify-between text-xs font-medium md:text-base lg:text-xl">
         <h1>SPENDING BALANCE AS OF {currentTime}:</h1>
         <BalanceVisibility

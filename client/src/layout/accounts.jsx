@@ -7,6 +7,7 @@ import SavingsIcon from "@mui/icons-material/Savings";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 export default function Accounts(props) {
+  const theme = localStorage.getItem("theme");
   const accountsBalanceVisibility = localStorage.getItem(
     "accountsBalanceVisibility",
   );
@@ -100,7 +101,7 @@ export default function Accounts(props) {
 
           return (
             <div
-              className="bg-white transition-all duration-75 cursor-pointer active:scale-95 hover:bg-slate-200 flex justify-between items-center border border-t-4 border-[#2830c9] px-4 py-2 rounded-2xl md:p-5 lg:border-2 lg:border-t-6 lg:rounded-3xl"
+              className={`transition-all duration-75 cursor-pointer active:scale-95 flex justify-between items-center border border-t-4 border-[#2830c9] px-4 py-2 rounded-2xl md:p-5 lg:border-2 lg:border-t-6 lg:rounded-3xl ${theme === "dark" ? "bg-gray-900 hover:bg-[#072446]" : "bg-white hover:bg-blue-100"}`}
               key={accountType}
               onClick={() => navigate(`/accounts/${accountType}?period=week`)}
             >

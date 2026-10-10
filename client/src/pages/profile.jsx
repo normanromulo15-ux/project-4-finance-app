@@ -7,29 +7,48 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 
 export default function Profile() {
-  const theme = localStorage.getItem("darkMode") || "light";
-  const [displayTheme, setDisplayTheme] = useState(theme);
+  const displayThemeOptions = [
+    {
+      label: "Light",
+      icon: <LightModeIcon sx={{ scale: 0.85 }} />,
+      theme: "light",
+    },
+    {
+      label: "Dark",
+      icon: <DarkModeIcon sx={{ scale: 0.85 }} />,
+      theme: "dark",
+    },
+  ];
+  const theme = localStorage.getItem("theme") || "light";
+  const [selectedTheme, setSelectedTheme] = useState(theme);
+  const [displayTheme, setDisplayTheme] = useState({
+    label: null,
+    icon: null,
+  });
   const [showDisplayThemeOptions, setShowDisplayThemeOptions] = useState(false);
   const { fullName } = useLoaderData();
   const usersFullName = `${fullName.firstName} ${fullName.lastName}`;
-  const displayThemeOptions = [
-    {
-      name: "Light",
-      value: "light",
-      icon: <LightModeIcon sx={{ scale: 0.85 }} />,
-    },
-    {
-      name: "Dark",
-      value: "dark",
-      icon: <DarkModeIcon sx={{ scale: 0.85 }} />,
-    },
-  ];
 
-  useEffect(() => {}, [displayTheme]);
+  useEffect(() => {
+    const theme = displayThemeOptions.find(
+      (option) => option.theme === selectedTheme,
+    );
+    const { label, icon } = theme;
+    setDisplayTheme({ label, icon });
+  }, [selectedTheme]);
+
+  // Function to handle display setting preference
+  function handleDisplaySettingPreference(option) {
+    const { theme } = option;
+    localStorage.setItem("theme", theme);
+    setSelectedTheme(theme);
+  }
 
   return (
     <>
-      <div className="min-h-dvh p-8 pt-18 gap-8 md:px-25 md:py-28 lg:px-40 lg:flex lg:flex-col lg:items-center">
+      <div
+        className={`min-h-dvh p-8 pt-18 gap-8 md:px-25 md:py-28 lg:px-40 lg:flex lg:flex-col lg:items-center ${selectedTheme === "dark" && "text-white bg-gray-950"}`}
+      >
         <header>
           <h1 className="text-center text-3xl font-bold lg:text-4xl">
             Profile
@@ -52,22 +71,24 @@ export default function Profile() {
               }}
             >
               <h2 className="font-medium flex items-center">
-                <span>
-                  <LightModeIcon sx={{ scale: 0.85 }} />
-                </span>{" "}
-                <p>Light</p>
+                <span>{displayTheme.icon}</span> <p>{displayTheme.label}</p>
               </h2>
               <ArrowDropDownIcon />
               {showDisplayThemeOptions && (
-                <ul className="absolute w-full left-0 -bottom-20">
-                  {displayThemeOptions.map((theme) => {
+                <ul
+                  className={`absolute z-10 w-45 right-0 -bottom-28 p-3 border flex flex-col gap-2 ${selectedTheme === "dark" ? "bg-gray-900" : "bg-gray-100"}`}
+                >
+                  {displayThemeOptions.map((displayTheme) => {
                     return (
                       <li
-                        key={theme.name}
-                        className="transition-all duration-75 active:scale-95 hover:bg-gray-300 cursor-pointer flex items-center font-medium gap-2 border-2 rounded-lg px-2 py-1"
+                        key={displayTheme.label}
+                        className={`transition-all duration-75 active:scale-95  cursor-pointer flex items-center font-medium gap-2 border rounded-lg px-2 py-1 ${selectedTheme === "dark" ? "bg-gray-800 hover:bg-gray-900" : "bg-white hover:bg-gray-300"}`}
+                        onClick={() => {
+                          handleDisplaySettingPreference(displayTheme);
+                        }}
                       >
-                        <div>{theme.icon}</div>
-                        <p>{theme.name}</p>
+                        <div>{displayTheme.icon}</div>
+                        <p>{displayTheme.label}</p>
                       </li>
                     );
                   })}
