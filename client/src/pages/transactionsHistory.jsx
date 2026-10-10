@@ -151,7 +151,7 @@ export default function Transactions() {
               return (
                 <button
                   key={option.value}
-                  className={`transition-all duration-200 active:scale-95 active:bg-gray-200 hover:scale-105 cursor-pointer px-3 py-1 rounded-full font-semibold border border-gray-400 ${category === option.value && "text-white bg-black"}`}
+                  className={`transition-all duration-200 active:scale-95 hover:scale-105 cursor-pointer px-3 py-1 rounded-full font-semibold border border-gray-400 ${category === option.value ? (theme === "dark" ? "text-black bg-white" : "text-white bg-black") : theme === "dark" ? "text-white bg-black" : "text-black bg-white"} ${theme === "dark" ? "active:bg-gray-800 active:text-white" : "active:bg-gray-200 active:text-black"}`}
                   name={option.value}
                   onClick={handleAccountCategoryChoice}
                 >
