@@ -8,6 +8,7 @@ import PageNavigationBar from "../components/pageNavigationBar.jsx";
 import BackButton from "../components/backButton.jsx";
 
 export default function Transactions() {
+  const theme = localStorage.getItem("theme");
   const [entryCounts, setEntryCounts] = useState({
     cash: 0,
     eWallet: 0,
@@ -136,7 +137,9 @@ export default function Transactions() {
 
   return (
     <>
-      <div className="min-h-dvh flex flex-col gap-4 pt-18 p-8 md:gap-8 md:px-25 md:pt-28 lg:px-40 lg:py-12">
+      <div
+        className={`min-h-dvh flex flex-col gap-4 pt-18 p-8 md:gap-8 md:px-25 md:pt-28 lg:px-40 lg:py-12 ${theme === "dark" ? "text-white bg-gray-950" : "text-black bg-white"}`}
+      >
         <header>
           <h1 className="font-bold text-3xl text-center md:text-4xl">
             Transaction History
@@ -148,7 +151,7 @@ export default function Transactions() {
               return (
                 <button
                   key={option.value}
-                  className={`transition-all duration-200 active:scale-95 active:bg-gray-200 hover:scale-105 cursor-pointer px-3 py-1 rounded-full font-semibold  border border-gray-400 ${category === option.value && "text-white bg-black"}`}
+                  className={`transition-all duration-200 active:scale-95 active:bg-gray-200 hover:scale-105 cursor-pointer px-3 py-1 rounded-full font-semibold border border-gray-400 ${category === option.value && "text-white bg-black"}`}
                   name={option.value}
                   onClick={handleAccountCategoryChoice}
                 >
@@ -174,7 +177,7 @@ export default function Transactions() {
 
               return (
                 <div
-                  className={`px-2 py-3 border-b border-gray-500 flex flex-col gap-1 ${i % 2 !== 0 && "bg-gray-100"} ${i === 0 && "border-t border-gray-500"}`}
+                  className={`px-2 py-3 border-b border-gray-500 flex flex-col gap-1 ${i % 2 !== 0 ? (theme === "dark" ? "bg-gray-900" : "bg-gray-100") : theme === "dark" ? "bg-gray-800" : "bg-white"} ${i === 0 && "border-t border-gray-500"}`}
                   key={e.reference_id}
                 >
                   <div className="flex justify-between text-sm font-medium">
@@ -185,7 +188,7 @@ export default function Transactions() {
                   <div className="flex items-center">
                     <p className="flex-3 font-semibold">{e.description}</p>
                     <p
-                      className={`flex-2 text-end font-semibold ${e.type === "credit" ? "text-green-600" : "text-red-600"}`}
+                      className={`flex-2 text-end font-semibold ${e.type === "credit" ? (theme === "dark" ? "text-green-400" : "text-green-600") : theme === "dark" ? "text-red-400" : "text-red-600"}`}
                     >
                       {e.type === "credit"
                         ? `+${formatCurrency(Number(e.amount))}`
