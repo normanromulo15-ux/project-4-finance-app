@@ -1,7 +1,7 @@
 import { CartesianGrid, AreaChart, Area, YAxis } from "recharts";
 
-export default function BalanceHistory(props) {
-  const { balances } = props;
+export default function BalanceHistoryChart(props) {
+  const { theme, balances } = props;
   const scaledBalances = balances.map((item) => {
     return { ...item, balance: item.balance / 1e3 };
   });
@@ -25,10 +25,13 @@ export default function BalanceHistory(props) {
             value: "Balance (PHP)",
             position: "insideLeft",
             angle: -90,
-            fill: "#000000",
+            fill: `${theme === "dark" ? "#FFFFFF" : "#000000"}`,
             fontWeight: 600,
           }}
-          tick={{ fill: "#000000", fontWeight: 600 }}
+          tick={{
+            fill: `${theme === "dark" ? "#FFFFFF" : "#000000"}`,
+            fontWeight: 600,
+          }}
         />
       </AreaChart>
       <p className="text-sm md:text-base">

@@ -2,12 +2,18 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 export default function NetChangeIndicator(props) {
-  const { balanceDifference, netChangePercentage, numericBalanceDifference } =
-    props;
+  const {
+    theme,
+    balanceDifference,
+    netChangePercentage,
+    numericBalanceDifference,
+  } = props;
   const returnComponent = () => {
     if (numericBalanceDifference === 0) {
       return (
-        <h3 className="text-xl font-medium text-gray-500 md:text-2xl lg:text-3xl">
+        <h3
+          className={`text-xl font-medium md:text-2xl lg:text-3xl ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+        >
           No net change for this period
         </h3>
       );
@@ -17,13 +23,15 @@ export default function NetChangeIndicator(props) {
           <ArrowUpwardIcon
             sx={{
               color: "white",
-              background: "#046E00",
+              background: `${theme === "dark" ? "#05DF72" : "#046E00"}`,
               borderRadius: "100%",
               padding: "0.2rem",
               scale: 0.85,
             }}
           />
-          <span className="text-[#046E00] text-xl font-medium md:text-2xl lg:text-3xl">
+          <span
+            className={`text-xl font-medium md:text-2xl lg:text-3xl ${theme === "dark" ? "text-green-400" : "text-[#046E00]"}`}
+          >
             +{netChangePercentage} (+{balanceDifference})
           </span>
         </h3>
@@ -34,13 +42,15 @@ export default function NetChangeIndicator(props) {
           <ArrowDownwardIcon
             sx={{
               color: "white",
-              background: "#C0151D",
+              background: `${theme == "dark" ? "#FF6467" : "#C0151D"}`, 
               borderRadius: "100%",
               padding: "0.2rem",
               scale: 0.85,
             }}
           />
-          <span className="text-[#C0151D] text-xl font-medium md:text-2xl lg:text-3xl">
+          <span
+            className={`text-xl font-medium md:text-2xl lg:text-3xl ${theme === "dark" ? "text-red-400" : "text-[#C0151D]"}`}
+          >
             {netChangePercentage} ({balanceDifference})
           </span>
         </h3>

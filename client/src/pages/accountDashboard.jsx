@@ -6,10 +6,11 @@ import { formatCurrency } from "../utils/formatters.js";
 import { accounts } from "../utils/constants.js";
 import NetChangeIndicator from "../components/netChangeIndicator.jsx";
 import PeriodSelector from "../components/periodSelector.jsx";
-import BalanceHistory from "../components/balanceHistoryChart.jsx";
+import BalanceHistoryChart from "../components/balanceHistoryChart.jsx";
 import BackButton from "../components/backButton.jsx";
 
 export default function AccountDashboard() {
+  const theme = localStorage.getItem("theme");
   const { account } = useParams();
   const selectedAccount = accounts.find((e) => e.value === account);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -59,7 +60,9 @@ export default function AccountDashboard() {
 
   return (
     <>
-      <div className="min-h-dvh flex flex-col gap-8 p-8 pt-18 md:px-25 md:py-28 lg:px-40 lg:py-12 lg:justify-center">
+      <div
+        className={`min-h-dvh flex flex-col gap-8 p-8 pt-18 md:px-25 md:py-28 lg:px-40 lg:py-12 lg:justify-center ${theme === "dark" ? "bg-gray-950 text-white" : "text-black bg-white"}`}
+      >
         <div className="flex flex-col gap-8 lg:flex-row lg:gap-20">
           <header className="flex flex-col gap-8 lg:flex-2">
             <section className="flex flex-col gap-2">
@@ -70,6 +73,7 @@ export default function AccountDashboard() {
                 {displayBalance}
               </h2>
               <NetChangeIndicator
+                theme={theme}
                 balanceDifference={balanceDifference}
                 netChangePercentage={netChangePercentage}
                 numericBalanceDifference={numericBalanceDifference}
@@ -90,10 +94,11 @@ export default function AccountDashboard() {
           </header>
           <section className="flex flex-col gap-8 lg:flex-3">
             <PeriodSelector
+              theme={theme}
               period={period}
               onPeriodChange={(period) => setSearchParams({ period })}
             />
-            <BalanceHistory balances={balances} />
+            <BalanceHistoryChart theme={theme} balances={balances} />
           </section>
         </div>
       </div>

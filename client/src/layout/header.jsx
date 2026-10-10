@@ -72,7 +72,7 @@ export default function Header(props) {
       <h2 className="font-bold text-3xl md:text-4xl lg:text-5xl">
         {balanceVisibility ? spendingBalance : "₱·····"}
       </h2>
-      <div className="flex items-center justify-center gap-4 md:gap-15 lg:gap-20">
+      <div className="flex items-center justify-center gap-4 md:gap-15">
         <button
           className="transition-all duration-78
           cursor-pointer active:scale-95 hover:bg-[#2228A8] flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2 lg:py-4 lg:rounded-2xl"
