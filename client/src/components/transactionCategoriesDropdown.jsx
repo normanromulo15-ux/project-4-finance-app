@@ -22,6 +22,7 @@ export default function TransactionCategoriesDropdown(props) {
   const inputRef = useRef(null);
   const { transactionType } = useParams();
   const {
+    theme,
     handleTransactionDetailsInput,
     category,
     amount,
@@ -61,15 +62,22 @@ export default function TransactionCategoriesDropdown(props) {
       <label className="font-semibold md:text-lg" htmlFor="category">
         Category:{" "}
         {(!amount || !category) && transactionType === "debit" && (
-          <span className="text-red-500 ">*</span>
+          <span
+            className={`${theme === "dark" ? "text-red-400" : "text-red-500"}`}
+          >
+            *
+          </span>
         )}
       </label>
-      <div className="relative">
+      <div
+        className={`relative cursor-text rounded-lg 
+          border font-medium ${theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-600 bg-gray-100"}`}
+      >
         <input
           ref={inputRef}
           type="text"
-          className="cursor-text w-full disabled:cursor-not-allowed rounded-lg
-          border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium md:placeholder:text-base"
+          className="w-full rounded-lg p-2 disabled:cursor-not-allowed placeholder:text-sm md:placeholder:text-base"
+          disabled={!amount || Number(amount) <= 0 || amountExceedBalance}
           id="category"
           name="category"
           value={category}
@@ -80,14 +88,13 @@ export default function TransactionCategoriesDropdown(props) {
           onBlur={() => {
             setShowTransactionsCategory(false);
           }}
-          disabled={!amount || Number(amount) <= 0 || amountExceedBalance}
           placeholder="Select a category..."
           required={true}
         />
         {showTransactionsCategory &&
           (transactionCategories.length > 0 ? (
             <ul
-              className="absolute -bottom-40 z-10 w-full overflow-y-auto h-36 flex flex-col gap-3 border-2 bg-gray-50 rounded-lg p-4 md:h-72 md:-bottom-72 lg:-bottom-72"
+              className={`absolute -bottom-40 z-10 w-full overflow-y-auto h-36 flex flex-col gap-3 border-2 rounded-lg p-4 md:h-72 md:-bottom-72 lg:-bottom-72 ${theme === "dark" ? "bg-gray-800" : "bg-gray-50"}`}
               id="transaction-categories"
             >
               {transactionCategories.map((transactionCategory) => {
@@ -181,7 +188,7 @@ export default function TransactionCategoriesDropdown(props) {
                 return (
                   <li
                     key={transactionCategory}
-                    className="transition-all duration-200 active:scale-95 cursor-pointer hover:bg-gray-300 flex gap-2 items-center font-medium p-2 rounded-xl border bg-gray-200"
+                    className={`transition-all duration-200 active:scale-95 cursor-pointer flex gap-2 items-center font-medium p-2 rounded-xl border  ${theme === "dark" ? "bg-gray-900 hover:bg-gray-700" : "bg-gray-200 hover:bg-gray-300"}`}
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       setTransactionDetails((prev) => ({
@@ -194,7 +201,9 @@ export default function TransactionCategoriesDropdown(props) {
                     <div>{transactionIcon}</div>
                     <div>
                       <h1 className="text-lg">{transactionCategory}</h1>
-                      <p className="text-sm text-gray-600">
+                      <p
+                        className={`text-sm ${theme === "dark" ? "text-white" : "text-gray-600"}`}
+                      >
                         Examples: {transactionExamples}
                       </p>
                     </div>
@@ -208,7 +217,7 @@ export default function TransactionCategoriesDropdown(props) {
             </div>
           ))}
         <button
-          className="transition-all active:scale-85 cursor-pointer disabled:cursor-not-allowed absolute bottom-2 right-2"
+          className="absolute transition-all active:scale-85 cursor-pointer disabled:cursor-not-allowed bottom-2 right-2"
           disabled={!amount || Number(amount) <= 0 || amountExceedBalance}
           onClick={() => {
             handleCategoryInputFocus();

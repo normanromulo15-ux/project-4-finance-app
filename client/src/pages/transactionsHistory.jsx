@@ -202,6 +202,7 @@ export default function Transactions() {
         </main>
         <footer>
           <PageNavigationBar
+            theme={theme}
             totalEntries={entryCounts.current}
             handlePageNavigation={handlePageNavigation}
             currentPage={Number(page)}

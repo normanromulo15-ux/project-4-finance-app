@@ -7,7 +7,7 @@ export default function LogoutConfirmation(props) {
       className={`h-dvh flex flex-col items-center justify-center fixed inset-0 z-10 ${theme === "dark" ? "bg-gray-500/90" : "bg-black/70"}`}
     >
       <section
-        className={`h-1/5 z-20 p-4 flex flex-col justify-center gap-4 md:h-1/4 md:px-12 md:py-16 md:gap-0 md:justify-around lg:h-1/3 lg:justify-between ${theme === "dark" ? "bg-gray-900" : "bg-white"}`}
+        className={`h-1/5 z-20 p-4 flex flex-col justify-center gap-4 md:h-1/4 md:px-12 md:py-16 md:gap-0 md:justify-around lg:h-1/3 lg:justify-between ${theme === "dark" ? "bg-gray-950" : "bg-white"}`}
       >
         <div className="text-lg font-semibold md:text-2xl">
           Are you sure you want to logout?

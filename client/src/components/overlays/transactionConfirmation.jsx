@@ -1,5 +1,6 @@
 export default function TransactionConfirmation(props) {
   const {
+    theme,
     isDisableSubmit,
     handleTransactionSubmission,
     transactionType,
@@ -13,10 +14,11 @@ export default function TransactionConfirmation(props) {
   } = props;
 
   return (
-    <div className="z-10 fixed flex flex-col items-center justify-center h-dvh bg-black/70 p-8 inset-0 md:px-30">
-      <form
-        className="z-20 w-full flex flex-col items-center justify-center bg-white p-4 gap-2 border-4 border-[#2830c9] rounded-2xl md:h-1/2 md:justify-evenly md:border-6 lg:h-4/5 lg:w-1/2 lg:px-8"
-        onSubmit={handleTransactionSubmission}
+    <div
+      className={`z-10 fixed flex flex-col items-center justify-center h-dvh p-8 inset-0 md:px-30 ${theme === "dark" ? "bg-gray-500/90" : "bg-black/70"}`}
+    >
+      <div
+        className={`z-20 w-full flex flex-col items-center justify-center p-4 gap-2 border-4 border-[#2830c9] rounded-2xl md:h-1/2 md:justify-evenly md:border-6 lg:h-4/5 lg:w-1/2 lg:px-8 ${theme === "dark" ? "bg-gray-950 text-white" : "bg-white text-black"}`}
       >
         <h1 className="text-center text-xl font-bold md:text-2xl lg:text-3xl">
           You are about to {transactionType === "debit" ? "spend" : "save"}{" "}
@@ -45,22 +47,20 @@ export default function TransactionConfirmation(props) {
         </p>
         <div className="flex items-center justify-center gap-5">
           <button
-            className="transition-all cursor-pointer active:scale-95 hover:bg-neutral-400 hover:text-gray-800 disabled:bg-neutral-300/85 disabled:cursor-not-allowed bg-neutral-300 text-gray-700 font-medium px-3 py-2 rounded-lg"
-            onClick={handleDisplayTransactionConfirmation}
-            type="button"
-            disabled={isDisableSubmit}
-          >
-            Close
-          </button>
-          <button
-            className="transition-all cursor-pointer active:scale-95 hover:bg-[#2228A8] bg-[#2830c9] text-white font-medium px-3 py-2 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg"
-            type="submit"
+            className={`transition-all cursor-pointer active:scale-95 bg-[#2830c9] text-white font-medium px-3 py-2 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg ${theme === "dark" ? "hover:bg-[#363ED6]" : "hover:bg-[#2228A8]"}`}
+            onClick={handleTransactionSubmission}
             disabled={isDisableSubmit}
           >
             Confirm
           </button>
+          <button
+            className={`transition-all cursor-pointer active:scale-95 bg-gray-300 text-gray-700 font-medium px-3 py-2 rounded-lg ${theme == "dark" ? "hover:bg-gray-200 hover:text-gray-600" : "hover:bg-gray-400 hover:text-gray-800"}`}
+            onClick={handleDisplayTransactionConfirmation}
+          >
+            Close
+          </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import TransactionConfirmation from "../components/overlays/transactionConfirmat
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 export default function TransactionDetails() {
+  const theme = localStorage.getItem("theme");
   const navigate = useNavigate();
   const [amountInputType, setAmountInputType] = useState("number");
   const [transactionDetails, setTransactionDetails] = useState({
@@ -39,6 +40,13 @@ export default function TransactionDetails() {
     (transactionType === "debit" &&
       (!amount || !category || !description.trim())) ||
     (transactionType === "credit" && (!amount || !description.trim()));
+  const isReviewTransactionButtonDisabled =
+    amountExceedBalance ||
+    Number(amount) <= 0 ||
+    !amount.trim() ||
+    (!transactionCategories.includes(category) &&
+      transactionType === "debit") ||
+    !description.trim();
 
   useEffect(() => {
     setAccountAvailableBalance(
@@ -78,7 +86,6 @@ export default function TransactionDetails() {
     try {
       setIsDisableSubmit(true);
       const response = await addTransaction(transactionDetails);
-      setIsDisableSubmit(false);
       const {
         storedTransactionAmount: transactionAmount,
         transactionReferenceId: refNo,
@@ -95,7 +102,9 @@ export default function TransactionDetails() {
 
   return (
     <>
-      <main className="min-h-dvh flex flex-col justify-center items-center px-8 pb-8 pt-40 gap-8 md:px-25 md:pt-60 md:pb-16 md:gap-16 lg:py-12">
+      <main
+        className={`min-h-dvh flex flex-col justify-center items-center px-8 pb-8 pt-40 gap-8 md:px-25 md:pt-60 md:pb-16 md:gap-16 lg:py-12 ${theme === "dark" && "bg-gray-950 text-white"}`}
+      >
         <h1 className="text-3xl font-bold md:text-4xl">Transaction Details</h1>
         <form
           autoComplete="off"
@@ -104,11 +113,17 @@ export default function TransactionDetails() {
           <div className="relative flex flex-col gap-1">
             <label className="font-semibold md:text-lg" htmlFor="amount">
               Enter an amount (₱):{" "}
-              {!amount && <span className="text-red-500 ">*</span>}
+              {!amount && (
+                <span
+                  className={`${theme === "dark" ? "text-red-400" : "text-red-500"} `}
+                >
+                  *
+                </span>
+              )}
             </label>
             <div
-              className={`w-full relative items-center cursor-text rounded-lg
-                border font-medium ${amountExceedBalance ? "border-red-500 bg-red-100 text-red-500" : "border-gray-600 bg-gray-100"}`}
+              className={`relative cursor-text rounded-lg 
+                border font-medium ${amountExceedBalance ? (theme === "dark" ? "border-red-400 bg-red-200 text-red-600" : "border-red-500 bg-red-100 text-red-500") : theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-500 bg-gray-100"}`}
             >
               <input
                 className="w-full rounded-lg p-2 placeholder:text-sm md:placeholder:text-base"
@@ -132,7 +147,7 @@ export default function TransactionDetails() {
               )}
             </div>
             <p
-              className={`font-medium text-sm ${amountExceedBalance && "text-red-500"} md:text-base`}
+              className={`font-medium text-sm ${amountExceedBalance && (theme === "dark" ? "text-red-400" : "text-red-500")} md:text-base`}
             >
               {amountExceedBalance
                 ? " Amount exceeded the account balance"
@@ -141,6 +156,7 @@ export default function TransactionDetails() {
           </div>
           {transactionType === "debit" && (
             <TransactionCategoriesDropdown
+              theme={theme}
               handleTransactionDetailsInput={handleTransactionDetailsInput}
               category={category}
               amount={amount}
@@ -151,12 +167,18 @@ export default function TransactionDetails() {
           <div className="flex flex-col gap-1">
             <label className="font-semibold md:text-lg" htmlFor="description">
               Description:{" "}
-              {isDescriptionRequired && <span className="text-red-500">*</span>}
+              {isDescriptionRequired && (
+                <span
+                  className={`${theme === "dark" ? "text-red-400" : "text-red-500"} `}
+                >
+                  *
+                </span>
+              )}
             </label>
             <input
               type="text"
-              className="cursor-text disabled:cursor-not-allowed rounded-lg
-              border border-gray-600 bg-gray-100 p-2 placeholder:text-sm font-medium md:placeholder:text-base"
+              className={`cursor-text disabled:cursor-not-allowed rounded-lg
+              border p-2 placeholder:text-sm font-medium md:placeholder:text-base ${theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-500 bg-gray-100"}`}
               id="description"
               name="description"
               onChange={handleTransactionDetailsInput}
@@ -172,15 +194,8 @@ export default function TransactionDetails() {
           </div>
         </form>
         <button
-          className="transition-all duration-75 cursor-pointer hover:bg-[#2228A8] active:scale-95 w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:bg-gray-300 disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0 lg:w-1/4"
-          disabled={
-            amountExceedBalance ||
-            Number(amount) <= 0 ||
-            !amount.trim() ||
-            (!transactionCategories.includes(category) &&
-              transactionType === "debit") ||
-            !description.trim()
-          }
+          className={`transition-all duration-75 cursor-pointer w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0 lg:w-1/4 ${theme === "dark" ? "disabled:bg-gray-400 hover:bg-[#363ED6]" : "disabled:bg-gray-300 hover:bg-[#2228A8]"} ${!isReviewTransactionButtonDisabled && "active:scale-95"}`}
+          disabled={isReviewTransactionButtonDisabled}
           onClick={handleDisplayTransactionConfirmation}
         >
           Review Your Transaction
@@ -188,6 +203,7 @@ export default function TransactionDetails() {
       </main>
       {showTransactionConfirmation && (
         <TransactionConfirmation
+          theme={theme}
           isDisableSubmit={isDisableSubmit}
           handleTransactionSubmission={handleTransactionSubmission}
           transactionType={transactionType}
