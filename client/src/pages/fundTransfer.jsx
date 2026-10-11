@@ -6,6 +6,7 @@ import BackButton from "../components/backButton.jsx";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 export default function FundTransfer() {
+  const theme = localStorage.getItem("theme");
   const [amountInputType, setAmountInputType] = useState("number");
   const [transferDetails, setTransferDetails] = useState({
     originAccount: "",
@@ -50,6 +51,11 @@ export default function FundTransfer() {
       numericBalance: Number(savings.latestAccountBalance),
     },
   ];
+  const isDisableConfirmButton =
+    !originAccount ||
+    !destinationAccount ||
+    !transferAmount ||
+    transferFeePercentage === "";
 
   useEffect(() => {
     const amountToTransfer =
@@ -103,7 +109,9 @@ export default function FundTransfer() {
 
   return (
     <>
-      <main className="relative min-h-dvh flex flex-col gap-12 p-8 pt-18 md:px-25 md:pt-28 lg:justify-center lg:items-center lg:py-12 lg:gap-6">
+      <main
+        className={`relative min-h-dvh flex flex-col gap-12 p-8 pt-18 md:px-25 md:pt-28 lg:justify-center lg:items-center lg:py-12 lg:gap-6 ${theme === "dark" ? "bg-gray-950 text-white" : "bg-white text-black"}`}
+      >
         <h1 className="text-center text-3xl font-bold w-full lg:text-4xl">
           Transfer Funds
         </h1>
@@ -117,10 +125,17 @@ export default function FundTransfer() {
               className="font-semibold md:text-lg"
               htmlFor="origin-account"
             >
-              From: {!originAccount && <span className="text-red-500">*</span>}
+              From:{" "}
+              {!originAccount && (
+                <span
+                  className={`${theme === "dark" ? "text-red-400" : "text-red-500"}`}
+                >
+                  *
+                </span>
+              )}
             </label>
             <select
-              className="cursor-pointer border-gray-600 bg-gray-100 border-2 p-2 font-medium rounded-lg"
+              className={`cursor-pointer border-2 p-2 font-medium rounded-lg ${theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-500 bg-gray-100"}`}
               id="origin-account"
               name="originAccount"
               onChange={handleTransferDetails}
@@ -148,10 +163,16 @@ export default function FundTransfer() {
               htmlFor="destination-account"
             >
               To:{" "}
-              {!destinationAccount && <span className="text-red-500">*</span>}
+              {!destinationAccount && (
+                <span
+                  className={`${theme === "dark" ? "text-red-400" : "text-red-500"}`}
+                >
+                  *
+                </span>
+              )}
             </label>
             <select
-              className="cursor-pointer border-gray-600 bg-gray-100 border-2 p-2 font-medium rounded-lg"
+              className={`cursor-pointer border-2 p-2 font-medium rounded-lg ${theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-500 bg-gray-100"}`}
               id="destination-account"
               name="destinationAccount"
               onChange={handleTransferDetails}
@@ -172,15 +193,21 @@ export default function FundTransfer() {
           <div className="flex flex-col gap-2">
             <label className="font-semibold md:text-lg" htmlFor="amount">
               Amount To Transfer (₱):{" "}
-              {!transferAmount && <span className="text-red-500">*</span>}
+              {!transferAmount && (
+                <span
+                  className={`${theme === "dark" ? "text-red-400" : "text-red-500"}`}
+                >
+                  *
+                </span>
+              )}
             </label>
             <div
-              className={`relative disabled:cursor-not-allowed disabled:text-gray-400 disabled:placeholder:text-gray-400
+              className={`relative 
                 cursor-text rounded-lg
-                border-2 font-medium  ${amountExceedBalance ? "border-red-500 bg-red-100 text-red-500" : "border-gray-600 bg-gray-100"}`}
+                border-2 font-medium ${amountExceedBalance ? (theme === "dark" ? "border-red-400 bg-red-200 text-red-600" : "border-red-500 bg-red-100 text-red-500") : theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-500 bg-gray-100"}`}
             >
               <input
-                className="placeholder:text-sm p-2 w-full rounded-lg md:placeholder:text-base"
+                className="placeholder:text-sm disabled:cursor-not-allowed disabled:text-gray-500/95 disabled:placeholder:text-gray-400 p-2 w-full rounded-lg md:placeholder:text-base"
                 id="amount"
                 min={1}
                 name="transferAmount"
@@ -199,7 +226,7 @@ export default function FundTransfer() {
               />
               {amountExceedBalance && (
                 <>
-                  <p className="absolute font-medium text-sm text-red-500">
+                  <p className="absolute -bottom-6 font-medium text-sm text-red-500">
                     Amount exceeded the account balance
                   </p>
                   <div className="absolute right-1 top-1.5">
@@ -213,11 +240,15 @@ export default function FundTransfer() {
             <label className="font-semibold" htmlFor="transfer-fee">
               Transfer Fee Percentage:{" "}
               {transferFeePercentage === "" && (
-                <span className="text-red-500">*</span>
+                <span
+                  className={`${theme === "dark" ? "text-red-400" : "text-red-500"}`}
+                >
+                  *
+                </span>
               )}
             </label>
             <fieldset
-              className="disabled:cursor-not-allowed disabled:text-gray-400 disabled:placeholder:text-gray-400 border-gray-600 bg-gray-100 flex justify-evenly border-2 p-2 font-medium rounded-lg"
+              className={`disabled:cursor-not-allowed flex justify-evenly border-2 p-2 font-medium rounded-lg ${theme === "dark" ? "border-gray-600 bg-gray-800 disabled:text-gray-500/95" : "border-gray-500 bg-gray-100 disabled:text-gray-400 disabled:placeholder:text-gray-400"}`}
               id="transfer-fee"
               name="transferFeePercentage"
               onChange={handleTransferDetails}
@@ -234,7 +265,7 @@ export default function FundTransfer() {
                 <div key={percentage} className="flex gap-1 items-center">
                   <input
                     type="radio"
-                    className="cursor-pointer"
+                    className="disabled:cursor-not-allowed cursor-pointer"
                     id={String(percentage)}
                     name="transferFeePercentage"
                     value={String(percentage)}
@@ -255,13 +286,8 @@ export default function FundTransfer() {
             </span>
           </p>
           <button
-            className="transition-all duration-200 cursor-pointer active:scale-95 hover:bg-[#2228A8] w-full mt-auto bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:bg-gray-300 disabled:cursor-not-allowed lg:mt-0"
-            disabled={
-              !originAccount ||
-              !destinationAccount ||
-              !transferAmount ||
-              transferFeePercentage === ""
-            }
+            className={`transition-all duration-200 cursor-pointer w-full mt-auto bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:bg-gray-300 disabled:cursor-not-allowed lg:mt-0 ${!isDisableConfirmButton && "active:scale-95"} ${theme === "dark" ? "hover:bg-[#363ED6] disabled:bg-gray-400" : "hover:bg-[#2228A8] disabled:bg-gray-300"}`}
+            disabled={isDisableConfirmButton}
             type="submit"
           >
             Confirm

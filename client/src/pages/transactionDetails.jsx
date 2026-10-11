@@ -115,7 +115,7 @@ export default function TransactionDetails() {
               Enter an amount (₱):{" "}
               {!amount && (
                 <span
-                  className={`${theme === "dark" ? "text-red-400" : "text-red-500"} `}
+                  className={`${theme === "dark" ? "text-red-400" : "text-red-500"}`}
                 >
                   *
                 </span>
@@ -177,7 +177,7 @@ export default function TransactionDetails() {
             </label>
             <input
               type="text"
-              className={`cursor-text disabled:cursor-not-allowed rounded-lg
+              className={`cursor-text disabled:cursor-not-allowed disabled:text-gray-500/95 disabled:placeholder:text-gray-400 rounded-lg
               border p-2 placeholder:text-sm font-medium md:placeholder:text-base ${theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-500 bg-gray-100"}`}
               id="description"
               name="description"

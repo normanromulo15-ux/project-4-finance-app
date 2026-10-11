@@ -76,7 +76,7 @@ export default function TransactionCategoriesDropdown(props) {
         <input
           ref={inputRef}
           type="text"
-          className="w-full rounded-lg p-2 disabled:cursor-not-allowed placeholder:text-sm md:placeholder:text-base"
+          className="w-full rounded-lg p-2 disabled:cursor-not-allowed disabled:text-gray-500/95 disabled:placeholder:text-gray-400 placeholder:text-sm md:placeholder:text-base"
           disabled={!amount || Number(amount) <= 0 || amountExceedBalance}
           id="category"
           name="category"
