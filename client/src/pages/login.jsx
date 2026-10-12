@@ -13,9 +13,9 @@ export default function Login() {
     email: "",
     password: "",
   });
-  const [incorrectCredentials, setIncorrectCredentials] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [disableSigIn, setDisableSignIn] = useState(false);
+  const [isIncorrectCredentials, setIsIncorrectCredentials] = useState(false);
+  const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isEnableSignIn, setIsEnableSignIn] = useState(false);
   const navigate = useNavigate();
 
   const { email, password } = userCredentials;
@@ -25,37 +25,39 @@ export default function Login() {
     accessToken && navigate("/");
   }, [accessToken]);
 
+  // Hook to dynamically enable the sign-in button if the required conditions are met
+  useEffect(() => {
+    setIsEnableSignIn(email && password.length >= 8);
+  }, [email, password]);
+
   // Handle the user credentials input
   function handleUserCredentialsInput(e) {
     const { name, value } = e.target;
-
     setUserCredentials((prev) => ({ ...prev, [name]: value }));
   }
 
   // Handle show password
   function handleShowPassword() {
-    setShowPassword((prev) => !prev);
+    setIsShowPassword((prev) => !prev);
   }
 
   // Handle user credentials submission
   async function handleUserCredentialsSubmission(e) {
     e.preventDefault();
     try {
-      setDisableSignIn(true);
       const response = await loginUser(userCredentials);
       setAccessToken(response.accessToken);
       setUserCredentials({
         email: "",
         password: "",
       });
-      setDisableSignIn(false);
     } catch (error) {
       console.error(error);
-      setIncorrectCredentials(true);
-      setDisableSignIn(true);
+      setIsIncorrectCredentials(true);
+      setIsEnableSignIn(false);
       setTimeout(() => {
-        setIncorrectCredentials(false);
-        setDisableSignIn(false);
+        setIsIncorrectCredentials(false);
+        setIsEnableSignIn(true);
       }, 1000);
     }
   }
@@ -73,7 +75,7 @@ export default function Login() {
           >
             <input
               className="bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
-              type="text"
+              type="email"
               id="email"
               name="email"
               value={email}
@@ -84,11 +86,11 @@ export default function Login() {
               required={true}
             />
             <div
-              className={`relative border ${incorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}  py-2 px-3 rounded-lg flex`}
+              className={`relative border ${isIncorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}  py-2 px-3 rounded-lg flex`}
             >
               <input
                 className="flex-1"
-                type={showPassword ? "text" : "password"}
+                type={isShowPassword ? "text" : "password"}
                 id="password"
                 minLength={8}
                 name="password"
@@ -97,7 +99,7 @@ export default function Login() {
                 placeholder="Password"
                 required={true}
               />
-              {showPassword ? (
+              {isShowPassword ? (
                 <div className="cursor-pointer active:scale-95">
                   <VisibilityOffIcon
                     className="scale-85"
@@ -113,15 +115,14 @@ export default function Login() {
                 </div>
               )}
             </div>
-            {incorrectCredentials && (
+            {isIncorrectCredentials && (
               <p className="text-red-600 text-center font-semibold text-sm">
                 Incorrect email or password.
               </p>
             )}
-
             <button
-              className="transition-all duration-200 cursor-pointer active:scale-95 hover:bg-[#2228A8] flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
-              disabled={disableSigIn}
+              className={`transition-all duration-200 cursor-pointer hover:bg-[#2228A8] disabled:bg-gray-300 disabled:cursor-not-allowed flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white font-medium ${isEnableSignIn && "active:scale-95"}`}
+              disabled={!isEnableSignIn}
             >
               <p>Sign In</p>
             </button>
@@ -129,9 +130,9 @@ export default function Login() {
           <p className="text-center text-sm md:text-base">
             Don't have an account?{" "}
             <span
-              className="font-semibold text-[#2830c9]"
+              className="transition-all duration-75 hover:underline cursor-pointer font-semibold text-[#2830c9]"
               onClick={() => {
-                console.log("Script to redirect to the register page.");
+                navigate("/register");
               }}
             >
               Register here.

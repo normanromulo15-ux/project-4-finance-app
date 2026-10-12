@@ -45,7 +45,7 @@ router.post("/register", async (req, res) => {
       "SELECT email FROM users WHERE email = $1",
       [email],
     );
-    if (existingUser.rowCount > 0)
+    if (existingUser.rowCount === 1)
       return res.status(409).json({ message: "User already exists" });
 
     // Hash the password
