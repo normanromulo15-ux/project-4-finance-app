@@ -16,7 +16,7 @@ const router = express.Router();
 // Create a new user
 router.post("/register", async (req, res) => {
   try {
-    const { email, firstName, lastName, birth_date, password } = req.body;
+    const { email, firstName, lastName, birthDate, password } = req.body;
     const userId = crypto.randomUUID();
     const formattedEmail = email.trim().toLowerCase();
     const formattedFirstName = firstName
@@ -59,7 +59,7 @@ router.post("/register", async (req, res) => {
         formattedEmail,
         formattedLastName,
         formattedFirstName,
-        birth_date,
+        birthDate,
         hashedPassword,
       ],
     );

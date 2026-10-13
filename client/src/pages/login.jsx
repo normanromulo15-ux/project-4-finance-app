@@ -73,41 +73,40 @@ export default function Login() {
             className="relative flex flex-col justify-center gap-4 md:text-lg"
             onSubmit={handleUserCredentialsSubmission}
           >
-            <input
-              className="bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={handleUserCredentialsInput}
-              placeholder="Email"
-              autoFocus={true}
-              autoComplete="on"
-              required={true}
-            />
-            <div
-              className={`relative border ${isIncorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}  py-2 px-3 rounded-lg flex`}
-            >
+            <div>
               <input
-                className="flex-1"
+                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
+                type="email"
+                name="email"
+                value={email}
+                onChange={handleUserCredentialsInput}
+                placeholder="Email"
+                autoFocus={true}
+                autoComplete="on"
+                required={true}
+              />
+            </div>
+            <div className="relative">
+              <input
+                className={`w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 border ${isIncorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"} py-2 px-3 rounded-lg flex`}
                 type={isShowPassword ? "text" : "password"}
-                id="password"
                 minLength={8}
                 name="password"
                 value={password}
                 onChange={handleUserCredentialsInput}
                 placeholder="Password"
+                autoComplete="off"
                 required={true}
               />
               {isShowPassword ? (
-                <div className="cursor-pointer active:scale-95">
+                <div className="absolute top-1.5 right-2 cursor-pointer active:scale-95">
                   <VisibilityOffIcon
                     className="scale-85"
                     onClick={handleShowPassword}
                   />
                 </div>
               ) : (
-                <div className="cursor-pointer active:scale-95">
+                <div className="absolute top-1.5 right-2 cursor-pointer active:scale-95">
                   <VisibilityIcon
                     className="scale-85"
                     onClick={handleShowPassword}

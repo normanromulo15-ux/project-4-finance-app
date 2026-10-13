@@ -5,7 +5,7 @@ export const transactionCategories = [
   "Financial",
   "Food",
   "Government",
-  "Health", 
+  "Health",
   "Housing",
   "Leisure",
   "Personal",
@@ -39,3 +39,33 @@ export const accounts = [
   { title: "E-Wallet", value: "eWallet" },
   { title: "Savings", value: "savings" },
 ];
+
+// List of months
+const months = [
+  { month: "January", order: 1 },
+  { month: "February", order: 2 },
+  { month: "March", order: 3 },
+  { month: "April", order: 4 },
+  { month: "May", order: 5 },
+  { month: "June", order: 6 },
+  { month: "July", order: 7 },
+  { month: "August", order: 8 },
+  { month: "September", order: 9 },
+  { month: "October", order: 10 },
+  { month: "November", order: 11 },
+  { month: "December", order: 12 },
+];
+
+// List of days
+const days = new Array(31).fill(1).map((day, index) => day + index);
+
+// List of years
+const years = () => {
+  const numberOfYears = 150;
+  const endingYear = new Date().getFullYear();
+  const startingYear = endingYear - numberOfYears;
+  const listOfYears = new Array(endingYear - startingYear + 1)
+    .fill(startingYear)
+    .map((year, index) => year + index);
+  return listOfYears;
+};
