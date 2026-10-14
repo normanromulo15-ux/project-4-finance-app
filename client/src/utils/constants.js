@@ -41,7 +41,7 @@ export const accounts = [
 ];
 
 // List of months
-const months = [
+export const months = [
   { month: "January", order: 1 },
   { month: "February", order: 2 },
   { month: "March", order: 3 },
@@ -57,10 +57,10 @@ const months = [
 ];
 
 // List of days
-const days = new Array(31).fill(1).map((day, index) => day + index);
+export const days = new Array(31).fill(1).map((day, index) => day + index);
 
 // List of years
-const years = () => {
+export const years = () => {
   const numberOfYears = 150;
   const endingYear = new Date().getFullYear();
   const startingYear = endingYear - numberOfYears;

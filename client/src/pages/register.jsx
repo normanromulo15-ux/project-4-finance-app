@@ -1,20 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { months, days, years } from "../utils/constants.js";
 import BackButton from "../components/backButton.jsx";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 export default function Register() {
   const [newUserData, setNewUserData] = useState({
     email: "",
     firstName: "",
     lastName: "",
-    birthDate: "",
+    birthDate: {
+      birthMonth: null,
+      birthDay: null,
+      birthYear: null,
+    },
     password: "",
   });
   const { email, firstName, lastName, birthDate, password } = newUserData;
+  const { birthMonth, birthDay, birthYear } = birthDate;
+  const [dateOptions, setDateOptions] = useState([
+    { name: "birthMonth", label: "Month", data: months },
+    { name: "birthDay", label: "Day", data: days },
+    { name: "birthYear", label: "Year", data: years() },
+  ]);
+  const [isShowDateDropdown, setIsShowDateDropDown] = useState(false);
   const [confirmationPassword, setConfirmationPassword] = useState("");
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isShowConfirmationPassword, setIsShowConfirmationPassword] =
+    useState(false);
   const [isEnableSubmit, setIsEnableSubmit] = useState(false);
   const nameData = [
     {
@@ -24,19 +39,21 @@ export default function Register() {
     },
     { name: "lastName", value: lastName, placeholder: "Last name" },
   ];
-  const passwordData = [
-    { name: "password", value: password, placeholder: "Enter password" },
-    {
-      name: "confirmationPassword",
-      value: confirmationPassword,
-      placeholder: "Confirm password",
-    },
-  ];
 
   // Function to handle the user's input data
   function handleUserInput(e) {
     const { name, value } = e.target;
+    if (name === "confirmationPassword") {
+      setConfirmationPassword(value);
+      return;
+    }
     setNewUserData((prev) => ({ ...prev, [name]: value }));
+  }
+
+  // Function to handle the display of the dropdown menus for the birth date
+  function handleDisplayBirthDateDropdowns(e) {
+    const { name: dropdownOption } = e.currentTarget;
+    console.log(dropdownOption);
   }
 
   return (
@@ -67,8 +84,21 @@ export default function Register() {
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-medium">Birthday</h2>
             <div className="flex justify-evenly items-center">
-              {["Month", "Day", "Year"].map((item) => {
-                return <div className="p-2 bg-gray-300 rounded-lg">{item}</div>;
+              {dateOptions.map((item) => {
+                return (
+                  <button
+                    key={item.label}
+                    type="button"
+                    className="relative transition-all duration-75 active:scale-95 p-2 bg-gray-100 border border-gray-300 rounded-lg flex gap-1 items-center"
+                    name={item.name}
+                    onClick={handleDisplayBirthDateDropdowns}
+                  >
+                    <h3 className="font-medium">{item.label}</h3>
+                    <div>
+                      <ArrowDropDownIcon />
+                    </div>
+                  </button>
+                );
               })}
             </div>
           </div>
@@ -87,24 +117,52 @@ export default function Register() {
           </div>
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-medium">Password</h2>
-            <input
-              className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
-              type="password"
-              name="password"
-              value={password}
-              onChange={handleUserInput}
-              placeholder="Enter password"
-              required={true}
-            />
-            <input
-              className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
-              type="password"
-              name="confirmationPassword"
-              value={password}
-              onChange={handleUserInput}
-              placeholder="Confirm password"
-              required={true}
-            />
+            <div className="relative">
+              <input
+                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
+                type={isShowPassword ? "text" : "password"}
+                name="password"
+                value={password}
+                onChange={handleUserInput}
+                placeholder="Enter password"
+                required={true}
+              />
+              <div
+                className="transition-all duration-75 active:scale-95 cursor-pointer absolute right-3 top-1.5"
+                onClick={() => {
+                  setIsShowPassword((prev) => !prev);
+                }}
+              >
+                {isShowPassword ? (
+                  <VisibilityOffIcon sx={{ scale: 0.85 }} />
+                ) : (
+                  <VisibilityIcon sx={{ scale: 0.85 }} />
+                )}
+              </div>
+            </div>
+            <div className="relative">
+              <input
+                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
+                type={isShowConfirmationPassword ? "text" : "password"}
+                name="confirmationPassword"
+                value={confirmationPassword}
+                onChange={handleUserInput}
+                placeholder="Confirm password"
+                required={true}
+              />
+              <div
+                className="transition-all duration-75 active:scale-95 cursor-pointer absolute right-3 top-1.5"
+                onClick={() => {
+                  setIsShowConfirmationPassword((prev) => !prev);
+                }}
+              >
+                {isShowConfirmationPassword ? (
+                  <VisibilityOffIcon sx={{ scale: 0.85 }} />
+                ) : (
+                  <VisibilityIcon sx={{ scale: 0.85 }} />
+                )}
+              </div>
+            </div>
           </div>
           <button className="transition-all duration-75 disabled:bg-gray-400 hover:bg-[#2228A8] cursor-pointer w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0 lg:w-1/4">
             Create Account
