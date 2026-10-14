@@ -25,7 +25,11 @@ export default function Register() {
     { name: "birthDay", label: "Day", data: days },
     { name: "birthYear", label: "Year", data: years() },
   ]);
-  const [isShowDateDropdown, setIsShowDateDropDown] = useState(false);
+  const [isShowDropdown, setIsShowDropdown] = useState({
+    birthMonth: false,
+    birthDay: false,
+    birthYear: false,
+  });
   const [confirmationPassword, setConfirmationPassword] = useState("");
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowConfirmationPassword, setIsShowConfirmationPassword] =
@@ -53,7 +57,19 @@ export default function Register() {
   // Function to handle the display of the dropdown menus for the birth date
   function handleDisplayBirthDateDropdowns(e) {
     const { name: dropdownOption } = e.currentTarget;
-    console.log(dropdownOption);
+    setIsShowDropdown((prev) => ({
+      ...prev,
+      [dropdownOption]: !prev[dropdownOption],
+    }));
+  }
+
+  // Function to handle the hiding of the dropdown menus for the birth date
+  function handleHideBirthDateDropdowns() {
+    setIsShowDropdown({
+      birthMonth: false,
+      birthDay: false,
+      birthYear: false,
+    });
   }
 
   return (
@@ -65,9 +81,10 @@ export default function Register() {
         <form className="w-full flex flex-col gap-8" autoComplete="off">
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-medium">Name</h2>
-            {nameData.map((item) => {
+            {nameData.map((item, index) => {
               return (
                 <input
+                  key={index}
                   className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
                   type="text"
                   name={item.name}
@@ -85,18 +102,28 @@ export default function Register() {
             <h2 className="text-lg font-medium">Birthday</h2>
             <div className="flex justify-evenly items-center">
               {dateOptions.map((item) => {
+                const { label, name } = item;
                 return (
                   <button
-                    key={item.label}
+                    key={name}
                     type="button"
-                    className="relative transition-all duration-75 active:scale-95 p-2 bg-gray-100 border border-gray-300 rounded-lg flex gap-1 items-center"
-                    name={item.name}
+                    className="relative p-2 bg-gray-100 border border-gray-300 rounded-lg flex gap-1 items-center"
+                    name={name}
                     onClick={handleDisplayBirthDateDropdowns}
+                    onBlur={handleHideBirthDateDropdowns}
                   >
-                    <h3 className="font-medium">{item.label}</h3>
+                    <h3 className="font-medium">{label}</h3>
                     <div>
                       <ArrowDropDownIcon />
                     </div>
+                    {isShowDropdown[name] && (
+                      <div
+                        className="absolute z-10 flex flex-col overflow-y-auto
+                      bg-gray-100 font-medium shadow-2xl p-4 w-full h-40 -bottom-40 left-0"
+                      >
+                        <p>{label}</p>
+                      </div>
+                    )}
                   </button>
                 );
               })}
