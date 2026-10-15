@@ -8,7 +8,6 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 export default function Register() {
   const [newUserData, setNewUserData] = useState({
-    email: "",
     firstName: "",
     lastName: "",
     birthDate: {
@@ -16,14 +15,15 @@ export default function Register() {
       birthDay: null,
       birthYear: null,
     },
+    email: "",
     password: "",
   });
   const { email, firstName, lastName, birthDate, password } = newUserData;
   const { birthMonth, birthDay, birthYear } = birthDate;
   const [dateOptions, setDateOptions] = useState([
-    { name: "birthMonth", label: "Month", data: months },
-    { name: "birthDay", label: "Day", data: days },
-    { name: "birthYear", label: "Year", data: years() },
+    { name: "birthMonth", label: "Month", data: months, value: birthMonth },
+    { name: "birthDay", label: "Day", data: days, value: birthDay },
+    { name: "birthYear", label: "Year", data: years(), value: birthYear },
   ]);
   const [isShowDropdown, setIsShowDropdown] = useState({
     birthMonth: false,
@@ -44,6 +44,10 @@ export default function Register() {
     { name: "lastName", value: lastName, placeholder: "Last name" },
   ];
 
+  useEffect(() => {
+    console.log(birthDate);
+  }, [birthDate]);
+
   // Function to handle the user's input data
   function handleUserInput(e) {
     const { name, value } = e.target;
@@ -56,10 +60,10 @@ export default function Register() {
 
   // Function to handle the display of the dropdown menus for the birth date
   function handleDisplayBirthDateDropdowns(e) {
-    const { name: dropdownOption } = e.currentTarget;
+    const { name: option } = e.currentTarget;
     setIsShowDropdown((prev) => ({
       ...prev,
-      [dropdownOption]: !prev[dropdownOption],
+      [option]: !prev[option],
     }));
   }
 
@@ -70,6 +74,23 @@ export default function Register() {
       birthDay: false,
       birthYear: false,
     });
+  }
+
+  // Function to handle the selection of the three birth date dropdowns
+  function handleClickDropdownsOptions(e) {
+    const { name, value } = e.target;
+    setNewUserData((prev) => ({
+      ...prev,
+      birthDate: { ...prev.birthDate, [name]: value },
+    }));
+    setDateOptions((prev) =>
+      prev.map((element) => {
+        if (element.name === name) {
+          return { ...element, value };
+        }
+        return element;
+      }),
+    );
   }
 
   return (
@@ -100,33 +121,53 @@ export default function Register() {
           </div>
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-medium">Birthday</h2>
-            <div className="flex justify-evenly items-center">
+            <div className="flex justify-around items-center">
               {dateOptions.map((item) => {
-                const { label, name, data } = item;
+                const { label, name, data, value } = item;
                 return (
-                  <button
-                    key={name}
-                    type="button"
-                    className="relative p-2 bg-gray-100 border border-gray-300 rounded-lg flex gap-1 items-center"
-                    name={name}
-                    onClick={handleDisplayBirthDateDropdowns}
-                    onBlur={handleHideBirthDateDropdowns}
-                  >
-                    <h3 className="font-medium text-gray-500">{label}</h3>
-                    <div>
-                      <ArrowDropDownIcon />
-                    </div>
+                  <div key={name} className="relative">
+                    <button
+                      type="button"
+                      className="cursor-pointer px-2 py-3 bg-gray-100 border border-gray-300 rounded-lg flex items-center"
+                      name={name}
+                      onClick={handleDisplayBirthDateDropdowns}
+                      onBlur={handleHideBirthDateDropdowns}
+                    >
+                      <h3
+                        className={`font-medium ${!value ? "text-gray-500" : "text-black"}`}
+                      >
+                        {value ?? label}
+                      </h3>
+                      <div>
+                        <ArrowDropDownIcon />
+                      </div>
+                    </button>
                     {isShowDropdown[name] && (
-                      <div
+                      <ol
                         className="absolute z-10 flex flex-col overflow-y-auto
-                      bg-gray-100 font-medium shadow-2xl p-4 w-full h-40 -bottom-40 left-0"
+                      bg-gray-100 font-medium shadow-2xl p-4 w-auto h-40 -bottom-40 left-0"
                       >
                         {data.map((item) => {
-                          return <p key={item.value}>{item.value}</p>;
+                          const { value } = item;
+                          return (
+                            <li
+                              key={value}
+                              className="transition-all duration-75 hover:bg-gray-300 cursor-pointer p-1"
+                            >
+                              <button
+                                type="button"
+                                name={name}
+                                value={value}
+                                onMouseDown={handleClickDropdownsOptions}
+                              >
+                                {value}
+                              </button>
+                            </li>
+                          );
                         })}
-                      </div>
+                      </ol>
                     )}
-                  </button>
+                  </div>
                 );
               })}
             </div>

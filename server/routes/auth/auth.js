@@ -29,6 +29,7 @@ router.post("/register", async (req, res) => {
       .split(" ")
       .map((e) => e.trim().toUpperCase())
       .join(" ");
+    const formattedBirthDate = new Date(birthDate).toISOString().split("T")[0];
 
     // Check if all required fields are provided
     if (!email || !firstName || !lastName || !password)
@@ -59,7 +60,7 @@ router.post("/register", async (req, res) => {
         formattedEmail,
         formattedLastName,
         formattedFirstName,
-        birthDate,
+        formattedBirthDate,
         hashedPassword,
       ],
     );

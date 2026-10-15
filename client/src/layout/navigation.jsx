@@ -23,6 +23,7 @@ export default function Navigation() {
       {options.map((option) => {
         return (
           <button
+            key={option.endpoint}
             className={`transition-all duration-75 active:scale-90  border-b-3 border-transparent hover:border-[#2830c9] flex flex-col items-center justify-center cursor-pointer px-3 py-1 md:text-xl lg:flex-row lg:gap-2 ${theme === "dark" ? "hover:bg-[#072446]" : "hover:bg-blue-100"}`}
             onClick={() => {
               navigate(option.endpoint);
