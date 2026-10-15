@@ -102,7 +102,7 @@ export default function Register() {
             <h2 className="text-lg font-medium">Birthday</h2>
             <div className="flex justify-evenly items-center">
               {dateOptions.map((item) => {
-                const { label, name } = item;
+                const { label, name, data } = item;
                 return (
                   <button
                     key={name}
@@ -112,7 +112,7 @@ export default function Register() {
                     onClick={handleDisplayBirthDateDropdowns}
                     onBlur={handleHideBirthDateDropdowns}
                   >
-                    <h3 className="font-medium">{label}</h3>
+                    <h3 className="font-medium text-gray-500">{label}</h3>
                     <div>
                       <ArrowDropDownIcon />
                     </div>
@@ -121,7 +121,9 @@ export default function Register() {
                         className="absolute z-10 flex flex-col overflow-y-auto
                       bg-gray-100 font-medium shadow-2xl p-4 w-full h-40 -bottom-40 left-0"
                       >
-                        <p>{label}</p>
+                        {data.map((item) => {
+                          return <p key={item.value}>{item.value}</p>;
+                        })}
                       </div>
                     )}
                   </button>
