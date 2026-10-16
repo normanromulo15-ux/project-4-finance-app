@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { months, days, years } from "../utils/constants.js";
+import { checkLeapYear } from "../utils/helper.js";
 import BackButton from "../components/backButton.jsx";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -45,8 +46,21 @@ export default function Register() {
   ];
 
   useEffect(() => {
-    console.log(birthDate);
-  }, [birthDate]);
+    const monthsWithLessThan31Days = [
+      "February",
+      "April",
+      "June",
+      "September",
+      "November",
+    ];
+    const isBirthMonthWithLessThan31Days =
+      monthsWithLessThan31Days.includes(birthMonth);
+    console.log(isBirthMonthWithLessThan31Days);
+  }, [birthMonth]);
+
+  useEffect(() => {
+    // console.log(`Leap year: ${checkLeapYear(Number(birthYear))}`);
+  }, [birthYear]);
 
   // Function to handle the user's input data
   function handleUserInput(e) {
@@ -77,7 +91,7 @@ export default function Register() {
   }
 
   // Function to handle the selection of the three birth date dropdowns
-  function handleClickDropdownsOptions(e) {
+  function handleClickOptions(e) {
     const { name, value } = e.target;
     setNewUserData((prev) => ({
       ...prev,
@@ -85,10 +99,7 @@ export default function Register() {
     }));
     setDateOptions((prev) =>
       prev.map((element) => {
-        if (element.name === name) {
-          return { ...element, value };
-        }
-        return element;
+        return element.name === name ? { ...element, value } : element;
       }),
     );
   }
@@ -145,20 +156,20 @@ export default function Register() {
                     {isShowDropdown[name] && (
                       <ol
                         className="absolute z-10 flex flex-col overflow-y-auto
-                      bg-gray-100 font-medium shadow-2xl p-4 w-auto h-40 -bottom-40 left-0"
+                      bg-gray-100 font-medium shadow-2xl w-auto h-40 -bottom-40 left-0"
                       >
                         {data.map((item) => {
                           const { value } = item;
                           return (
                             <li
                               key={value}
-                              className="transition-all duration-75 hover:bg-gray-300 cursor-pointer p-1"
+                              className="transition-all duration-75 hover:bg-gray-300 cursor-pointer px-4 py-2"
                             >
                               <button
                                 type="button"
                                 name={name}
                                 value={value}
-                                onMouseDown={handleClickDropdownsOptions}
+                                onMouseDown={handleClickOptions}
                               >
                                 {value}
                               </button>
