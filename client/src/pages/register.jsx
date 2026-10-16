@@ -36,6 +36,7 @@ export default function Register() {
   const [isShowConfirmationPassword, setIsShowConfirmationPassword] =
     useState(false);
   const [isEnableSubmit, setIsEnableSubmit] = useState(false);
+  const [februaryDays, setFebruaryDays] = useState(28);
   const nameData = [
     {
       name: "firstName",
@@ -53,13 +54,37 @@ export default function Register() {
       "September",
       "November",
     ];
-    const isBirthMonthWithLessThan31Days =
-      monthsWithLessThan31Days.includes(birthMonth);
-    console.log(isBirthMonthWithLessThan31Days);
+    if (
+      monthsWithLessThan31Days.includes(birthMonth) &&
+      birthMonth !== "February"
+    ) {
+      setDateOptions((prev) =>
+        prev.map((element) => {
+          return element.name === "birthDay"
+            ? {
+                ...element,
+                data: element.data.filter((day) => day.value <= 30),
+              }
+            : element;
+        }),
+      );
+    } else if (birthMonth === "February") {
+      setDateOptions((prev) =>
+        prev.map((element) => {
+          return element.name === "birthDay"
+            ? {
+                ...element,
+                data: element.data.filter((day) => day.value <= februaryDays),
+              }
+            : element;
+        }),
+      );
+    }
   }, [birthMonth]);
 
   useEffect(() => {
-    // console.log(`Leap year: ${checkLeapYear(Number(birthYear))}`);
+    setFebruaryDays(checkLeapYear(Number(birthYear)) ? 29 : 28);
+    console.log(februaryDays);
   }, [birthYear]);
 
   // Function to handle the user's input data
