@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { months, days, years } from "../utils/constants.js";
+import {
+  months,
+  days,
+  years,
+  monthsWithLessThan31Days,
+} from "../utils/constants.js";
 import { checkLeapYear } from "../utils/helper.js";
 import BackButton from "../components/backButton.jsx";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -8,6 +13,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 export default function Register() {
+  const dateData = [months, days, years()];
   const [newUserData, setNewUserData] = useState({
     firstName: "",
     lastName: "",
@@ -22,9 +28,14 @@ export default function Register() {
   const { email, firstName, lastName, birthDate, password } = newUserData;
   const { birthMonth, birthDay, birthYear } = birthDate;
   const [dateOptions, setDateOptions] = useState([
-    { name: "birthMonth", label: "Month", data: months, value: birthMonth },
-    { name: "birthDay", label: "Day", data: days, value: birthDay },
-    { name: "birthYear", label: "Year", data: years(), value: birthYear },
+    {
+      name: "birthMonth",
+      label: "Month",
+      data: dateData[0],
+      value: birthMonth,
+    },
+    { name: "birthDay", label: "Day", data: dateData[1], value: birthDay },
+    { name: "birthYear", label: "Year", data: dateData[2], value: birthYear },
   ]);
   const [isShowDropdown, setIsShowDropdown] = useState({
     birthMonth: false,
@@ -36,7 +47,8 @@ export default function Register() {
   const [isShowConfirmationPassword, setIsShowConfirmationPassword] =
     useState(false);
   const [isEnableSubmit, setIsEnableSubmit] = useState(false);
-  const [februaryDays, setFebruaryDays] = useState(28);
+  const [isLeapYear, setIsLeapYear] = useState(false);
+  const februaryDays = isLeapYear ? 29 : 28;
   const nameData = [
     {
       name: "firstName",
@@ -47,45 +59,41 @@ export default function Register() {
   ];
 
   useEffect(() => {
-    const monthsWithLessThan31Days = [
-      "February",
-      "April",
-      "June",
-      "September",
-      "November",
-    ];
-    if (
-      monthsWithLessThan31Days.includes(birthMonth) &&
-      birthMonth !== "February"
-    ) {
+    if (monthsWithLessThan31Days.includes(birthMonth)) {
+      let filteredDays = [];
+      switch (birthMonth) {
+        case "February":
+          filteredDays = dateData[1].filter((day) => day.value <= februaryDays);
+          break;
+        default:
+          filteredDays = dateData[1].filter((day) => day.value <= 30);
+          break;
+      }
       setDateOptions((prev) =>
         prev.map((element) => {
           return element.name === "birthDay"
-            ? {
-                ...element,
-                data: element.data.filter((day) => day.value <= 30),
-              }
+            ? { ...element, data: filteredDays }
             : element;
         }),
       );
-    } else if (birthMonth === "February") {
-      setDateOptions((prev) =>
-        prev.map((element) => {
-          return element.name === "birthDay"
-            ? {
-                ...element,
-                data: element.data.filter((day) => day.value <= februaryDays),
-              }
-            : element;
-        }),
-      );
+    } else {
+      setDateOptions([
+        {
+          name: "birthMonth",
+          label: "Month",
+          data: dateData[0],
+          value: birthMonth,
+        },
+        { name: "birthDay", label: "Day", data: dateData[1], value: birthDay },
+        {
+          name: "birthYear",
+          label: "Year",
+          data: dateData[2],
+          value: birthYear,
+        },
+      ]);
     }
-  }, [birthMonth]);
-
-  useEffect(() => {
-    setFebruaryDays(checkLeapYear(Number(birthYear)) ? 29 : 28);
-    console.log(februaryDays);
-  }, [birthYear]);
+  }, [birthMonth, birthYear]);
 
   // Function to handle the user's input data
   function handleUserInput(e) {
@@ -99,10 +107,10 @@ export default function Register() {
 
   // Function to handle the display of the dropdown menus for the birth date
   function handleDisplayBirthDateDropdowns(e) {
-    const { name: option } = e.currentTarget;
+    const { name } = e.currentTarget;
     setIsShowDropdown((prev) => ({
       ...prev,
-      [option]: !prev[option],
+      [name]: !prev[name],
     }));
   }
 
@@ -116,7 +124,7 @@ export default function Register() {
   }
 
   // Function to handle the selection of the three birth date dropdowns
-  function handleClickOptions(e) {
+  function handleClickOption(e) {
     const { name, value } = e.target;
     setNewUserData((prev) => ({
       ...prev,
@@ -127,6 +135,11 @@ export default function Register() {
         return element.name === name ? { ...element, value } : element;
       }),
     );
+    switch (name) {
+      case "birthYear":
+        setIsLeapYear(checkLeapYear(value));
+        return;
+    }
   }
 
   return (
@@ -194,7 +207,7 @@ export default function Register() {
                                 type="button"
                                 name={name}
                                 value={value}
-                                onMouseDown={handleClickOptions}
+                                onMouseDown={handleClickOption}
                               >
                                 {value}
                               </button>
@@ -240,9 +253,9 @@ export default function Register() {
                 }}
               >
                 {isShowPassword ? (
-                  <VisibilityOffIcon sx={{ scale: 0.85 }} />
-                ) : (
                   <VisibilityIcon sx={{ scale: 0.85 }} />
+                ) : (
+                  <VisibilityOffIcon sx={{ scale: 0.85 }} />
                 )}
               </div>
             </div>
@@ -263,9 +276,9 @@ export default function Register() {
                 }}
               >
                 {isShowConfirmationPassword ? (
-                  <VisibilityOffIcon sx={{ scale: 0.85 }} />
-                ) : (
                   <VisibilityIcon sx={{ scale: 0.85 }} />
+                ) : (
+                  <VisibilityOffIcon sx={{ scale: 0.85 }} />
                 )}
               </div>
             </div>

@@ -100,14 +100,14 @@ export default function Login() {
               />
               {isShowPassword ? (
                 <div className="absolute top-1.5 right-2 cursor-pointer active:scale-95">
-                  <VisibilityOffIcon
+                  <VisibilityIcon
                     className="scale-85"
                     onClick={handleShowPassword}
                   />
                 </div>
               ) : (
                 <div className="absolute top-1.5 right-2 cursor-pointer active:scale-95">
-                  <VisibilityIcon
+                  <VisibilityOffIcon
                     className="scale-85"
                     onClick={handleShowPassword}
                   />

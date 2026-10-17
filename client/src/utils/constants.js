@@ -56,6 +56,15 @@ export const months = [
   { value: "December" },
 ];
 
+// List of months with less than 31 days
+export const monthsWithLessThan31Days = [
+  "February",
+  "April",
+  "June",
+  "September",
+  "November",
+];
+
 // List of days
 export const days = Array.from({ length: 31 }, (_, i) => {
   return { value: i + 1 };

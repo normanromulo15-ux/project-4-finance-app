@@ -17,7 +17,7 @@ export default function BalanceVisibility(props) {
 
   return (
     <div className="transition-all duration-75 cursor-pointer active:scale-95">
-      {!balanceVisibility ? (
+      {balanceVisibility ? (
         <VisibilityIcon
           onClick={handleBalanceVisibility}
           sx={{ width: widthValue }}
