@@ -53,7 +53,7 @@ export default function AccountOption() {
                 Cash
               </h2>
               <h3 className="w-full text-sm text-left mt-2 md:text-xl">
-                AVAILABLE BALANCE:
+                AVAILABLE BALANCE:{" "}
                 <span className="font-semibold">{displayCashBalance}</span>
               </h3>
             </div>

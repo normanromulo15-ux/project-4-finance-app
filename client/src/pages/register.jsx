@@ -47,7 +47,7 @@ export default function Register() {
   const [isShowConfirmationPassword, setIsShowConfirmationPassword] =
     useState(false);
   const [isEnableSubmit, setIsEnableSubmit] = useState(false);
-  const [isLeapYear, setIsLeapYear] = useState(false);
+  const [isLeapYear, setIsLeapYear] = useState(true);
   const februaryDays = isLeapYear ? 29 : 28;
   const nameData = [
     {
@@ -58,9 +58,6 @@ export default function Register() {
     { name: "lastName", value: lastName, placeholder: "Last name" },
   ];
 
-  useEffect(() => {
-    console.log(newUserData);
-  }, [newUserData]);
   useEffect(() => {
     if (monthsWithLessThan31Days.includes(birthMonth)) {
       let filteredDays = [];
@@ -147,51 +144,62 @@ export default function Register() {
 
   return (
     <>
-      <main className="min-h-dvh flex flex-col items-center px-8 pt-18 pb-8">
-        <h1 className="flex-1 text-2xl font-medium">
+      <main className="min-h-dvh flex flex-col justify-center items-center gap-8 px-8 pt-18 pb-8 md:px-25 md:py-16">
+        <h1 className="flex-1 text-2xl font-medium text-center md:flex-0 md:text-3xl lg:w-1/2">
           Get started with Finance
         </h1>
-        <form className="w-full flex flex-col gap-8" autoComplete="off">
+        <form
+          className="w-full flex flex-col gap-8 lg:w-1/3"
+          autoComplete="off"
+        >
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-medium">Name</h2>
-            {nameData.map((item, index) => {
-              return (
-                <input
-                  key={index}
-                  className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
-                  type="text"
-                  name={item.name}
-                  value={item.value}
-                  onChange={handleUserInput}
-                  placeholder={item.placeholder}
-                  autoFocus={item.name === "firstName"}
-                  autoComplete="off"
-                  required={true}
-                />
-              );
-            })}
+            <h2 className="text-lg font-medium md:text-xl">Name</h2>
+            <div className="flex flex-col gap-3 lg:flex-row">
+              {nameData.map((item, index) => {
+                return (
+                  <input
+                    key={index}
+                    className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg md:text-lg"
+                    type="text"
+                    name={item.name}
+                    value={item.value}
+                    onChange={handleUserInput}
+                    placeholder={item.placeholder}
+                    autoFocus={item.name === "firstName"}
+                    autoComplete="off"
+                    required={true}
+                  />
+                );
+              })}
+            </div>
           </div>
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-medium">Birthday</h2>
-            <div className="flex justify-around items-center">
+            <h2 className="text-lg font-medium md:text-xl">Birthday</h2>
+            <div className="flex justify-center items-center gap-3 md:gap-6 lg:justify-around lg:gap-0">
               {dateOptions.map((item) => {
                 const { label, name, data, value } = item;
                 return (
                   <div key={name} className="relative">
                     <button
                       type="button"
-                      className="cursor-pointer bg-gray-100 border border-gray-300 flex items-center p-3 rounded-lg h-15"
+                      className="transition-all duration-75 cursor-pointer hover:outline-2 bg-gray-100 border border-gray-300 flex items-center p-3 rounded-lg h-15 md:h-16"
                       name={name}
                       onClick={handleDisplayBirthDateDropdowns}
                       onBlur={handleHideBirthDateDropdowns}
                     >
                       {value ? (
                         <div className="flex flex-col items-start">
-                          <h3 className="text-xs text-gray-500">{label}</h3>
-                          <h4 className="font-medium">{value}</h4>
+                          <h3 className="text-gray-500 font-medium text-xs md:text-sm">
+                            {label}
+                          </h3>
+                          <h4 className="font-medium md:text-lg self-center">
+                            {value}
+                          </h4>
                         </div>
                       ) : (
-                        <h3 className="font-medium text-gray-500">{label}</h3>
+                        <h3 className="font-medium text-gray-500 md:text-lg">
+                          {label}
+                        </h3>
                       )}
                       <div>
                         <ArrowDropDownIcon />
@@ -199,17 +207,18 @@ export default function Register() {
                     </button>
                     {isShowDropdown[name] && (
                       <ol
-                        className="absolute z-10 flex flex-col overflow-y-auto
-                      bg-gray-100 font-medium shadow-2xl w-auto h-40 -bottom-40 left-0"
+                        className="absolute z-10 flex flex-col items-start overflow-y-auto
+                      bg-gray-100 font-medium shadow-2xl w-auto h-40 -bottom-40 left-0 md:h-60 md:-bottom-60"
                       >
                         {data.map((item) => {
                           const { value } = item;
                           return (
                             <li
                               key={value}
-                              className="transition-all duration-75 hover:bg-gray-300 cursor-pointer px-4 py-2"
+                              className="w-full transition-all duration-75 hover:bg-gray-300 cursor-pointer px-4 py-2 md:text-lg"
                             >
                               <button
+                                className="cursor-pointer"
                                 type="button"
                                 name={name}
                                 value={value}
@@ -228,9 +237,9 @@ export default function Register() {
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-medium">Email</h2>
+            <h2 className="text-lg font-medium md:text-xl">Email</h2>
             <input
-              className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
+              className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg md:text-lg"
               type="email"
               name="email"
               value={email}
@@ -241,10 +250,10 @@ export default function Register() {
             />
           </div>
           <div className="flex flex-col gap-3">
-            <h2 className="text-lg font-medium">Password</h2>
+            <h2 className="text-lg font-medium md:text-xl">Password</h2>
             <div className="relative">
               <input
-                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
+                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg md:text-lg"
                 type={isShowPassword ? "text" : "password"}
                 name="password"
                 value={password}
@@ -267,7 +276,7 @@ export default function Register() {
             </div>
             <div className="relative">
               <input
-                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
+                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg md:text-lg"
                 type={isShowConfirmationPassword ? "text" : "password"}
                 name="confirmationPassword"
                 value={confirmationPassword}
@@ -276,7 +285,7 @@ export default function Register() {
                 required={true}
               />
               <div
-                className="transition-all duration-75 active:scale-95 cursor-pointer absolute right-3 top-1.5"
+                className="absolute right-3 top-1.5 transition-all duration-75 active:scale-95 cursor-pointer "
                 onClick={() => {
                   setIsShowConfirmationPassword((prev) => !prev);
                 }}
@@ -289,7 +298,7 @@ export default function Register() {
               </div>
             </div>
           </div>
-          <button className="transition-all duration-75 disabled:bg-gray-400 hover:bg-[#2228A8] cursor-pointer w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0 lg:w-1/4">
+          <button className="transition-all duration-75 disabled:bg-gray-400 hover:bg-[#2228A8] active:scale-95 cursor-pointer w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0">
             Create Account
           </button>
         </form>
