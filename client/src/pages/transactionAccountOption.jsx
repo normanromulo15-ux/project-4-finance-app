@@ -37,7 +37,7 @@ export default function AccountOption() {
         <h1 className="text-3xl font-bold md:text-5xl">Select an account:</h1>
         <div className="w-full flex flex-col gap-8 items-center md:gap-10 lg:flex-row lg:w-1/2">
           <button
-            className={`transition-all duration-75 cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "cash" ? (theme === "dark" ? "scale-105 bg-gray-800" : "scale-105 bg-gray-100") : theme === "dark" && "bg-gray-900"}`}
+            className={`transition-all duration-75 cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "cash" ? (theme === "dark" ? "scale-105 bg-gray-800" : "scale-105 bg-gray-200") : theme === "dark" && "bg-gray-900"}`}
             name="cash"
             value="cash"
             onClick={handleAccountChoice}
@@ -59,7 +59,7 @@ export default function AccountOption() {
             </div>
           </button>
           <button
-            className={`transition-all duration-75 cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "eWallet" ? (theme === "dark" ? "scale-105 bg-gray-800" : "scale-105 bg-gray-100") : theme === "dark" && "bg-gray-900"}`}
+            className={`transition-all duration-75 cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === "eWallet" ? (theme === "dark" ? "scale-105 bg-gray-800" : "scale-105 bg-gray-200") : theme === "dark" && "bg-gray-900"}`}
             name="eWallet"
             value="eWallet"
             onClick={handleAccountChoice}

@@ -8,6 +8,7 @@ import {
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
+import { months } from "../../utils/constants.js";
 
 dotenv.config();
 
@@ -17,6 +18,9 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   try {
     const { email, firstName, lastName, birthDate, password } = req.body;
+    const { birthMonth, birthDay, birthYear } = birthDate;
+    const formattedBirthMonth =
+      months.findIndex((month) => month.value === birthMonth) + 1;
     const userId = crypto.randomUUID();
     const formattedEmail = email.trim().toLowerCase();
     const formattedFirstName = firstName
@@ -29,7 +33,7 @@ router.post("/register", async (req, res) => {
       .split(" ")
       .map((e) => e.trim().toUpperCase())
       .join(" ");
-    const formattedBirthDate = new Date(birthDate).toISOString().split("T")[0];
+    const formattedBirthDate = `${birthYear}-${formattedBirthMonth}-${birthDay}`;
 
     // Check if all required fields are provided
     if (!email || !firstName || !lastName || !password)

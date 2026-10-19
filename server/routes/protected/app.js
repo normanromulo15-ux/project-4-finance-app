@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import db from "../../database/db.js";
 import { authenticateUser } from "../../common/middleware/jwt.js";
 import { retrieveLatestBalance } from "../../common/middleware/retrieveLatestBalance.js";
-import { transactionCategories } from "../../utils/transactionCategories.js";
+import { transactionCategories } from "../../utils/constants.js";
 
 const router = express.Router();
 

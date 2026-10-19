@@ -59,6 +59,9 @@ export default function Register() {
   ];
 
   useEffect(() => {
+    console.log(newUserData);
+  }, [newUserData]);
+  useEffect(() => {
     if (monthsWithLessThan31Days.includes(birthMonth)) {
       let filteredDays = [];
       switch (birthMonth) {
@@ -144,7 +147,7 @@ export default function Register() {
 
   return (
     <>
-      <main className="min-h-dvh flex flex-col  items-center px-10 py-18">
+      <main className="min-h-dvh flex flex-col items-center px-8 pt-18 pb-8">
         <h1 className="flex-1 text-2xl font-medium">
           Get started with Finance
         </h1>
@@ -177,16 +180,19 @@ export default function Register() {
                   <div key={name} className="relative">
                     <button
                       type="button"
-                      className="cursor-pointer px-2 py-3 bg-gray-100 border border-gray-300 rounded-lg flex items-center"
+                      className="cursor-pointer bg-gray-100 border border-gray-300 flex items-center p-3 rounded-lg h-15"
                       name={name}
                       onClick={handleDisplayBirthDateDropdowns}
                       onBlur={handleHideBirthDateDropdowns}
                     >
-                      <h3
-                        className={`font-medium ${!value ? "text-gray-500" : "text-black"}`}
-                      >
-                        {value ?? label}
-                      </h3>
+                      {value ? (
+                        <div className="flex flex-col items-start">
+                          <h3 className="text-xs text-gray-500">{label}</h3>
+                          <h4 className="font-medium">{value}</h4>
+                        </div>
+                      ) : (
+                        <h3 className="font-medium text-gray-500">{label}</h3>
+                      )}
                       <div>
                         <ArrowDropDownIcon />
                       </div>
