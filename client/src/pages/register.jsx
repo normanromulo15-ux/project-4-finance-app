@@ -27,6 +27,16 @@ export default function Register() {
   });
   const { email, firstName, lastName, birthDate, password } = newUserData;
   const { birthMonth, birthDay, birthYear } = birthDate;
+  const isEnableCredentialsSubmission = Boolean(
+    firstName.trim() &&
+    lastName.trim() &&
+    email.includes("@") &&
+    password.length >= 8 &&
+    birthMonth &&
+    birthDay &&
+    birthYear,
+  );
+
   const [dateOptions, setDateOptions] = useState([
     {
       name: "birthMonth",
@@ -42,11 +52,7 @@ export default function Register() {
     birthDay: false,
     birthYear: false,
   });
-  const [confirmationPassword, setConfirmationPassword] = useState("");
   const [isShowPassword, setIsShowPassword] = useState(false);
-  const [isShowConfirmationPassword, setIsShowConfirmationPassword] =
-    useState(false);
-  const [isEnableSubmit, setIsEnableSubmit] = useState(false);
   const [isLeapYear, setIsLeapYear] = useState(true);
   const februaryDays = isLeapYear ? 29 : 28;
   const nameData = [
@@ -98,10 +104,6 @@ export default function Register() {
   // Function to handle the user's input data
   function handleUserInput(e) {
     const { name, value } = e.target;
-    if (name === "confirmationPassword") {
-      setConfirmationPassword(value);
-      return;
-    }
     setNewUserData((prev) => ({ ...prev, [name]: value }));
   }
 
@@ -142,15 +144,27 @@ export default function Register() {
     }
   }
 
+  // Function to handle the submission of the new user's credentials
+  function handleSubmitNewUserInfo(e) {
+    e.preventDefault();
+    if (!isEnableCredentialsSubmission) {
+      console.log("Please fill up all input fields");
+      return;
+    }
+    console.log("User successfully created");
+    console.log(newUserData);
+  }
+
   return (
     <>
-      <main className="min-h-dvh flex flex-col justify-center items-center gap-6 px-8 pt-18 pb-8 md:px-25 md:py-16">
-        <h1 className="flex-1 text-2xl font-medium text-center md:flex-0 md:text-3xl lg:w-1/2">
+      <div className="min-h-dvh flex flex-col justify-center items-center gap-10 px-8 pt-18 pb-8 md:px-25 md:py-16">
+        <h1 className="text-2xl font-medium text-center md:flex-0 md:text-3xl lg:w-1/2">
           Get started with Finance
         </h1>
         <form
-          className="w-full flex flex-col gap-6 lg:w-1/3"
+          className="w-full flex flex-col gap-8 lg:w-1/3"
           autoComplete="off"
+          onSubmit={handleSubmitNewUserInfo}
         >
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-medium md:text-xl">Name</h2>
@@ -207,7 +221,7 @@ export default function Register() {
                     </button>
                     {isShowDropdown[name] && (
                       <ol
-                        className="absolute z-10 flex flex-col items-start overflow-y-auto
+                        className="absolute z-10 flex flex-col items-center overflow-y-auto
                       bg-gray-100 font-medium shadow-2xl w-auto h-40 -bottom-40 left-0 md:h-60 md:-bottom-60"
                       >
                         {data.map((item) => {
@@ -271,35 +285,12 @@ export default function Register() {
                 )}
               </div>
             </div>
-            <div className="relative">
-              <input
-                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg font-medium md:text-lg"
-                type={isShowConfirmationPassword ? "text" : "password"}
-                name="confirmationPassword"
-                value={confirmationPassword}
-                onChange={handleUserInput}
-                placeholder="Confirm password"
-                required={true}
-              />
-              <div
-                className="absolute right-3 top-1.5 transition-all duration-75 active:scale-95 cursor-pointer "
-                onClick={() => {
-                  setIsShowConfirmationPassword((prev) => !prev);
-                }}
-              >
-                {isShowConfirmationPassword ? (
-                  <VisibilityIcon sx={{ scale: 0.85 }} />
-                ) : (
-                  <VisibilityOffIcon sx={{ scale: 0.85 }} />
-                )}
-              </div>
-            </div>
           </div>
           <button className="transition-all duration-75 disabled:bg-gray-400 hover:bg-[#2228A8] active:scale-95 cursor-pointer w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0">
             Create Account
           </button>
         </form>
-      </main>
+      </div>
       <BackButton endpoint={"/login"} />
     </>
   );

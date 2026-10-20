@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 
 // Pages
+import NewUserSetup from "../pages/newUserSetup.jsx";
 import AccountDashboard from "../pages/accountDashboard.jsx";
 import AccountOption from "../pages/transactionAccountOption.jsx";
 import FundTransfer from "../pages/fundTransfer.jsx";
@@ -56,7 +57,11 @@ export const router = createBrowserRouter([
     path: "/transfer/success",
     element: <TransactionSuccess />,
   },
-
+  {
+    path: "/welcome",
+    element: <NewUserSetup />,
+    loader: authLoader,
+  },
   {
     path: "/transaction/:transactionType",
     element: <AccountOption />,

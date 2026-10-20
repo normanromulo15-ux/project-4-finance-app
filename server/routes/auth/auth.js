@@ -56,7 +56,7 @@ router.post("/register", async (req, res) => {
     // Check if the user already exists in the database
     const existingUser = await db.query(
       "SELECT email FROM users WHERE email = $1",
-      [email],
+      [formattedEmail],
     );
     if (existingUser.rowCount === 1)
       return res.status(409).json({ message: "User already exists" });
