@@ -36,7 +36,15 @@ router.post("/register", async (req, res) => {
     const formattedBirthDate = `${birthYear}-${formattedBirthMonth}-${birthDay}`;
 
     // Check if all required fields are provided
-    if (!email || !firstName || !lastName || !password)
+    if (
+      !birthMonth ||
+      !birthDay ||
+      !birthYear ||
+      !email ||
+      !firstName ||
+      !lastName ||
+      !password
+    )
       return res.status(422).json({ message: "All fields are required" });
 
     // Check if the password meets the minimum length requirement

@@ -75,7 +75,7 @@ export default function Login() {
           >
             <div>
               <input
-                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg"
+                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg font-medium"
                 type="email"
                 name="email"
                 value={email}
@@ -88,7 +88,7 @@ export default function Login() {
             </div>
             <div className="relative">
               <input
-                className={`w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 border ${isIncorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"} py-2 px-3 rounded-lg flex`}
+                className={`w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 border font-medium ${isIncorrectCredentials ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"} py-2 px-3 rounded-lg flex`}
                 type={isShowPassword ? "text" : "password"}
                 minLength={8}
                 name="password"
@@ -120,7 +120,7 @@ export default function Login() {
               </p>
             )}
             <button
-              className={`transition-all duration-200 cursor-pointer hover:bg-[#2228A8] disabled:bg-gray-300 disabled:cursor-not-allowed flex justify-center items-center bg-[#2830c9] rounded-lg p-2 text-white font-medium ${isEnableSignIn && "active:scale-95"}`}
+              className={`transition-all duration-200 cursor-pointer hover:bg-[#2228A8] disabled:bg-gray-300 disabled:cursor-not-allowed flex justify-center items-center bg-[#2830c9] rounded-full p-2 text-white font-medium ${isEnableSignIn && "active:scale-95"}`}
               disabled={!isEnableSignIn}
             >
               <p>Sign In</p>

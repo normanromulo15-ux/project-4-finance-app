@@ -57,6 +57,17 @@ export default function TransactionCategoriesDropdown(props) {
     inputRef.current.focus();
   }
 
+  // Function to handle selection of a transaction category
+  function handleSelectTransactionCategory(e) {
+    const { name } = e.currentTarget;
+    e.stopPropagation();
+    setTransactionDetails((prev) => ({
+      ...prev,
+      category: name,
+    }));
+    setShowTransactionsCategory(false);
+  }
+
   return (
     <div className="relative flex flex-col gap-1">
       <label className="font-semibold md:text-lg" htmlFor="category">
@@ -94,7 +105,7 @@ export default function TransactionCategoriesDropdown(props) {
         {showTransactionsCategory &&
           (transactionCategories.length > 0 ? (
             <ul
-              className={`absolute -bottom-40 z-10 w-full overflow-y-auto h-36 flex flex-col gap-3 border-2 rounded-lg p-4 md:h-72 md:-bottom-72 lg:-bottom-72 ${theme === "dark" ? "bg-gray-800" : "bg-gray-50"}`}
+              className={`absolute -bottom-40 z-10 w-full overflow-y-auto h-40 flex flex-col gap-3 border-2 rounded-lg p-4 md:h-72 md:-bottom-72 lg:-bottom-72 ${theme === "dark" ? "bg-gray-800" : "bg-gray-50"}`}
               id="transaction-categories"
             >
               {transactionCategories.map((transactionCategory) => {
@@ -186,27 +197,22 @@ export default function TransactionCategoriesDropdown(props) {
                     break;
                 }
                 return (
-                  <li
-                    key={transactionCategory}
-                    className={`transition-all duration-200 active:scale-95 cursor-pointer flex gap-2 items-center font-medium p-2 rounded-xl border  ${theme === "dark" ? "bg-gray-900 hover:bg-gray-700" : "bg-gray-200 hover:bg-gray-300"}`}
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                      setTransactionDetails((prev) => ({
-                        ...prev,
-                        category: transactionCategory,
-                      }));
-                      setShowTransactionsCategory(false);
-                    }}
-                  >
-                    <div>{transactionIcon}</div>
-                    <div>
-                      <h1 className="text-lg">{transactionCategory}</h1>
-                      <p
-                        className={`text-sm ${theme === "dark" ? "text-white" : "text-gray-600"}`}
-                      >
-                        Examples: {transactionExamples}
-                      </p>
-                    </div>
+                  <li key={transactionCategory} className="w-full">
+                    <button
+                      className={`w-full transition-all duration-200 active:scale-95 cursor-pointer flex gap-2 items-center font-medium p-2 rounded-xl border  ${theme === "dark" ? "bg-gray-900 hover:bg-gray-700" : "bg-gray-200 hover:bg-gray-300"}`}
+                      name={transactionCategory}
+                      onMouseDown={handleSelectTransactionCategory}
+                    >
+                      <div>{transactionIcon}</div>
+                      <div className="text-start">
+                        <h1 className="text-lg">{transactionCategory}</h1>
+                        <p
+                          className={`text-sm ${theme === "dark" ? "text-white" : "text-gray-600"}`}
+                        >
+                          Examples: {transactionExamples}
+                        </p>
+                      </div>
+                    </button>
                   </li>
                 );
               })}

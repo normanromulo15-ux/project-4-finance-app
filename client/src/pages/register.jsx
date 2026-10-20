@@ -144,22 +144,22 @@ export default function Register() {
 
   return (
     <>
-      <main className="min-h-dvh flex flex-col justify-center items-center gap-8 px-8 pt-18 pb-8 md:px-25 md:py-16">
+      <main className="min-h-dvh flex flex-col justify-center items-center gap-6 px-8 pt-18 pb-8 md:px-25 md:py-16">
         <h1 className="flex-1 text-2xl font-medium text-center md:flex-0 md:text-3xl lg:w-1/2">
           Get started with Finance
         </h1>
         <form
-          className="w-full flex flex-col gap-8 lg:w-1/3"
+          className="w-full flex flex-col gap-6 lg:w-1/3"
           autoComplete="off"
         >
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-medium md:text-xl">Name</h2>
-            <div className="flex flex-col gap-3 lg:flex-row">
+            <div className="flex flex-col gap-4 lg:flex-row">
               {nameData.map((item, index) => {
                 return (
                   <input
                     key={index}
-                    className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg md:text-lg"
+                    className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg font-medium md:text-lg"
                     type="text"
                     name={item.name}
                     value={item.value}
@@ -213,12 +213,9 @@ export default function Register() {
                         {data.map((item) => {
                           const { value } = item;
                           return (
-                            <li
-                              key={value}
-                              className="w-full transition-all duration-75 hover:bg-gray-300 cursor-pointer px-4 py-2 md:text-lg"
-                            >
+                            <li key={value} className="w-full">
                               <button
-                                className="cursor-pointer"
+                                className="w-full transition-all duration-75 hover:bg-gray-300 cursor-pointer px-4 py-2 md:text-lg"
                                 type="button"
                                 name={name}
                                 value={value}
@@ -239,7 +236,7 @@ export default function Register() {
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-medium md:text-xl">Email</h2>
             <input
-              className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg md:text-lg"
+              className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg font-medium md:text-lg"
               type="email"
               name="email"
               value={email}
@@ -253,7 +250,7 @@ export default function Register() {
             <h2 className="text-lg font-medium md:text-xl">Password</h2>
             <div className="relative">
               <input
-                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg md:text-lg"
+                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg font-medium md:text-lg"
                 type={isShowPassword ? "text" : "password"}
                 name="password"
                 value={password}
@@ -276,7 +273,7 @@ export default function Register() {
             </div>
             <div className="relative">
               <input
-                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg md:text-lg"
+                className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg font-medium md:text-lg"
                 type={isShowConfirmationPassword ? "text" : "password"}
                 name="confirmationPassword"
                 value={confirmationPassword}
