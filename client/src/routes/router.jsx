@@ -58,7 +58,7 @@ export const router = createBrowserRouter([
     element: <TransactionSuccess />,
   },
   {
-    path: "/welcome",
+    path: "/new-user",
     element: <NewUserSetup />,
     loader: authLoader,
   },

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useAuth } from "../hooks/useAuth.jsx";
+import { registerNewUser } from "../services/auth.js";
 import {
   months,
   days,
@@ -13,6 +15,8 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 export default function Register() {
+  const navigate = useNavigate();
+  const { accessToken, setAccessToken } = useAuth();
   const dateData = [months, days, years()];
   const [newUserData, setNewUserData] = useState({
     firstName: "",
@@ -54,6 +58,8 @@ export default function Register() {
   });
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isLeapYear, setIsLeapYear] = useState(true);
+  const [isUserExists, setIsUserExists] = useState(false);
+  const [isEnableCreateAccount, setIsEnableCreateAccount] = useState(true);
   const februaryDays = isLeapYear ? 29 : 28;
   const nameData = [
     {
@@ -63,6 +69,11 @@ export default function Register() {
     },
     { name: "lastName", value: lastName, placeholder: "Last name" },
   ];
+
+  useEffect(() => {
+    console.log(`Access token: ${accessToken}`);
+    accessToken && navigate("/new-user");
+  }, [accessToken]);
 
   useEffect(() => {
     if (monthsWithLessThan31Days.includes(birthMonth)) {
@@ -145,14 +156,28 @@ export default function Register() {
   }
 
   // Function to handle the submission of the new user's credentials
-  function handleSubmitNewUserInfo(e) {
-    e.preventDefault();
-    if (!isEnableCredentialsSubmission) {
-      console.log("Please fill up all input fields");
-      return;
+  async function handleSubmitNewUserInfo(e) {
+    try {
+      e.preventDefault();
+      if (!isEnableCredentialsSubmission) {
+        console.log("Please fill up all input fields");
+        return;
+      }
+      const accessToken = await registerNewUser(newUserData);
+      setAccessToken(accessToken);
+    } catch (error) {
+      const errorStatusCode = error.response?.status;
+      switch (errorStatusCode) {
+        case 409:
+          setIsUserExists(true);
+          setIsEnableCreateAccount(false);
+          setTimeout(() => {
+            setIsUserExists(false);
+            setIsEnableCreateAccount(true);
+          }, 2000);
+          break;
+      }
     }
-    console.log("User successfully created");
-    console.log(newUserData);
   }
 
   return (
@@ -249,16 +274,23 @@ export default function Register() {
           </div>
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-medium md:text-xl">Email</h2>
-            <input
-              className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg font-medium md:text-lg"
-              type="email"
-              name="email"
-              value={email}
-              onChange={handleUserInput}
-              placeholder="Enter email address"
-              autoComplete="off"
-              required={true}
-            />
+            <div className="flex flex-col gap-1">
+              <input
+                className={`w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 py-2 px-3 rounded-lg font-medium border md:text-lg ${isUserExists ? "border-red-500 bg-red-50" : "border-gray-300 bg-gray-100"}`}
+                type="email"
+                name="email"
+                value={email}
+                onChange={handleUserInput}
+                placeholder="Enter email address"
+                autoComplete="off"
+                required={true}
+              />
+              {isUserExists && (
+                <p className="text-red-600 text-center font-semibold text-xs md:text-sm">
+                  This email address belongs to an existing user.
+                </p>
+              )}
+            </div>
           </div>
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-medium md:text-xl">Password</h2>
@@ -266,6 +298,7 @@ export default function Register() {
               <input
                 className="w-full transition-all duration-75 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 hover:outline-2 bg-gray-100 border border-gray-300 py-2 px-3 rounded-lg font-medium md:text-lg"
                 type={isShowPassword ? "text" : "password"}
+                min={8}
                 name="password"
                 value={password}
                 onChange={handleUserInput}
@@ -286,7 +319,10 @@ export default function Register() {
               </div>
             </div>
           </div>
-          <button className="transition-all duration-75 disabled:bg-gray-400 hover:bg-[#2228A8] active:scale-95 cursor-pointer w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0">
+          <button
+            className={`transition-all duration-200 cursor-pointer hover:bg-[#2228A8] disabled:bg-gray-300 disabled:cursor-not-allowed flex justify-center items-center bg-[#2830c9] rounded-full p-2 text-white font-medium ${isEnableCreateAccount && "active:scale-95"}`}
+            disabled={!isEnableCreateAccount}
+          >
             Create Account
           </button>
         </form>

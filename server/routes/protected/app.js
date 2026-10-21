@@ -294,15 +294,8 @@ router.get("/name", authenticateUser, async (req, res) => {
       "SELECT first_name, last_name FROM users WHERE id = $1",
       [userId],
     );
-
-    // Invalidate the request if no user is found
-    if (userNames.length === 0)
-      return res.status(404).json({ message: "User not found" });
-
     const firstName = userNames[0].first_name;
     const lastName = userNames[0].last_name;
-
-    //console.log(firstName, lastName);
 
     res.json({
       firstName: firstName

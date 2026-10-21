@@ -40,8 +40,8 @@ api.interceptors.response.use(
 
         return api(config);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
     }
     throw error;
   },

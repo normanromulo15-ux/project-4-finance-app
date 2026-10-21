@@ -4,7 +4,6 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(null);
-
   return (
     <AuthContext value={{ accessToken, setAccessToken }}>
       {children}
@@ -14,6 +13,5 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const { accessToken, setAccessToken } = useContext(AuthContext);
-
   return { accessToken, setAccessToken };
 }

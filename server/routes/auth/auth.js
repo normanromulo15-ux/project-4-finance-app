@@ -45,13 +45,13 @@ router.post("/register", async (req, res) => {
       !lastName ||
       !password
     )
-      return res.status(422).json({ message: "All fields are required" });
+      return res.status(422).json({ errorMessage: "All fields are required" });
 
     // Check if the password meets the minimum length requirement
     if (password.length < 8)
       return res
         .status(422)
-        .json({ message: "Password must be at least 8 characters long" });
+        .json({ errorMessage: "Password must be at least 8 characters long" });
 
     // Check if the user already exists in the database
     const existingUser = await db.query(
@@ -59,14 +59,14 @@ router.post("/register", async (req, res) => {
       [formattedEmail],
     );
     if (existingUser.rowCount === 1)
-      return res.status(409).json({ message: "User already exists" });
+      return res.status(409).json({ errorMessage: "User already exists" });
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Add the new user to the database
     const { rows: newUserData } = await db.query(
-      "INSERT INTO users (public_id, email, last_name, first_name,birth_date, password) VALUES ($1,$2,$3,$4,$5,$6) RETURNING public_id, email, last_name, first_name, birth_date",
+      "INSERT INTO users (public_id, email, last_name, first_name,birth_date, password) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id",
       [
         userId,
         formattedEmail,
@@ -77,9 +77,43 @@ router.post("/register", async (req, res) => {
       ],
     );
 
-    res.status(201).json({ message: "Created new user", user: newUserData[0] });
+    // Get the new user ID from the database to be put as a payload
+    const newUserId = newUserData[0].id;
+    const payload = { sub: newUserId };
+
+    // Create access and refresh tokens for the new authenticated user
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    const hashedRefreshToken = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex")
+      .toUpperCase();
+
+    const { iat, exp } = jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+    );
+
+    const tokenIssuedDate = new Date(Number(iat) * 1000).toISOString();
+    const tokenExpiryDate = new Date(Number(exp) * 1000).toISOString();
+
+    await db.query(
+      "INSERT INTO refresh_tokens (user_id,token, created_at, expires_at) VALUES ($1, $2, $3, $4)",
+      [newUserId, hashedRefreshToken, tokenIssuedDate, tokenExpiryDate],
+    );
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "strict",
+    });
+
+    res.status(201).json({ accessToken });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ errorMessage: "Internal Server Error" });
   }
 });
 
@@ -90,8 +124,8 @@ router.post("/login", async (req, res) => {
     const formattedEmail = email.trim().toLowerCase();
 
     // Check if all inputs are filled or if the input password meets the minimum string length
-    if (!email || !password || password.length < 8)
-      return res.status(422).json({ message: "Invalid input." });
+    if (!formattedEmail || !password || password.length < 8)
+      return res.status(422).json({ errorMessage: "Invalid input." });
 
     // Retrieve the data of the user from the database based on the provided email
     const { rows: userData } = await db.query(
@@ -101,7 +135,7 @@ router.post("/login", async (req, res) => {
 
     // Check if the user exists
     if (userData.length === 0)
-      return res.status(404).json({ message: "User does not exist." });
+      return res.status(404).json({ errorMessage: "User does not exist." });
 
     const { id: userId, password: storedPassword } = userData[0];
 
@@ -140,12 +174,11 @@ router.post("/login", async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000,
         sameSite: "strict",
       });
-      res.json({ accessToken });
-    } else {
-      res.status(401).json({ message: "Unauthorized" });
+      return res.json({ accessToken });
     }
+    res.status(401).json({ errorMessage: "Unauthorized" });
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ errorMessage: "Internal Server Error" });
   }
 });
 
@@ -162,7 +195,7 @@ router.get("/refresh", (req, res) => {
     const newAccessToken = generateAccessToken(payload);
     res.json({ newAccessToken });
   } catch (error) {
-    res.status(401).json({ message: "Invalid refresh token" });
+    res.status(401).json({ errorMessage: "Invalid refresh token" });
   }
 });
 
@@ -173,7 +206,7 @@ router.delete("/logout", async (req, res) => {
 
     // Invalidate the request if the refresh token is missing
     if (!refreshToken)
-      return res.status(401).json({ message: "Invalid refresh token" });
+      return res.status(401).json({ errorMessage: "Invalid refresh token" });
 
     const hashedRefreshToken = crypto
       .createHash("sha256")
@@ -193,7 +226,7 @@ router.delete("/logout", async (req, res) => {
 
     res.sendStatus(204);
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ errorMessage: "Internal Server Error" });
   }
 });
 
