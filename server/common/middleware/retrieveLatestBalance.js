@@ -25,10 +25,12 @@ export async function retrieveLatestBalance(req, res, next) {
     const latestAccountBalanceTimestamp = balanceData[0]?.updated_at; // ISO 8601 format
 
     // Invalidate the request if the latest account balance or if the latest account balance date is falsy
-    if (!latestAccountBalance || !latestAccountBalanceTimestamp)
+    if (!latestAccountBalance || !latestAccountBalanceTimestamp) {
+      console.log(latestAccountBalance, latestAccountBalanceTimestamp);
       return res
-        .status(400)
+        .status(404)
         .json({ message: "Account's balance not yet initialized." });
+    }
 
     req.accountType = accountType;
     req.latestAccountBalance = latestAccountBalance;
