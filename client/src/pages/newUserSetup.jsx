@@ -25,9 +25,7 @@ export default function NewUserSetup() {
       <button
         type="button"
         className="transition-all duration-200 cursor-pointer active:scale-95 hover:bg-[#2228A8] flex justify-center items-center bg-[#2830c9] rounded-full px-4 py-2 text-white font-medium"
-        onClick={() => {
-          console.log("Navigates to another page...");
-        }}
+        onClick={() => navigate("/new-user/accounts")}
       >
         Continue
       </button>

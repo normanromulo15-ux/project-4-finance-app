@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 import MoneyIcon from "@mui/icons-material/Money";
 import WalletIcon from "@mui/icons-material/Wallet";
 import SavingsIcon from "@mui/icons-material/Savings";
@@ -6,82 +7,51 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
 export default function NewUserSetupAccountsChoice() {
-  const [isAccountSelected, setIsAccountSelected] = useState({
-    cash: false,
-    eWallet: false,
-    savings: false,
-  });
-  const {
-    cash: isSelectCash,
-    eWallet: isSelectEWallet,
-    savings: isSelectSavings,
-  } = isAccountSelected;
-  const isEnableContinue = isSelectCash || isSelectEWallet || isSelectSavings;
-  const [isSelectAllAccount, setIsSelectAllAccount] = useState(false);
-  const accounts = [
-    { label: "Cash", icon: <MoneyIcon />, name: "cash" },
-    { label: "E-Wallet", icon: <WalletIcon />, name: "eWallet" },
-    { label: "Savings", icon: <SavingsIcon />, name: "savings" },
-  ];
-
-  useEffect(() => {
-    switch (isSelectAllAccount) {
-      case true:
-        setIsAccountSelected({
-          cash: true,
-          eWallet: true,
-          savings: true,
-        });
-        break;
-      default:
-        setIsAccountSelected({
-          cash: false,
-          eWallet: false,
-          savings: false,
-        });
-        break;
-    }
-  }, [isSelectAllAccount]);
-
-  useEffect(() => {
-    setIsSelectAllAccount(isSelectCash && isSelectEWallet && isSelectSavings);
-  }, [isAccountSelected]);
+  const navigate = useNavigate();
+  const [accounts, setAccounts] = useState([
+    { label: "Cash", icon: <MoneyIcon />, name: "cash", isSelected: false },
+    {
+      label: "E-Wallet",
+      icon: <WalletIcon />,
+      name: "eWallet",
+      isSelected: false,
+    },
+    {
+      label: "Savings",
+      icon: <SavingsIcon />,
+      name: "savings",
+      isSelected: false,
+    },
+  ]);
+  const isEnableContinue =
+    accounts[0].isSelected || accounts[1].isSelected || accounts[2].isSelected;
 
   // Function to handle the selection of account choices
   function handleSelectAccountChoice(e) {
     const { name } = e.currentTarget;
-    setIsAccountSelected((prev) => ({ ...prev, [name]: !prev[name] }));
-  }
-
-  // Function to handle the selection of all accounts
-  function handleSelectAllAccounts() {
-    setIsSelectAllAccount((prev) => !prev);
+    setAccounts((prev) =>
+      prev.map((account) => {
+        return account.name === name
+          ? { ...account, isSelected: !account.isSelected }
+          : account;
+      }),
+    );
   }
 
   return (
     <div className="min-h-dvh flex flex-col justify-center items-center gap-8 p-8">
-      <header className="flex flex-col items-center text-center">
-        <h1 className="text-xl font-medium">
-          Select at least one account that you have.
+      <header className="flex flex-col items-center justify-center gap-2">
+        <h1 className="text-2xl font-medium">
+          Select at least one account that you want to set up.
         </h1>
+        <h2 className="text-lg font-medium text-gray-600">
+          You can add balance to the other accounts later.
+        </h2>
       </header>
       <main className="w-full flex flex-col gap-4">
-        <div className="self-end flex items-center gap-1 pr-2">
-          <h2 className="font-medium">Select All</h2>
-          <button
-            className="transition-all duration-75 active:scale-95"
-            onClick={handleSelectAllAccounts}
-          >
-            {isSelectAllAccount ? (
-              <CheckBoxIcon />
-            ) : (
-              <CheckBoxOutlineBlankIcon />
-            )}
-          </button>
-        </div>
         <ul className="flex flex-col gap-4">
           {accounts.map((account) => {
-            const { label, icon, name } = account;
+            const { label, icon, name, isSelected } = account;
             return (
               <li key={name}>
                 <button
@@ -92,10 +62,10 @@ export default function NewUserSetupAccountsChoice() {
                 >
                   <div className="flex gap-1">
                     <div>{icon}</div>
-                    <h3 className="font-medium text-lg">{label}</h3>
+                    <h4 className="font-medium">{label}</h4>
                   </div>
                   <div>
-                    {isAccountSelected[name] ? (
+                    {isSelected ? (
                       <CheckBoxIcon />
                     ) : (
                       <CheckBoxOutlineBlankIcon />
@@ -110,7 +80,7 @@ export default function NewUserSetupAccountsChoice() {
           type="button"
           className={`transition-all duration-200 cursor-pointer hover:bg-[#2228A8] disabled:bg-gray-300 flex justify-center items-center bg-[#2830c9] rounded-full px-4 py-2 text-white font-medium ${isEnableContinue && "active:scale-95"}`}
           onClick={() => {
-            console.log("Navigates to another page...");
+            navigate("/new-user/accounts/setup");
           }}
           disabled={!isEnableContinue}
         >
