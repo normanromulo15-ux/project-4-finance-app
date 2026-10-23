@@ -210,7 +210,6 @@ router.post("/interest", authenticateUser, async (req, res) => {
 
     res.sendStatus(201);
   } catch (error) {
-    console.error(error);
     await client.query("ROLLBACK");
     res.sendStatus(500);
   } finally {
