@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAccountsChoiceStore } from "../stores/accountsChoiceStore.js";
 import MoneyIcon from "@mui/icons-material/Money";
@@ -9,9 +9,6 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
 export default function NewUserSetupAccountsChoice() {
   const navigate = useNavigate();
-  const chosenAccounts = useAccountsChoiceStore(
-    (state) => state.selectedAccounts,
-  );
   const addAccount = useAccountsChoiceStore((state) => state.addAccount);
   const removeAccount = useAccountsChoiceStore((state) => state.removeAccount);
   const [accounts, setAccounts] = useState([
@@ -29,16 +26,11 @@ export default function NewUserSetupAccountsChoice() {
       isSelected: false,
     },
   ]);
-  const [selectedAccounts, setSelectedAccounts] = useState([]);
   const isEnableContinue =
     accounts[0].isSelected || accounts[1].isSelected || accounts[2].isSelected;
 
-  useEffect(() => {
-    console.log(chosenAccounts);
-  }, [accounts]);
-
   // Function to handle the selection of account choices
-  function handleSelectAccountChoice(e, selectStatus) {
+  function handleSelectAccountChoice(e, selectStatus, label) {
     const { name } = e.currentTarget;
     setAccounts((prev) =>
       prev.map((account) => {
@@ -49,12 +41,7 @@ export default function NewUserSetupAccountsChoice() {
     );
 
     // Add or remove account choices based on the previous state of an account choice
-    !selectStatus ? addAccount(name) : removeAccount(name);
-    /*setSelectedAccounts((prev) => {
-      return !selectStatus
-        ? [...prev, name].sort()
-        : prev.filter((account) => account !== name).sort();
-    });*/
+    !selectStatus ? addAccount(name, label) : removeAccount(name, label);
   }
 
   return (
@@ -78,7 +65,7 @@ export default function NewUserSetupAccountsChoice() {
                   className="transition-all duration-75 w-full border-2 px-2 py-4 rounded-md flex justify-between items-center"
                   name={name}
                   onClick={(e) => {
-                    handleSelectAccountChoice(e, isSelected);
+                    handleSelectAccountChoice(e, isSelected, label);
                   }}
                 >
                   <div className="flex gap-1">
