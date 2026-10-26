@@ -1,9 +1,12 @@
 import { create } from "zustand";
 
 export const useAccountsChoiceStore = create((set) => {
+  const selectedAccounts = sessionStorage.getItem("selectedAccounts") || "[]";
+  const selectedAccountsArray = JSON.parse(selectedAccounts);
   return {
-    selectedAccounts: [],
+    selectedAccounts: JSON.parse(selectedAccounts),
     addAccount: (name, label) => {
+      const selectedAccounts = [...selectedAccountsArray, { name, label }];
       set((state) => {
         const { selectedAccounts } = state;
         return {

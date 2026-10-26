@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useAccountsChoiceStore } from "../stores/accountsChoiceStore.js";
 import BackButton from "../components/backButton.jsx";
 
@@ -10,12 +9,12 @@ export default function NewUserSetupAccountsBalance() {
   return (
     <>
       <div className="min-h-dvh flex flex-col justify-center items-center gap-12 p-8">
-        <header className="w-full">
+        <header className="w-full text-center md:w-1/2 lg:w-1/4">
           <h1 className="text-2xl font-medium">
             Enter your balance for the following account(s):
           </h1>
         </header>
-        <main className="w-full flex flex-col gap-12">
+        <main className="w-full flex flex-col gap-12 md:w-1/2 lg:w-1/4">
           <form className="flex flex-col items-center gap-4" autoComplete="off">
             {selectedAccounts.map((account) => {
               const { name, label } = account;
@@ -26,6 +25,7 @@ export default function NewUserSetupAccountsBalance() {
                   </label>
                   <input
                     id={name}
+                    name={name}
                     type="number"
                     className="border border-gray-500 bg-gray-100 font-medium rounded-lg p-2"
                     placeholder="Amount must be greater than ₱0.00"

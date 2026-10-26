@@ -9,29 +9,45 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
 export default function NewUserSetupAccountsChoice() {
   const navigate = useNavigate();
+  const accountsStatus =
+    sessionStorage.getItem("accountsStatus") || "[true, true, true]";
+  const accountsStatusArray = JSON.parse(accountsStatus);
+  const [isSelectCash, isSelectEWallet, isSelectSavings] = accountsStatusArray;
   const addAccount = useAccountsChoiceStore((state) => state.addAccount);
   const removeAccount = useAccountsChoiceStore((state) => state.removeAccount);
   const [accounts, setAccounts] = useState([
-    { label: "Cash", icon: <MoneyIcon />, name: "cash", isSelected: false },
+    {
+      label: "Cash",
+      icon: <MoneyIcon />,
+      name: "cash",
+      isSelected: !isSelectCash,
+    },
     {
       label: "E-Wallet",
       icon: <WalletIcon />,
       name: "eWallet",
-      isSelected: false,
+      isSelected: !isSelectEWallet,
     },
     {
       label: "Savings",
       icon: <SavingsIcon />,
       name: "savings",
-      isSelected: false,
+      isSelected: !isSelectSavings,
     },
   ]);
   const isEnableContinue =
     accounts[0].isSelected || accounts[1].isSelected || accounts[2].isSelected;
 
-  // Function to handle the selection of account choices
-  function handleSelectAccountChoice(e, selectStatus, label) {
+  // Function to handle the click of account choices
+  function handleClickAccountChoice(e, isCheck, label, index) {
     const { name } = e.currentTarget;
+    const selectedAccounts = accountsStatusArray.map(
+      (isCheck, elementIndex) => {
+        return elementIndex === index ? !isCheck : isCheck;
+      },
+    );
+    sessionStorage.setItem("accountsStatus", JSON.stringify(selectedAccounts));
+
     setAccounts((prev) =>
       prev.map((account) => {
         return account.name === name
@@ -41,31 +57,31 @@ export default function NewUserSetupAccountsChoice() {
     );
 
     // Add or remove account choices based on the previous state of an account choice
-    !selectStatus ? addAccount(name, label) : removeAccount(name, label);
+    !isCheck ? addAccount(name, label) : removeAccount(name, label);
   }
 
   return (
     <div className="min-h-dvh flex flex-col justify-center items-center gap-8 p-8 md:px-12">
-      <header className="flex flex-col items-center text-center gap-2">
+      <header className="flex flex-col items-center gap-2 text-center md:w-2/3 lg:w-1/3">
         <h1 className="font-medium text-2xl md:text-3xl">
-          Select at least one account that you want to set up.
+          Select accounts or an account that you want to set up.
         </h1>
         <h2 className="font-medium text-gray-600 text-lg md:text-xl">
           You can add balance to the other accounts later.
         </h2>
       </header>
-      <main className="w-full flex flex-col gap-4 md:w-1/2 md:gap-6">
+      <main className="w-full flex flex-col gap-8 md:gap-6 md:w-2/3 lg:w-1/4">
         <ul className="flex flex-col gap-4">
-          {accounts.map((account) => {
+          {accounts.map((account, index) => {
             const { label, icon, name, isSelected } = account;
             return (
               <li key={name}>
                 <button
                   type="button"
-                  className="transition-all duration-75 w-full border-2 px-2 py-4 rounded-md flex justify-between items-center"
+                  className="transition-all duration-75 cursor-pointer w-full border-2 px-2 py-4 rounded-md flex justify-between items-center"
                   name={name}
                   onClick={(e) => {
-                    handleSelectAccountChoice(e, isSelected, label);
+                    handleClickAccountChoice(e, isSelected, label, index);
                   }}
                 >
                   <div className="flex gap-1">
