@@ -7,9 +7,10 @@ export const useAccountsChoiceStore = create((set, get) => {
     ),
 
     addAccount: (name, label) => {
-      const addedAccounts = [...get().selectedAccounts, { name, label }].sort(
-        (a, b) => a.name.localeCompare(b.name),
-      );
+      const addedAccounts = [
+        ...get().selectedAccounts,
+        { name, label, amount: "" },
+      ].sort((a, b) => a.name.localeCompare(b.name));
 
       sessionStorage.setItem("selectedAccounts", JSON.stringify(addedAccounts));
 
