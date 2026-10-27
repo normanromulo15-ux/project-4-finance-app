@@ -10,9 +10,10 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 export default function NewUserSetupAccountsChoice() {
   const navigate = useNavigate();
   const accountsStatus =
-    sessionStorage.getItem("accountsStatus") || "[true, true, true]";
+    sessionStorage.getItem("accountsStatus") || "[false, false, false]";
   const accountsStatusArray = JSON.parse(accountsStatus);
-  const [isSelectCash, isSelectEWallet, isSelectSavings] = accountsStatusArray;
+  const [isNotSelectCash, isNotSelectEWallet, isNotSelectSavings] =
+    accountsStatusArray;
   const addAccount = useAccountsChoiceStore((state) => state.addAccount);
   const removeAccount = useAccountsChoiceStore((state) => state.removeAccount);
   const [accounts, setAccounts] = useState([
@@ -20,19 +21,19 @@ export default function NewUserSetupAccountsChoice() {
       label: "Cash",
       icon: <MoneyIcon />,
       name: "cash",
-      isSelected: !isSelectCash,
+      isSelected: isNotSelectCash,
     },
     {
       label: "E-Wallet",
       icon: <WalletIcon />,
       name: "eWallet",
-      isSelected: !isSelectEWallet,
+      isSelected: isNotSelectEWallet,
     },
     {
       label: "Savings",
       icon: <SavingsIcon />,
       name: "savings",
-      isSelected: !isSelectSavings,
+      isSelected: isNotSelectSavings,
     },
   ]);
   const isEnableContinue =

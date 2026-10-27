@@ -1,31 +1,32 @@
 import { create } from "zustand";
 
-export const useAccountsChoiceStore = create((set) => {
-  const selectedAccounts = sessionStorage.getItem("selectedAccounts") || "[]";
-  const selectedAccountsArray = JSON.parse(selectedAccounts);
+export const useAccountsChoiceStore = create((set, get) => {
   return {
-    selectedAccounts: JSON.parse(selectedAccounts),
+    selectedAccounts: JSON.parse(
+      sessionStorage.getItem("selectedAccounts") || "[]",
+    ),
+
     addAccount: (name, label) => {
-      const selectedAccounts = [...selectedAccountsArray, { name, label }];
-      set((state) => {
-        const { selectedAccounts } = state;
-        return {
-          selectedAccounts: [...selectedAccounts, { name, label }].sort(
-            (a, b) => a.name.localeCompare(b.name),
-          ),
-        };
-      });
+      const addedAccounts = [...get().selectedAccounts, { name, label }].sort(
+        (a, b) => a.name.localeCompare(b.name),
+      );
+
+      sessionStorage.setItem("selectedAccounts", JSON.stringify(addedAccounts));
+
+      set({ selectedAccounts: addedAccounts });
     },
+
     removeAccount: (name) => {
-      set((state) => {
-        const { selectedAccounts } = state;
-        return {
-          selectedAccounts: selectedAccounts
-            .filter((account) => account.name !== name)
-            .sort((a, b) => a.name.localeCompare(b.name)),
-        };
-      });
+      const filteredAccounts = get()
+        .selectedAccounts.filter((account) => account.name !== name)
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      sessionStorage.setItem(
+        "selectedAccounts",
+        JSON.stringify(filteredAccounts),
+      );
+
+      set({ selectedAccounts: filteredAccounts });
     },
-    reset: () => set({ selectedAccounts: [] }),
   };
 });

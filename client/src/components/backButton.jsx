@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router";
-import { useAccountsChoiceStore } from "../stores/accountsChoiceStore.js";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 export default function BackButton(props) {
   const { endpoint, page } = props;
   const navigate = useNavigate();
-  const resetSelectedAccounts = useAccountsChoiceStore((state) => state.reset);
   const theme = localStorage.getItem("theme");
 
   // Function to handle back navigation
@@ -14,9 +12,6 @@ export default function BackButton(props) {
       case "transactions":
         localStorage.removeItem("page");
         localStorage.removeItem("category");
-        break;
-      case "newUserSetupBalance":
-        resetSelectedAccounts();
         break;
     }
     navigate(endpoint);
