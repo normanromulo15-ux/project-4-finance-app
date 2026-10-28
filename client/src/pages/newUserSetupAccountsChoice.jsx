@@ -36,8 +36,9 @@ export default function NewUserSetupAccountsChoice() {
       isSelected: isNotSelectSavings,
     },
   ]);
-  const isEnableContinue =
-    accounts[0].isSelected || accounts[1].isSelected || accounts[2].isSelected;
+  const isEnableContinue = accounts
+    .map((account) => account.isSelected)
+    .includes(true);
 
   // Function to handle the click of account choices
   function handleClickAccountChoice(e, isCheck, label, index) {
@@ -103,7 +104,8 @@ export default function NewUserSetupAccountsChoice() {
         </ul>
         <button
           type="button"
-          className={`transition-all duration-200 cursor-pointer hover:bg-[#2228A8] disabled:bg-gray-300 flex justify-center items-center bg-[#2830c9] rounded-full px-4 py-2 text-white font-medium md:text-lg ${isEnableContinue && "active:scale-95"}`}
+          className={`transition-all duration-200 cursor-pointer hover:bg-[#2228A8] disabled:bg-gray-300 disabled:cursor-not-allowed
+            flex justify-center items-center bg-[#2830c9] rounded-full px-4 py-2 text-white font-medium md:text-lg ${isEnableContinue && "active:scale-95"}`}
           onClick={() => {
             navigate("/new-user/accounts/setup");
           }}

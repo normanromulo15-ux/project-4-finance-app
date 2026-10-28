@@ -14,6 +14,9 @@ export default function NewUserSetupAccountsBalance() {
     type: "credit",
   });
   const { account: chosenAccounts } = topUpDetails;
+  const isEnableReview = chosenAccounts
+    .map((account) => Boolean(Number(account.amount) > 0))
+    .every((element) => element === true);
   const [amountInputType, setAmountInputType] = useState("number");
 
   // Function to handle the initial balance(s) input
@@ -67,10 +70,11 @@ export default function NewUserSetupAccountsBalance() {
           </form>
           <button
             type="button"
-            className="w-full mt-2 transition-all duration-200 cursor-pointer active:scale-95 hover:bg-[#2228A8] disabled:bg-gray-300 flex justify-center items-center bg-[#2830c9] rounded-full px-4 py-2 text-white font-medium md:text-lg"
+            className={`w-full mt-2 transition-all duration-200 cursor-pointer hover:bg-[#2228A8] disabled:bg-gray-300 disabled:cursor-not-allowed flex justify-center items-center bg-[#2830c9] rounded-full px-4 py-2 text-white font-medium md:text-lg ${isEnableReview && "active:scale-95"}`}
             onClick={() => {
               console.log(topUpDetails);
             }}
+            disabled={!isEnableReview}
           >
             Review Top Up
           </button>
