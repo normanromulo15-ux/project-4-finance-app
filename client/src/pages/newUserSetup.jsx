@@ -1,23 +1,26 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useUserFullNameStore } from "../stores/userFullNameStore.js";
 import { getUserFullName } from "../services/app.js";
 
 export default function NewUserSetup() {
   const navigate = useNavigate();
-  const [userFirstName, setUserFirstName] = useState("");
+  const fullName = useUserFullNameStore((state) => state.fullName);
+  const { firstName } = fullName;
+  const setFullName = useUserFullNameStore((state) => state.setFullName);
 
   useEffect(() => {
-    const displayFirstName = async () => {
-      const name = await getUserFullName();
-      setUserFirstName(name.firstName);
+    const getFullName = async () => {
+      const response = await getUserFullName();
+      setFullName(response);
     };
-    displayFirstName();
+    getFullName();
   }, []);
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center p-8 gap-6">
       <h1 className="text-center font-semibold text-2xl md:text-3xl lg:text-4xl">
-        Hi, {userFirstName}!
+        Hi, {firstName}!
       </h1>
       <h2 className="text-center font=medium text-gray-600 text-xl md:text-2xl lg:text-3xl">
         Let's get things started for your finance.

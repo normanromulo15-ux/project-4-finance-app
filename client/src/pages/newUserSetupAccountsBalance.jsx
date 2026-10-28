@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAccountsChoiceStore } from "../stores/accountsChoiceStore.js";
 import { formatCurrency } from "../utils/formatters.js";
+import InitialTopUpConfirmation from "../components/overlays/initialTopUpConfirmation.jsx";
 import BackButton from "../components/backButton.jsx";
 
 export default function NewUserSetupAccountsBalance() {
@@ -8,25 +9,56 @@ export default function NewUserSetupAccountsBalance() {
     (state) => state.selectedAccounts,
   );
   const [topUpDetails, setTopUpDetails] = useState({
-    account: [...selectedAccounts],
+    accounts: selectedAccounts.map((account) => ({
+      ...account,
+      amount: "",
+      amountDataType: "number",
+    })),
     category: "Financial",
     description: "Initial top up",
     type: "credit",
   });
-  const { account: chosenAccounts } = topUpDetails;
+  const { accounts: chosenAccounts } = topUpDetails;
   const isEnableReview = chosenAccounts
-    .map((account) => Boolean(Number(account.amount) > 0))
+    .map((account) => Number(account.amount) > 0)
     .every((element) => element === true);
-  const [amountInputType, setAmountInputType] = useState("number");
+  const [isShowConfirmationOverlay, setIsShowConfirmationOverlay] =
+    useState(false);
 
   // Function to handle the initial balance(s) input
   function handleInitialBalanceInput(e) {
     const { name, value } = e.target;
     setTopUpDetails((prev) => ({
       ...prev,
-      account: prev.account.map((account) =>
+      accounts: prev.accounts.map((account) =>
         account.name === name ? { ...account, amount: value } : account,
       ),
+    }));
+  }
+
+  // Function to handle input focus
+  function handleInputFocus(e) {
+    const { name } = e.target;
+    setTopUpDetails((prev) => ({
+      ...prev,
+      accounts: prev.accounts.map((account) => {
+        return account.name === name
+          ? { ...account, amountDataType: "number" }
+          : account;
+      }),
+    }));
+  }
+
+  // Function to handle input blur
+  function handleInputBlur(e) {
+    const { name } = e.target;
+    setTopUpDetails((prev) => ({
+      ...prev,
+      accounts: prev.accounts.map((account) => {
+        return account.name === name
+          ? { ...account, amountDataType: "text" }
+          : account;
+      }),
     }));
   }
 
@@ -41,25 +73,25 @@ export default function NewUserSetupAccountsBalance() {
         <main className="w-full flex flex-col gap-12 md:w-1/2 lg:w-1/4">
           <form className="flex flex-col items-center gap-4" autoComplete="off">
             {chosenAccounts.map((account, index) => {
-              const { name, label, amount } = account;
+              const { name, label, amount, amountDataType } = account;
               return (
                 <div key={name} className="w-full flex flex-col gap-2">
                   <label className="font-medium text-lg" htmlFor={name}>
                     {label}
                   </label>
                   <input
-                    type={amountInputType}
+                    type={amountDataType}
                     autoFocus={index === 0}
                     id={name}
                     name={name}
                     value={
-                      amountInputType === "number"
+                      amountDataType === "number"
                         ? amount
                         : formatCurrency(Number(amount))
                     }
                     onChange={handleInitialBalanceInput}
-                    onFocus={() => setAmountInputType("number")}
-                    onBlur={() => setAmountInputType("text")}
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
                     className="border border-gray-500 bg-gray-100 font-medium rounded-lg p-2"
                     placeholder="Amount must be greater than ₱0.00"
                     required={true}
@@ -72,7 +104,7 @@ export default function NewUserSetupAccountsBalance() {
             type="button"
             className={`w-full mt-2 transition-all duration-200 cursor-pointer hover:bg-[#2228A8] disabled:bg-gray-300 disabled:cursor-not-allowed flex justify-center items-center bg-[#2830c9] rounded-full px-4 py-2 text-white font-medium md:text-lg ${isEnableReview && "active:scale-95"}`}
             onClick={() => {
-              console.log(topUpDetails);
+              setIsShowConfirmationOverlay(true);
             }}
             disabled={!isEnableReview}
           >
@@ -80,6 +112,12 @@ export default function NewUserSetupAccountsBalance() {
           </button>
         </main>
       </div>
+      {isShowConfirmationOverlay && (
+        <InitialTopUpConfirmation
+          topUpDetails={topUpDetails}
+          setIsShowConfirmationOverlay={setIsShowConfirmationOverlay}
+        />
+      )}
       <BackButton
         endpoint={"/new-user/accounts"}
         page={"newUserSetupBalance"}
