@@ -27,15 +27,18 @@ export default function TransactionCategoriesDropdown(props) {
     category,
     amount,
     setTransactionDetails,
-    amountExceedBalance,
+    isAmountExceedBalance,
   } = props;
   const [showTransactionsCategory, setShowTransactionsCategory] =
     useState(false);
   const [transactionCategories, setTransactionCategories] =
     useState(categories);
+  const isEnableCategoriesDropdown =
+    Number(amount) >= 0.1 || isAmountExceedBalance;
 
   useEffect(() => {
     filterTransactionCategories();
+    console.log(isEnableCategoriesDropdown);
   }, [category]);
 
   // Function to handle filtering of transactions categories
@@ -88,7 +91,7 @@ export default function TransactionCategoriesDropdown(props) {
           ref={inputRef}
           type="text"
           className="w-full rounded-lg p-2 disabled:cursor-not-allowed disabled:text-gray-500/95 disabled:placeholder:text-gray-400 placeholder:text-sm md:placeholder:text-base"
-          disabled={!amount || Number(amount) <= 0 || amountExceedBalance}
+          disabled={!isEnableCategoriesDropdown}
           id="category"
           name="category"
           value={category}
@@ -224,7 +227,7 @@ export default function TransactionCategoriesDropdown(props) {
           ))}
         <button
           className="absolute transition-all active:scale-85 cursor-pointer disabled:cursor-not-allowed bottom-2 right-2"
-          disabled={!amount || Number(amount) <= 0 || amountExceedBalance}
+          disabled={!isEnableCategoriesDropdown}
           onClick={() => {
             handleCategoryInputFocus();
             setShowTransactionsCategory(true);

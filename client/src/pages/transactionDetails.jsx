@@ -26,7 +26,7 @@ export default function TransactionDetails() {
   const [accountName, setAccountName] = useState("");
   const [showTransactionConfirmation, setShowTransactionConfirmation] =
     useState(false);
-  const [amountExceedBalance, setAmountExceedBalance] = useState(false);
+  const [isAmountExceedBalance, setIsAmountExceedBalance] = useState(false);
   const [accountAvailableBalance, setAccountAvailableBalance] = useState(null);
   const [isDisableSubmit, setIsDisableSubmit] = useState(false);
   const { transactionType, accountType } = useParams();
@@ -41,8 +41,8 @@ export default function TransactionDetails() {
       (!amount || !category || !description.trim())) ||
     (transactionType === "credit" && (!amount || !description.trim()));
   const isReviewTransactionButtonDisabled =
-    amountExceedBalance ||
-    Number(amount) <= 0 ||
+    isAmountExceedBalance ||
+    Number(amount) < 0.1 ||
     !amount.trim() ||
     (!transactionCategories.includes(category) &&
       transactionType === "debit") ||
@@ -65,7 +65,7 @@ export default function TransactionDetails() {
     const { name, value } = e.target;
     setTransactionDetails((prev) => ({ ...prev, [name]: value }));
     if (name === "amount" && transactionType === "debit") {
-      setAmountExceedBalance(value > accountAvailableBalance);
+      setIsAmountExceedBalance(value > accountAvailableBalance);
     }
   }
 
@@ -123,7 +123,7 @@ export default function TransactionDetails() {
             </label>
             <div
               className={`relative cursor-text rounded-lg 
-                border font-medium ${amountExceedBalance ? (theme === "dark" ? "border-red-400 bg-red-200 text-red-600" : "border-red-500 bg-red-100 text-red-500") : theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-500 bg-gray-100"}`}
+                border font-medium ${isAmountExceedBalance ? (theme === "dark" ? "border-red-400 bg-red-200 text-red-600" : "border-red-500 bg-red-100 text-red-500") : theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-500 bg-gray-100"}`}
             >
               <input
                 className="w-full rounded-lg p-2 placeholder:text-sm md:placeholder:text-base"
@@ -132,24 +132,23 @@ export default function TransactionDetails() {
                 onBlur={() => setAmountInputType("text")}
                 onFocus={() => setAmountInputType("number")}
                 onChange={handleTransactionDetailsInput}
-                placeholder="Amount must be greater than ₱0.00"
+                placeholder="Amount must be at least ₱0.10"
                 required={true}
                 type={amountInputType}
                 value={
                   amountInputType === "number" ? amount : formatCurrency(amount)
                 }
-                min={0}
               />
-              {amountExceedBalance && (
+              {isAmountExceedBalance && (
                 <div className="absolute right-1 top-1.5">
                   <WarningAmberIcon sx={{ color: "red", scale: 0.8 }} />
                 </div>
               )}
             </div>
             <p
-              className={`font-medium text-sm ${amountExceedBalance && (theme === "dark" ? "text-red-400" : "text-red-500")} md:text-base`}
+              className={`font-medium text-sm ${isAmountExceedBalance && (theme === "dark" ? "text-red-400" : "text-red-500")} md:text-base`}
             >
-              {amountExceedBalance
+              {isAmountExceedBalance
                 ? " Amount exceeded the account balance"
                 : `Available balance: ${formatCurrency(accountAvailableBalance)}`}
             </p>
@@ -161,7 +160,7 @@ export default function TransactionDetails() {
               category={category}
               amount={amount}
               setTransactionDetails={setTransactionDetails}
-              amountExceedBalance={amountExceedBalance}
+              isAmountExceedBalance={isAmountExceedBalance}
             />
           )}
           <div className="flex flex-col gap-1">

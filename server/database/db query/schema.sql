@@ -26,7 +26,7 @@ CREATE TABLE transactions (
   reference_id TEXT NOT NULL UNIQUE,
   account VARCHAR(20) NOT NULL,
   type VARCHAR(20) NOT NULL,
-  amount NUMERIC(11, 2) NOT NULL CHECK (amount > 0),
+  amount NUMERIC(11, 2) NOT NULL CHECK (amount >= 0.1),
   description VARCHAR(50) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 )
