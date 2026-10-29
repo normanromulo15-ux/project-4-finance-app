@@ -20,7 +20,7 @@ export default function NewUserSetupAccountsBalance() {
   });
   const { accounts: chosenAccounts } = topUpDetails;
   const isEnableReview = chosenAccounts
-    .map((account) => Number(account.amount) > 0)
+    .map((account) => Number(account.amount) >= 0.1)
     .every((element) => element === true);
   const [isShowConfirmationOverlay, setIsShowConfirmationOverlay] =
     useState(false);
@@ -93,7 +93,7 @@ export default function NewUserSetupAccountsBalance() {
                     onFocus={handleInputFocus}
                     onBlur={handleInputBlur}
                     className="border border-gray-500 bg-gray-100 font-medium rounded-lg p-2"
-                    placeholder="Amount must be greater than ₱0.00"
+                    placeholder="Amount must be at least ₱0.10"
                     required={true}
                   />
                 </div>

@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router";
 import { useUserFullNameStore } from "../../stores/userFullNameStore.js";
+import { addTransaction } from "../../services/app.js";
 import { formatCurrency } from "../../utils/formatters.js";
 
 export default function InitialTopUpConfirmation(props) {
+  const navigate = useNavigate();
   const { topUpDetails, setIsShowConfirmationOverlay } = props;
   const {
     accounts: chosenAccounts,
@@ -15,10 +18,18 @@ export default function InitialTopUpConfirmation(props) {
   // Function to submit the inital user top up to the server and save it to the database
   async function handleSubmitInitialTopUp() {
     try {
-      console.log("Top up submitted successfully.");
       for (const account of chosenAccounts) {
-        console.log(account);
+        const requestBody = {
+          account: account.name,
+          amount: account.amount,
+          category,
+          description,
+          type,
+        };
+        console.log(requestBody);
+        // await addTransaction(requestBody);
       }
+      console.log("Navigating to another page...");
     } catch (error) {
       console.error(error);
     }
@@ -69,6 +80,7 @@ export default function InitialTopUpConfirmation(props) {
             Cancel
           </button>
           <button
+            type="submit"
             className="transition-all cursor-pointer active:scale-95 bg-[#2830c9] text-white font-medium px-4 py-2 rounded-full hover:bg-[#2228A8]"
             onClick={handleSubmitInitialTopUp}
           >

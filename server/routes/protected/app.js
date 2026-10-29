@@ -394,9 +394,7 @@ router.post("/transaction", authenticateUser, async (req, res) => {
     // Retrieve the transaction timestamp
     const transactionTimestamp = transaction[0].created_at;
 
-    /* UPDATE THE ACCOUNT BALANCE 
-    OF A USER
-    */
+    /* UPDATE THE ACCOUNT BALANCE OF A USER */
 
     // If there is no any previous balance in that user's account, add the deposit amount directly to the balance
     if (previousAccountBalance === 0 && transactionType === "credit") {
