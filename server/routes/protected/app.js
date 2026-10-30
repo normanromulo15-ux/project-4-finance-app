@@ -12,6 +12,35 @@ router.get("/authentication", authenticateUser, async (_, res) => {
   res.sendStatus(200);
 });
 
+// Route to retrieve the accounts a user have
+router.get("/accounts", authenticateUser, async (req, res) => {
+  try {
+    const { sub } = req.user;
+    const userId = Number(sub);
+
+    // Retrieve the account types of a user from the database
+    const { rows } = await db.query(
+      "SELECT DISTINCT account, user_id FROM accounts",
+    );
+
+    /* Modify the rows array to make the user_id to be number type, filter it with only the current user to be considered, and have only the account types as the elements of the array.*/
+    const accounts = rows
+      .map((accountType) => {
+        return {
+          ...accountType,
+          user_id: Number(accountType.user_id),
+        };
+      })
+      .filter((accountType) => accountType.user_id === userId)
+      .map((accountType) => accountType.account);
+
+    res.json({ accounts });
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(500);
+  }
+});
+
 // Add a fund transfer from one account to another account
 router.post("/transfer", authenticateUser, async (req, res) => {
   const client = await db.connect();

@@ -26,6 +26,6 @@ export function authenticateUser(req, res, next) {
     req.user = decoded;
     next();
   } catch (error) {
-    res.status(401).json({ message: "Token expired." });
+    res.status(401).json({ message: "Unauthorized access." });
   }
 }
