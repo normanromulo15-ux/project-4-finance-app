@@ -9,11 +9,11 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
 export default function NewUserSetupAccountsChoice() {
   const navigate = useNavigate();
-  const accountsStatus =
-    sessionStorage.getItem("accountsStatus") || "[false, false, false]";
-  const accountsStatusArray = JSON.parse(accountsStatus);
+  const accountsStatus = JSON.parse(
+    sessionStorage.getItem("accountsStatus") || "[false, false, false]",
+  );
   const [isNotSelectCash, isNotSelectEWallet, isNotSelectSavings] =
-    accountsStatusArray;
+    accountsStatus;
   const addAccount = useAccountsChoiceStore((state) => state.addAccount);
   const removeAccount = useAccountsChoiceStore((state) => state.removeAccount);
   const [accounts, setAccounts] = useState([
@@ -43,11 +43,9 @@ export default function NewUserSetupAccountsChoice() {
   // Function to handle the click of account choices
   function handleClickAccountChoice(e, isCheck, label, index) {
     const { name } = e.currentTarget;
-    const selectedAccounts = accountsStatusArray.map(
-      (isCheck, elementIndex) => {
-        return elementIndex === index ? !isCheck : isCheck;
-      },
-    );
+    const selectedAccounts = accountsStatus.map((isCheck, elementIndex) => {
+      return elementIndex === index ? !isCheck : isCheck;
+    });
     sessionStorage.setItem("accountsStatus", JSON.stringify(selectedAccounts));
 
     setAccounts((prev) =>

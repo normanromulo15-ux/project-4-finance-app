@@ -63,7 +63,6 @@ export default function TransactionCategoriesDropdown(props) {
   // Function to handle selection of a transaction category
   function handleSelectTransactionCategory(e) {
     const { name } = e.currentTarget;
-    e.stopPropagation();
     setTransactionDetails((prev) => ({
       ...prev,
       category: name,
@@ -86,6 +85,11 @@ export default function TransactionCategoriesDropdown(props) {
       <div
         className={`relative cursor-text rounded-lg 
           border font-medium ${theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-600 bg-gray-100"}`}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget)) {
+            setShowTransactionsCategory(false);
+          }
+        }}
       >
         <input
           ref={inputRef}
@@ -98,9 +102,6 @@ export default function TransactionCategoriesDropdown(props) {
           onChange={handleTransactionDetailsInput}
           onFocus={() => {
             setShowTransactionsCategory(true);
-          }}
-          onBlur={() => {
-            setShowTransactionsCategory(false);
           }}
           placeholder="Select a category..."
           required={true}
@@ -204,7 +205,10 @@ export default function TransactionCategoriesDropdown(props) {
                     <button
                       className={`w-full transition-all duration-200 active:scale-95 cursor-pointer flex gap-2 items-center font-medium p-2 rounded-xl border  ${theme === "dark" ? "bg-gray-900 hover:bg-gray-700" : "bg-gray-200 hover:bg-gray-300"}`}
                       name={transactionCategory}
-                      onMouseDown={handleSelectTransactionCategory}
+                      onClick={(e) => {
+                        handleSelectTransactionCategory(e);
+                        setShowTransactionsCategory(false);
+                      }}
                     >
                       <div>{transactionIcon}</div>
                       <div className="text-start">

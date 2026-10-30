@@ -61,40 +61,52 @@ export default function Profile() {
           </section>
           <section className="flex justify-between items-center">
             <h2>Display Setting:</h2>
-            <button
-              className="relative transition-all duration-75 cursor-pointer flex items-center gap-1 rounded-lg px-2 py-1 border-2"
-              onClick={() => {
-                setShowDisplayThemeOptions((prev) => !prev);
+            <div
+              className="relative"
+              onClick={(e) => {
+                console.log(e.currentTarget);
               }}
-              onBlur={() => {
-                setShowDisplayThemeOptions(false);
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget)) {
+                  setShowDisplayThemeOptions(false);
+                }
               }}
             >
-              <h2 className="font-medium flex items-center">
-                <span>{displayTheme.icon}</span> <p>{displayTheme.label}</p>
-              </h2>
-              <ArrowDropDownIcon />
+              <button
+                className="transition-all duration-75 cursor-pointer flex items-center gap-1 rounded-lg px-2 py-1 border-2"
+                onClick={() => {
+                  setShowDisplayThemeOptions((prev) => !prev);
+                }}
+              >
+                <h2 className="font-medium flex items-center">
+                  <span>{displayTheme.icon}</span> <p>{displayTheme.label}</p>
+                </h2>
+                <ArrowDropDownIcon />
+              </button>
               {showDisplayThemeOptions && (
                 <ul
                   className={`absolute z-10 w-45 right-0 -bottom-28 p-3 border flex flex-col gap-2 ${selectedTheme === "dark" ? "bg-gray-900" : "bg-gray-100"}`}
                 >
                   {displayThemeOptions.map((displayTheme) => {
                     return (
-                      <li
-                        key={displayTheme.label}
-                        className={`transition-all duration-75 active:scale-95  cursor-pointer flex items-center font-medium gap-2 border rounded-lg px-2 py-1 ${selectedTheme === "dark" ? "bg-gray-800 hover:bg-gray-900" : "bg-white hover:bg-gray-300"}`}
-                        onClick={() => {
-                          handleDisplaySettingPreference(displayTheme);
-                        }}
-                      >
-                        <div>{displayTheme.icon}</div>
-                        <p>{displayTheme.label}</p>
+                      <li key={displayTheme.label}>
+                        <button
+                          type="button"
+                          className={`w-full transition-all duration-75 active:scale-95  cursor-pointer flex items-center font-medium gap-2 border rounded-lg px-2 py-1 ${selectedTheme === "dark" ? "bg-gray-800 hover:bg-gray-900" : "bg-white hover:bg-gray-300"}`}
+                          onClick={() => {
+                            handleDisplaySettingPreference(displayTheme);
+                            setShowDisplayThemeOptions(false);
+                          }}
+                        >
+                          <div>{displayTheme.icon}</div>
+                          <p>{displayTheme.label}</p>
+                        </button>
                       </li>
                     );
                   })}
                 </ul>
               )}
-            </button>
+            </div>
           </section>
         </main>
         <LogoutButton />
