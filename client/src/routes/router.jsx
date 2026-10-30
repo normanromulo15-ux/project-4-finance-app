@@ -4,6 +4,7 @@ import { createBrowserRouter } from "react-router";
 import NewUserSetup from "../pages/newUserSetup.jsx";
 import NewUserSetupAccountsChoice from "../pages/newUserSetupAccountsChoice.jsx";
 import NewUserSetupAccountsBalance from "../pages/newUserSetupAccountsBalance.jsx";
+import NewUserTopUpSuccess from "../pages/newUserTopUpSuccess.jsx";
 import AccountDashboard from "../pages/accountDashboard.jsx";
 import AccountOption from "../pages/transactionAccountOption.jsx";
 import FundTransfer from "../pages/fundTransfer.jsx";
@@ -65,12 +66,19 @@ export const router = createBrowserRouter([
     loader: authLoader,
   },
   {
+    path: "/new-user/success",
+    element: <NewUserTopUpSuccess />,
+    loader: authLoader,
+  },
+  {
     path: "/new-user/accounts",
     element: <NewUserSetupAccountsChoice />,
+    loader: authLoader,
   },
   {
     path: "/new-user/accounts/setup",
     element: <NewUserSetupAccountsBalance />,
+    loader: authLoader,
   },
   {
     path: "/transaction/:transactionType",
@@ -88,5 +96,6 @@ export const router = createBrowserRouter([
     path: "/transaction/:transactionType/:accountType/success",
     element: <TransactionSuccess />,
     errorElement: <PageNotFound />,
+    loader: authLoader,
   },
 ]);

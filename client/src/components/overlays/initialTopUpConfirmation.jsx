@@ -29,7 +29,7 @@ export default function InitialTopUpConfirmation(props) {
         console.log(requestBody);
         // await addTransaction(requestBody);
       }
-      console.log("Navigating to another page...");
+      navigate("/new-user/success");
     } catch (error) {
       console.error(error);
     }
@@ -39,7 +39,7 @@ export default function InitialTopUpConfirmation(props) {
     <div className="z-10 fixed flex flex-col items-center justify-center h-dvh p-8 inset-0 md:px-30 bg-black/70">
       <div className="z-20 w-full flex flex-col items-center justify-center p-4 gap-2 border-4 shadow-2xl border-[#2830c9] rounded-2xl  md:h-1/2 md:justify-evenly md:border-6 lg:h-4/5 lg:w-1/2 lg:px-8 bg-white">
         <h1 className="text-center text-xl font-bold md:text-2xl lg:text-3xl">
-          Top Up Details
+          Initial Top Up Details
         </h1>
         <h2 className="w-full text-left md:text-lg lg:text-xl">
           <span className="font-semibold">Account Name:</span> {firstName}{" "}
