@@ -10,7 +10,7 @@ import TransactionConfirmation from "../components/overlays/transactionConfirmat
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 export default function TransactionDetails() {
-  const theme = localStorage.getItem("theme");
+  const theme = localStorage.getItem("theme") || "light";
   const navigate = useNavigate();
   const [amountInputType, setAmountInputType] = useState("number");
   const [transactionDetails, setTransactionDetails] = useState({

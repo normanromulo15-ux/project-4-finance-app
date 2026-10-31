@@ -8,7 +8,7 @@ import PageNavigationBar from "../components/pageNavigationBar.jsx";
 import BackButton from "../components/backButton.jsx";
 
 export default function Transactions() {
-  const theme = localStorage.getItem("theme");
+  const theme = localStorage.getItem("theme") || "light";
   const [entryCounts, setEntryCounts] = useState({
     cash: 0,
     eWallet: 0,

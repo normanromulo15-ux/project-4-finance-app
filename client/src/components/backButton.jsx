@@ -4,7 +4,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 export default function BackButton(props) {
   const { endpoint, page } = props;
   const navigate = useNavigate();
-  const theme = localStorage.getItem("theme");
+  const theme = localStorage.getItem("theme") || "light";
 
   // Function to handle back navigation
   function handleBackNavigation() {

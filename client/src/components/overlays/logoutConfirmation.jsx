@@ -1,6 +1,5 @@
 export default function LogoutConfirmation(props) {
-  const { handleShowLogoutConfirmation, handleUserLogout } = props;
-  const theme = localStorage.getItem("theme");
+  const { theme, handleShowLogoutConfirmation, handleUserLogout } = props;
 
   return (
     <main

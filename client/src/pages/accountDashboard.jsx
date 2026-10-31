@@ -10,7 +10,7 @@ import BalanceHistoryChart from "../components/balanceHistoryChart.jsx";
 import BackButton from "../components/backButton.jsx";
 
 export default function AccountDashboard() {
-  const theme = localStorage.getItem("theme");
+  const theme = localStorage.getItem("theme") || "light";
   const { account } = useParams();
   const selectedAccount = accounts.find((e) => e.value === account);
   const [searchParams, setSearchParams] = useSearchParams();

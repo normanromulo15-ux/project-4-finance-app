@@ -7,7 +7,7 @@ import Navigation from "../layout/navigation.jsx";
 import Accounts from "../layout/accounts.jsx";
 
 export default function Home() {
-  const theme = localStorage.getItem("theme");
+  const theme = localStorage.getItem("theme") || "light";
   const { cash, eWallet, savings } = useLoaderData();
 
   useEffect(() => {

@@ -6,6 +6,7 @@ import LogoutConfirmation from "./overlays/logoutConfirmation.jsx";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function LogoutButton() {
+  const theme = localStorage.getItem("theme") || "light";
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
   const navigate = useNavigate();
   const { setAccessToken } = useAuth();
@@ -20,7 +21,7 @@ export default function LogoutButton() {
     try {
       await logoutUser();
       setAccessToken(null);
-      localStorage.removeItem("page");
+      localStorage.clear();
       navigate("/login");
     } catch (error) {
       console.error(error);
@@ -38,6 +39,7 @@ export default function LogoutButton() {
       </button>
       {showLogoutConfirmation && (
         <LogoutConfirmation
+          theme={theme}
           handleShowLogoutConfirmation={handleShowLogoutConfirmation}
           handleUserLogout={handleUserLogout}
         />

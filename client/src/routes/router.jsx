@@ -59,6 +59,7 @@ export const router = createBrowserRouter([
   {
     path: "/transfer/success",
     element: <TransactionSuccess />,
+    loader: authLoader,
   },
   {
     path: "/new-user",

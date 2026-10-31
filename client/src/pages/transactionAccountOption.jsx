@@ -7,7 +7,7 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 export default function AccountOption() {
-  const theme = localStorage.getItem("theme");
+  const theme = localStorage.getItem("theme") || "light";
   const [accountChoice, setAccountChoice] = useState(null);
   const { cash, eWallet } = useLoaderData();
   const navigate = useNavigate();

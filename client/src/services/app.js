@@ -10,6 +10,16 @@ export async function checkAuthentication() {
   }
 }
 
+// Function to retrieve the accounts a user have
+export async function getUserAccounts() {
+  try {
+    const { data } = await api.get("/accounts");
+    return data.accounts;
+  } catch (error) {
+    throw error;
+  }
+}
+
 // Function to get a user's current balance of a certain account
 export async function getCurrentBalance(account) {
   try {

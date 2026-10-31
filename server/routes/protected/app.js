@@ -20,7 +20,7 @@ router.get("/accounts", authenticateUser, async (req, res) => {
 
     // Retrieve the account types of a user from the database
     const { rows } = await db.query(
-      "SELECT DISTINCT account, user_id FROM accounts",
+      "SELECT DISTINCT account, user_id FROM accounts ORDER BY account ASC",
     );
 
     /* Modify the rows array to make the user_id to be number type, filter it with only the current user to be considered, and have only the account types as the elements of the array.*/
