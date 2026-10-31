@@ -63,9 +63,6 @@ export default function Profile() {
             <h2>Display Setting:</h2>
             <div
               className="relative"
-              onClick={(e) => {
-                console.log(e.currentTarget);
-              }}
               onBlur={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget)) {
                   setShowDisplayThemeOptions(false);

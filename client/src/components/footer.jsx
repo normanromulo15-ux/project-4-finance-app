@@ -3,7 +3,9 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#292933] w-full flex items-center justify-center py-3">
-      <p className="text-sm text-white md:text-base">&copy; {currentYear}</p>
+      <p className="text-sm text-white font-medium md:text-base">
+        &copy; {currentYear}
+      </p>
     </footer>
   );
 }

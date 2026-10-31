@@ -8,10 +8,9 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 
 export default function Header(props) {
-  const theme = localStorage.getItem("theme") ?? "Yes";
-  const defaultBalanceVisibility = localStorage.getItem(
-    "spendingBalanceVisibility",
-  );
+  const theme = localStorage.getItem("theme");
+  const defaultBalanceVisibility =
+    localStorage.getItem("spendingBalanceVisibility") ?? "Yes";
   const { cash, eWallet, formatCurrency } = props;
   const [currentTime, setCurrentTime] = useState(null);
   const [balanceVisibility, setBalanceVisibility] = useState(

@@ -7,10 +7,9 @@ import SavingsIcon from "@mui/icons-material/Savings";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 export default function Accounts(props) {
-  const theme = localStorage.getItem("theme") ?? "Yes";
-  const accountsBalanceVisibility = localStorage.getItem(
-    "accountsBalanceVisibility",
-  );
+  const theme = localStorage.getItem("theme");
+  const accountsBalanceVisibility =
+    localStorage.getItem("accountsBalanceVisibility") ?? "Yes";
   const { cash, eWallet, savings, formatCurrency } = props;
   const [cashBalance, setCashBalance] = useState(null);
   const [eWalletBalance, setEWalletBalance] = useState(null);
