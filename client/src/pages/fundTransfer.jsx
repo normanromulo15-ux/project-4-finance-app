@@ -6,6 +6,7 @@ import BackButton from "../components/backButton.jsx";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 export default function FundTransfer() {
+  const navigate = useNavigate();
   const theme = localStorage.getItem("theme");
   const [amountInputType, setAmountInputType] = useState("number");
   const [transferDetails, setTransferDetails] = useState({
@@ -22,35 +23,34 @@ export default function FundTransfer() {
   } = transferDetails;
   const [selectedOriginAccount, setSelectedOriginAccount] = useState({
     account: null,
+    balance: 0,
     displayBalance: null,
-    displayName: null,
-    numericBalance: 0,
+    label: null,
   });
-  const { numericBalance: originAccountBalance } = selectedOriginAccount;
+  const { balance: originAccountBalance } = selectedOriginAccount;
   const [finalTransferAmount, setFinalTransferAmount] = useState(null);
-  const [amountExceedBalance, setAmountExceedBalance] = useState(false);
-  const { cash, eWallet, savings } = useLoaderData();
-  const navigate = useNavigate();
-  const accountBalances = [
-    {
-      account: "cash",
-      displayBalance: formatCurrency(Number(cash.latestAccountBalance)),
-      displayName: "Cash",
-      numericBalance: Number(cash.latestAccountBalance),
-    },
-    {
-      account: "eWallet",
-      displayBalance: formatCurrency(Number(eWallet.latestAccountBalance)),
-      displayName: "E-Wallet",
-      numericBalance: Number(eWallet.latestAccountBalance),
-    },
-    {
-      account: "savings",
-      displayBalance: formatCurrency(Number(savings.latestAccountBalance)),
-      displayName: "Savings",
-      numericBalance: Number(savings.latestAccountBalance),
-    },
-  ];
+  const [isAmountExceedBalance, setIsAmountExceedBalance] = useState(false);
+  const { userAccountsData } = useLoaderData();
+  const accountsData = userAccountsData.map((account) => {
+    const { accountType, latestAccountBalance } = account;
+    let label;
+    switch (accountType) {
+      case "cash":
+        label = "Cash";
+        break;
+      case "eWallet":
+        label = "E-Wallet";
+        break;
+      case "savings":
+        label = "Savings";
+    }
+    return {
+      account: accountType,
+      balance: latestAccountBalance,
+      displayBalance: formatCurrency(latestAccountBalance),
+      label,
+    };
+  });
   const isDisableConfirmButton =
     !originAccount ||
     !destinationAccount ||
@@ -67,24 +67,25 @@ export default function FundTransfer() {
   function handleTransferDetails(e) {
     const { name, value } = e.target;
     if (name === "originAccount" && value) {
-      const selectedAccount = accountBalances.find((e) => e.account === value);
-      const { account, displayBalance, displayName, numericBalance } =
-        selectedAccount;
+      const selectedAccount = accountsData.find(
+        (item) => item.account === value,
+      );
+      const { account, displayBalance, label, balance } = selectedAccount;
       setSelectedOriginAccount({
         account,
         displayBalance,
-        displayName,
-        numericBalance,
+        label,
+        balance,
       });
     } else if (name === "originAccount" && !value) {
       setSelectedOriginAccount({
         account: null,
+        balance: 0,
         displayBalance: null,
-        displayName: null,
-        numericBalance: null,
+        label: null,
       });
     } else if (name === "transferAmount") {
-      setAmountExceedBalance(value > originAccountBalance);
+      setIsAmountExceedBalance(value > originAccountBalance);
     }
     setTransferDetails((prev) => ({ ...prev, [name]: value }));
   }
@@ -142,10 +143,10 @@ export default function FundTransfer() {
               required
             >
               <option value="">--Select an origin account--</option>
-              {accountBalances.map((e) => {
+              {accountsData.map((item) => {
                 return (
-                  <option key={e.account} value={e.account}>
-                    {e.displayName}
+                  <option key={item.account} value={item.account}>
+                    {item.label}
                   </option>
                 );
               })}
@@ -179,12 +180,14 @@ export default function FundTransfer() {
               required
             >
               <option value="">--Select a destination account--</option>
-              {accountBalances
-                .filter((e) => e.account !== selectedOriginAccount.account)
-                .map((e) => {
+              {accountsData
+                .filter(
+                  (item) => item.account !== selectedOriginAccount.account,
+                )
+                .map((item) => {
                   return (
-                    <option key={e.account} value={e.account}>
-                      {e.displayName}
+                    <option key={item.account} value={item.account}>
+                      {item.label}
                     </option>
                   );
                 })}
@@ -204,14 +207,13 @@ export default function FundTransfer() {
             <div
               className={`relative 
                 cursor-text rounded-lg
-                border-2 font-medium ${amountExceedBalance ? (theme === "dark" ? "border-red-400 bg-red-200 text-red-600" : "border-red-500 bg-red-100 text-red-500") : theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-500 bg-gray-100"}`}
+                border-2 font-medium ${isAmountExceedBalance ? (theme === "dark" ? "border-red-400 bg-red-200 text-red-600" : "border-red-500 bg-red-100 text-red-500") : theme === "dark" ? "border-gray-600 bg-gray-800" : "border-gray-500 bg-gray-100"}`}
             >
               <input
                 className="placeholder:text-sm disabled:cursor-not-allowed disabled:text-gray-500/95 disabled:placeholder:text-gray-400 p-2 w-full rounded-lg md:placeholder:text-base"
                 id="amount"
-                min={1}
                 name="transferAmount"
-                placeholder="Amount must be greater than ₱0.00"
+                placeholder="Amount must be at least ₱0.10"
                 onBlur={() => setAmountInputType("text")}
                 onFocus={() => setAmountInputType("number")}
                 onChange={handleTransferDetails}
@@ -224,7 +226,7 @@ export default function FundTransfer() {
                 required={true}
                 disabled={!originAccount || !destinationAccount}
               />
-              {amountExceedBalance && (
+              {isAmountExceedBalance && (
                 <>
                   <p className="absolute -bottom-6 font-medium text-sm text-red-500">
                     Amount exceeded the account balance
@@ -258,7 +260,7 @@ export default function FundTransfer() {
                 !destinationAccount ||
                 !transferAmount ||
                 Number(transferAmount) <= 0 ||
-                amountExceedBalance
+                isAmountExceedBalance
               }
             >
               {[0, 1, 2].map((percentage) => (
@@ -280,7 +282,7 @@ export default function FundTransfer() {
           <p className="font-semibold">
             Amount To Be Transferred:{" "}
             <span
-              className={`font-bold ${amountExceedBalance && "text-red-500"}`}
+              className={`font-bold ${isAmountExceedBalance && "text-red-500"}`}
             >
               {finalTransferAmount}
             </span>
