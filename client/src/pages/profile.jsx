@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLoaderData } from "react-router";
+import { formatCurrency } from "../utils/formatters.js";
 import BackButton from "../components/backButton.jsx";
 import LogoutButton from "../components/logoutButton.jsx";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -20,14 +21,19 @@ export default function Profile() {
     },
   ];
   const theme = localStorage.getItem("theme") || "light";
+  const [totalMoney, setTotalMoney] = useState(null);
   const [selectedTheme, setSelectedTheme] = useState(theme);
   const [displayTheme, setDisplayTheme] = useState({
     label: null,
     icon: null,
   });
   const [showDisplayThemeOptions, setShowDisplayThemeOptions] = useState(false);
-  const { fullName } = useLoaderData();
-  const usersFullName = `${fullName.firstName} ${fullName.lastName}`;
+  const { userFullName, userAccountsData } = useLoaderData();
+  const fullName = `${userFullName.firstName} ${userFullName.lastName}`;
+
+  useEffect(() => {
+    setTotalMoney(formatCurrency(addAllAccountsBalance()));
+  }, []);
 
   useEffect(() => {
     const theme = displayThemeOptions.find(
@@ -44,6 +50,15 @@ export default function Profile() {
     setSelectedTheme(theme);
   }
 
+  // Function to calculate the sum of all accounts balance
+  function addAllAccountsBalance() {
+    const totalMoney = userAccountsData.reduce(
+      (a, b) => a + b.latestAccountBalance,
+      0,
+    );
+    return totalMoney;
+  }
+
   return (
     <>
       <div
@@ -55,9 +70,13 @@ export default function Profile() {
           </h1>
         </header>
         <main className="flex flex-col gap-4 mt-8 mb-4 md:text-lg lg:w-1/2">
-          <section className="flex justify-between items-center">
+          <section className="flex justify-between">
             <h2>Full Name:</h2>
-            <h2 className="font-medium">{usersFullName}</h2>
+            <h2 className="font-medium">{fullName}</h2>
+          </section>
+          <section className="flex justify-between items-center">
+            <h2>Total Money:</h2>
+            <h2 className="font-medium">{totalMoney}</h2>
           </section>
           <section className="flex justify-between items-center">
             <h2>Display Setting:</h2>
