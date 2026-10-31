@@ -8,13 +8,19 @@ import Accounts from "../layout/accounts.jsx";
 
 export default function Home() {
   const theme = localStorage.getItem("theme") || "light";
-  const { cash, eWallet, savings } = useLoaderData();
+  const { cash, eWallet, savings, userAccountsData } = useLoaderData();
+  const accounts = userAccountsData.map((account) => account.accountType);
+  const spendingAccounts = userAccountsData.filter(
+    (account) => account.accountType !== "savings",
+  );
 
   useEffect(() => {
-    async function addInterestToSavings() {
-      return await addDailyInterest();
+    if (accounts.includes("savings")) {
+      async function addInterestToSavings() {
+        return await addDailyInterest();
+      }
+      addInterestToSavings();
     }
-    addInterestToSavings();
   }, []);
 
   return (
@@ -25,11 +31,17 @@ export default function Home() {
       <div
         className={`w-full flex flex-col gap-12 lg:flex-row lg:gap-20 ${theme === "dark" && "text-white"}`}
       >
-        <Header cash={cash} eWallet={eWallet} formatCurrency={formatCurrency} />
+        <Header
+          cash={cash}
+          eWallet={eWallet}
+          spendingAccounts={spendingAccounts}
+          formatCurrency={formatCurrency}
+        />
         <Accounts
           cash={cash}
           eWallet={eWallet}
           savings={savings}
+          userAccountsData={userAccountsData}
           formatCurrency={formatCurrency}
         />
       </div>

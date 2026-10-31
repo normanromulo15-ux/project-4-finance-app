@@ -11,7 +11,7 @@ export default function Header(props) {
   const theme = localStorage.getItem("theme");
   const defaultBalanceVisibility =
     localStorage.getItem("spendingBalanceVisibility") ?? "Yes";
-  const { cash, eWallet, formatCurrency } = props;
+  const { spendingAccounts, formatCurrency } = props;
   const [currentTime, setCurrentTime] = useState(null);
   const [balanceVisibility, setBalanceVisibility] = useState(
     Boolean(defaultBalanceVisibility),
@@ -29,11 +29,11 @@ export default function Header(props) {
 
   // Function to add the cash and the eWallet balance
   function addCashAndEWalletBalance() {
-    const cashBalance = cash.latestAccountBalance;
-    const eWalletBalance = eWallet.latestAccountBalance;
-    const totalBalance = Number(cashBalance + eWalletBalance);
-
-    return formatCurrency(totalBalance);
+    const totalSpendingBalance = spendingAccounts.reduce(
+      (a, b) => a + b.latestAccountBalance,
+      0,
+    );
+    return formatCurrency(totalSpendingBalance);
   }
 
   // Function to handle the visibility of a balance

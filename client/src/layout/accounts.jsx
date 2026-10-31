@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import BalanceVisibility from "../components/balanceVisibility.jsx";
 import MoneyIcon from "@mui/icons-material/Money";
@@ -7,51 +7,14 @@ import SavingsIcon from "@mui/icons-material/Savings";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 export default function Accounts(props) {
+  const navigate = useNavigate();
   const theme = localStorage.getItem("theme");
   const accountsBalanceVisibility =
     localStorage.getItem("accountsBalanceVisibility") ?? "Yes";
-  const { cash, eWallet, savings, formatCurrency } = props;
-  const [cashBalance, setCashBalance] = useState(null);
-  const [eWalletBalance, setEWalletBalance] = useState(null);
-  const [savingsBalance, setSavingsBalance] = useState(null);
-  const [accountBalances, setAccountBalances] = useState([
-    { accountType: "cash", balance: null },
-    { accountType: "eWallet", balance: null },
-    { accountType: "savings", balance: null },
-  ]);
   const [balanceVisibility, setBalanceVisibility] = useState(
     Boolean(accountsBalanceVisibility),
   );
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    setCashBalance(formatCurrency(cash.latestAccountBalance));
-  }, [cashBalance]);
-
-  useEffect(() => {
-    setEWalletBalance(formatCurrency(eWallet.latestAccountBalance));
-  }, [eWalletBalance]);
-
-  useEffect(() => {
-    setSavingsBalance(formatCurrency(savings.latestAccountBalance));
-  }, [savingsBalance]);
-
-  useEffect(() => {
-    setAccountBalances([
-      {
-        accountType: "cash",
-        balance: cashBalance,
-      },
-      {
-        accountType: "eWallet",
-        balance: eWalletBalance,
-      },
-      {
-        accountType: "savings",
-        balance: savingsBalance,
-      },
-    ]);
-  }, [cashBalance, eWalletBalance, savingsBalance]);
+  const { userAccountsData, formatCurrency } = props;
 
   // Function to handle the visibility of a balance
   function handleBalanceVisibility() {
@@ -78,12 +41,12 @@ export default function Accounts(props) {
         />
       </div>
       <div className="flex flex-col gap-4 md:gap-4">
-        {accountBalances.map((e) => {
-          const { accountType, balance: accountBalance } = e;
+        {userAccountsData.map((account) => {
+          const { accountType, latestAccountBalance } = account;
           let accountName;
           let AccountIcon;
 
-          switch (e.accountType) {
+          switch (account.accountType) {
             case "cash":
               accountName = "Cash";
               AccountIcon = <MoneyIcon />;
@@ -110,7 +73,9 @@ export default function Accounts(props) {
                   <h3>{accountName}</h3>
                 </div>
                 <h4 className="overflow-hidden font-bold text-lg md:text-xl">
-                  {balanceVisibility ? accountBalance : "₱·····"}
+                  {balanceVisibility
+                    ? formatCurrency(latestAccountBalance)
+                    : "₱·····"}
                 </h4>
               </div>
               <div>

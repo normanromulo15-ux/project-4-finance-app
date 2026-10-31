@@ -10,7 +10,6 @@ export default async function userDataLoader() {
       getCurrentBalance(account),
     );
     const userAccountsData = await Promise.all(userAccounts);
-    console.log(userFullName, userAccountsData);
 
     // Retrieve the user's full name and current balance data for cash, eWallet, and savings accounts
     const [fullName, cash, eWallet, savings] = await Promise.all([
@@ -20,7 +19,7 @@ export default async function userDataLoader() {
       getCurrentBalance("savings"),
     ]);
 
-    return { fullName, cash, eWallet, savings };
+    return { fullName, cash, eWallet, savings, userFullName, userAccountsData };
   } catch (error) {
     console.error(error);
     return redirect("/login");
