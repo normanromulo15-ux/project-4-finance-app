@@ -8,11 +8,15 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 export default function AccountOption() {
   const navigate = useNavigate();
+  const { userAccountsData } = useLoaderData();
   const { transactionType } = useParams();
   const theme = localStorage.getItem("theme") || "light";
-  const { cash, eWallet, userAccountsData } = useLoaderData();
-  const [accountChoice, setAccountChoice] = useState(null);
-
+  const selectedTransactionAccount = sessionStorage.getItem(
+    "selectedTransactionAccount",
+  );
+  const [accountChoice, setAccountChoice] = useState(
+    selectedTransactionAccount,
+  );
   const spendingBalances = userAccountsData
     .filter((account) => account.accountType !== "savings")
     .map((account) => {
@@ -40,11 +44,12 @@ export default function AccountOption() {
   // Function to handle the user's choice of account
   function handleAccountChoice(e) {
     const { value } = e.currentTarget;
+    sessionStorage.setItem("selectedTransactionAccount", value);
     setAccountChoice(value);
   }
 
   // Function to handle the account navigation due to a click of the next button
-  function handleNextButtonClick() {
+  function handleClickNextButton() {
     navigate(`/transaction/${transactionType}/${accountChoice}`);
   }
 
@@ -87,12 +92,12 @@ export default function AccountOption() {
         <button
           className={`transition-all duration-75 cursor-pointer w-full bg-[#2830c9] text-white text-lg font-medium px-4 py-2 rounded-4xl mt-auto disabled:cursor-not-allowed md:text-xl md:py-3 lg:mt-0 lg:w-1/4 ${accountChoice && "active:scale-95"} ${theme === "dark" ? "hover:bg-[#363ED6] disabled:bg-gray-400" : "hover:bg-[#2228A8] disabled:bg-gray-300"}`}
           disabled={!accountChoice}
-          onClick={handleNextButtonClick}
+          onClick={handleClickNextButton}
         >
           Next
         </button>
       </main>
-      <BackButton endpoint={"/"} />
+      <BackButton endpoint={"/"} page={"transactionAccountOption"} />
     </>
   );
 }

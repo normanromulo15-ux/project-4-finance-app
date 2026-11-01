@@ -13,6 +13,8 @@ export default function BackButton(props) {
         localStorage.removeItem("page");
         localStorage.removeItem("category");
         break;
+      case "transactionAccountOption":
+        sessionStorage.removeItem("selectedTransactionAccount");
     }
     navigate(endpoint);
   }
