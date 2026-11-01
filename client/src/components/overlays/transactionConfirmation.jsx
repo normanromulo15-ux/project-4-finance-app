@@ -4,7 +4,7 @@ export default function TransactionConfirmation(props) {
     isDisableSubmit,
     handleTransactionSubmission,
     transactionType,
-    formatAmount,
+    formattedTransactionAmount,
     accountName,
     capitalizeFirstLetter,
     account,
@@ -22,7 +22,7 @@ export default function TransactionConfirmation(props) {
       >
         <h1 className="text-center text-xl font-bold md:text-2xl lg:text-3xl">
           You are about to {transactionType === "debit" ? "spend" : "save"}{" "}
-          {formatAmount}
+          {formattedTransactionAmount}
         </h1>
         <h2 className="w-full text-left md:text-lg lg:text-xl">
           <span className="font-semibold">Account Name:</span> {accountName}
@@ -32,7 +32,8 @@ export default function TransactionConfirmation(props) {
           {capitalizeFirstLetter(account)}
         </h2>
         <h2 className="w-full text-left md:text-lg lg:text-xl">
-          <span className="font-semibold">Amount:</span> {formatAmount}
+          <span className="font-semibold">Amount:</span>{" "}
+          {formattedTransactionAmount}
         </h2>
         {transactionType === "debit" && (
           <h2 className="w-full text-left md:text-lg lg:text-xl">

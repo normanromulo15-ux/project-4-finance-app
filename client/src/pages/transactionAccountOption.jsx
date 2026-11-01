@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLoaderData, useNavigate, useParams } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
+import { useTransactionDetailsStore } from "../stores/transactionDetailsStore.js";
 import { formatCurrency } from "../utils/formatters.js";
 import BackButton from "../components/backButton.jsx";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
@@ -9,14 +9,14 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 export default function AccountOption() {
   const navigate = useNavigate();
   const { userAccountsData } = useLoaderData();
-  const { transactionType } = useParams();
   const theme = localStorage.getItem("theme") || "light";
-  const selectedTransactionAccount = sessionStorage.getItem(
-    "selectedTransactionAccount",
+  const transactionDetails = useTransactionDetailsStore(
+    (state) => state.transactionDetails,
   );
-  const [accountChoice, setAccountChoice] = useState(
-    selectedTransactionAccount,
+  const setTransactionDetails = useTransactionDetailsStore(
+    (state) => state.setTransactionDetails,
   );
+  const { account: accountChoice } = transactionDetails;
   const spendingBalances = userAccountsData
     .filter((account) => account.accountType !== "savings")
     .map((account) => {
@@ -43,14 +43,14 @@ export default function AccountOption() {
 
   // Function to handle the user's choice of account
   function handleAccountChoice(e) {
-    const { value } = e.currentTarget;
+    const { name, value } = e.currentTarget;
     sessionStorage.setItem("selectedTransactionAccount", value);
-    setAccountChoice(value);
+    setTransactionDetails(name, value);
   }
 
   // Function to handle the account navigation due to a click of the next button
   function handleClickNextButton() {
-    navigate(`/transaction/${transactionType}/${accountChoice}`);
+    navigate("/transaction/transaction-details");
   }
 
   return (
@@ -66,7 +66,7 @@ export default function AccountOption() {
               <button
                 key={account}
                 className={`transition-all duration-75 cursor-pointer relative w-full flex gap-2 items-center border border-t-4 border-[#2830c9] rounded-xl px-2 py-4 ${accountChoice === account ? (theme === "dark" ? "scale-105 bg-gray-800" : "scale-105 bg-gray-200") : theme === "dark" && "bg-gray-900"}`}
-                name={account}
+                name="account"
                 value={account}
                 onClick={handleAccountChoice}
               >

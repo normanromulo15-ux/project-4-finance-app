@@ -1,17 +1,17 @@
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
+import { useSuccessfulTransactionStore } from "../stores/successfulTransactionStore.js";
 import { formatTimestamp } from "../utils/formatters.js";
 import { formatCurrency } from "../utils/formatters.js";
 
 export default function TransactionSuccess() {
-  const [searchParams] = useSearchParams();
-  const referenceNumber = searchParams.get("refNo") || "";
-  const transactionAmount = formatCurrency(
-    Number(searchParams.get("amount") || 0),
-  );
-  const timestamp = formatTimestamp(
-    searchParams.get("timestamp") || new Date().toISOString(),
-  );
   const navigate = useNavigate();
+  const successfulTransactionDetails = useSuccessfulTransactionStore(
+    (state) => state.successfulTransactionDetails,
+  );
+  const { referenceNumber, transactionAmount, timestamp } =
+    successfulTransactionDetails;
+  const formattedTransactionAmount = formatCurrency(Number(transactionAmount));
+  const formattedTimestamp = formatTimestamp(timestamp);
 
   return (
     <div className="flex flex-col items-center justify-around min-h-dvh inset-0 p-8 md:p-16 ">
@@ -24,13 +24,13 @@ export default function TransactionSuccess() {
         </h2>
         <h3 className="text-xl md:text-2xl lg:text-3xl">
           <span className="font-bold">Amount: </span>
-          {transactionAmount}
+          {formattedTransactionAmount}
         </h3>
         <div className="w-full text-xs flex justify-between md:text-base lg:text-lg">
           <h4>
             <span className="font-bold">Ref No:</span> {referenceNumber}
           </h4>
-          <h4>{timestamp}</h4>
+          <h4>{formattedTimestamp}</h4>
         </div>
       </div>
       <button

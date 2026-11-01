@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router";
+import { useTransactionDetailsStore } from "../stores/transactionDetailsStore.js";
 import { addTransaction } from "../services/app.js";
+import { getCurrentBalance } from "../services/app.js";
 import { capitalizeFirstLetter } from "../utils/formatters.js";
 import { formatCurrency } from "../utils/formatters.js";
 import { transactionCategories } from "../utils/constants.js";
@@ -11,34 +13,34 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 export default function TransactionDetails() {
   const theme = localStorage.getItem("theme") ?? "light";
-  const inputAmount = sessionStorage.getItem("inputAmount") ?? "";
-  const inputCategory = sessionStorage.getItem("inputCategory") ?? "";
-  const inputDescription = sessionStorage.getItem("inputDescription") ?? "";
   const navigate = useNavigate();
-  const { transactionType, accountType } = useParams();
-  const [amountInputType, setAmountInputType] = useState("text");
-  const [transactionDetails, setTransactionDetails] = useState({
-    account: accountType,
-    amount: inputAmount,
-    category: transactionType === "debit" ? inputCategory : "Financial",
-    description: inputDescription,
+  const transactionDetails = useTransactionDetailsStore(
+    (state) => state.transactionDetails,
+  );
+  const setTransactionDetails = useTransactionDetailsStore(
+    (state) => state.setTransactionDetails,
+  );
+  const setSuccessfulTransactionDetails = useTransactionDetailsStore(
+    (state) => state.setSuccessfulTransactionDetails,
+  );
+  const {
+    account,
+    amount,
+    category,
+    description,
     type: transactionType,
-  });
-  const { account, amount, category, description } = transactionDetails;
-
-  const [formatAmount, setFormatAmount] = useState(0);
-  const [accountName, setAccountName] = useState("");
+  } = transactionDetails;
+  const [amountInputType, setAmountInputType] = useState("text");
+  const [formattedTransactionAmount, setFormattedTransactionAmount] =
+    useState("");
   const [showTransactionConfirmation, setShowTransactionConfirmation] =
     useState(false);
   const [isAmountExceedBalance, setIsAmountExceedBalance] = useState(false);
   const [accountAvailableBalance, setAccountAvailableBalance] = useState(null);
   const [isDisableSubmit, setIsDisableSubmit] = useState(false);
-  const { firstName, lastName } = useLoaderData().fullName;
-  const { cash, eWallet } = useLoaderData();
-  const transactionAccounts = [
-    { name: "cash", value: cash },
-    { name: "eWallet", value: eWallet },
-  ];
+  const { userFullName } = useLoaderData();
+  const { firstName, lastName } = userFullName;
+  const accountName = `${firstName} ${lastName}`;
   const isDescriptionRequired =
     (transactionType === "debit" &&
       (!amount || !category || !description.trim())) ||
@@ -52,21 +54,21 @@ export default function TransactionDetails() {
     !description.trim();
 
   useEffect(() => {
-    setAccountAvailableBalance(
-      transactionAccounts.find((e) => e.name === accountType).value
-        .latestAccountBalance,
-    );
+    const accountBalance = async () => {
+      const { latestAccountBalance } = await getCurrentBalance(account);
+      setAccountAvailableBalance(latestAccountBalance);
+    };
+    accountBalance();
   }, []);
 
   useEffect(() => {
-    setAccountName(`${firstName} ${lastName}`);
-    setFormatAmount(formatCurrency(Number(amount)));
+    setFormattedTransactionAmount(formatCurrency(Number(amount)));
   }, [showTransactionConfirmation, amount]);
 
   // Function to handle user's transaction details input
   function handleTransactionDetailsInput(e) {
     const { name, value } = e.target;
-    setTransactionDetails((prev) => ({ ...prev, [name]: value }));
+    setTransactionDetails(name, value);
     if (name === "amount" && transactionType === "debit") {
       setIsAmountExceedBalance(value > accountAvailableBalance);
     }
@@ -85,6 +87,7 @@ export default function TransactionDetails() {
 
   // Function to handle the display of transaction confirmation
   function handleDisplayTransactionConfirmation() {
+    console.log(transactionDetails);
     setShowTransactionConfirmation((prev) => !prev);
   }
 
@@ -96,13 +99,17 @@ export default function TransactionDetails() {
       const response = await addTransaction(transactionDetails);
       const {
         storedTransactionAmount: transactionAmount,
-        transactionReferenceId: refNo,
+        transactionReferenceId: referenceNumber,
         transactionTimestamp: timestamp,
       } = response;
+      const successfulTransactionDetails = {
+        transactionAmount,
+        referenceNumber,
+        timestamp,
+      };
 
-      navigate(
-        `/transaction/${transactionType}/${accountType}/success?amount=${transactionAmount}&refNo=${refNo}&timestamp=${timestamp}`,
-      );
+      setSuccessfulTransactionDetails(successfulTransactionDetails);
+      navigate("/transaction/success");
     } catch (error) {
       console.error(error);
     }
@@ -214,7 +221,7 @@ export default function TransactionDetails() {
           isDisableSubmit={isDisableSubmit}
           handleTransactionSubmission={handleTransactionSubmission}
           transactionType={transactionType}
-          formatAmount={formatAmount}
+          formattedTransactionAmount={formattedTransactionAmount}
           accountName={accountName}
           capitalizeFirstLetter={capitalizeFirstLetter}
           account={account}
@@ -225,7 +232,7 @@ export default function TransactionDetails() {
           }
         />
       )}
-      <BackButton endpoint={`/transaction/${transactionType}`} />
+      <BackButton endpoint={"/transaction/account-options"} />
     </>
   );
 }

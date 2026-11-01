@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useTransactionDetailsStore } from "../stores/transactionDetailsStore.js";
 import { formatCurrentTime } from "../utils/formatters.js";
 
 // Components
@@ -11,13 +12,20 @@ export default function Header(props) {
   const theme = localStorage.getItem("theme");
   const defaultBalanceVisibility =
     localStorage.getItem("spendingBalanceVisibility") ?? "Yes";
+  const navigate = useNavigate();
   const { spendingAccounts, formatCurrency } = props;
+  const setTransactionDetails = useTransactionDetailsStore(
+    (state) => state.setTransactionDetails,
+  );
   const [currentTime, setCurrentTime] = useState(null);
   const [balanceVisibility, setBalanceVisibility] = useState(
     Boolean(defaultBalanceVisibility),
   );
   const [spendingBalance, setSpendingBalance] = useState(null);
-  const navigate = useNavigate();
+  const accountChoices = [
+    { label: "Income", value: "credit", icon: <AddIcon /> },
+    { label: "Expense", value: "debit", icon: <RemoveIcon /> },
+  ];
 
   useEffect(() => {
     setCurrentTime(formatCurrentTime());
@@ -52,8 +60,10 @@ export default function Header(props) {
 
   // Function to handle the transaction
   function handleTransaction(e) {
-    const { name } = e.currentTarget;
-    navigate(`/transaction/${name}`);
+    const { name, value } = e.currentTarget;
+    sessionStorage.setItem("transactionType", value);
+    setTransactionDetails(name, value);
+    navigate("/transaction/account-options");
   }
 
   return (
@@ -72,24 +82,20 @@ export default function Header(props) {
         {balanceVisibility ? spendingBalance : "₱·····"}
       </h2>
       <div className="flex items-center justify-center gap-4 md:gap-15">
-        <button
-          className={`transition-all duration-75 cursor-pointer active:scale-95 flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2 lg:py-4 lg:rounded-2xl ${theme === "dark" ? "hover:bg-[#363ED6]" : "hover:bg-[#2228A8]"}`}
-          name="credit"
-          value="credit"
-          onClick={handleTransaction}
-        >
-          <AddIcon />
-          <p className="text-sm font-medium lg:text-xl">Income</p>
-        </button>
-        <button
-          className={`transition-all duration-75 cursor-pointer active:scale-95 flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2 lg:py-4 lg:rounded-2xl ${theme === "dark" ? "hover:bg-[#363ED6]" : "hover:bg-[#2228A8]"}`}
-          name="debit"
-          value="debit"
-          onClick={handleTransaction}
-        >
-          <RemoveIcon />
-          <p className="text-sm font-medium lg:text-xl">Expense</p>
-        </button>
+        {accountChoices.map((account) => {
+          const { label, value, icon } = account;
+          return (
+            <button
+              className={`transition-all duration-75 cursor-pointer active:scale-95 flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2 lg:py-4 lg:rounded-2xl ${theme === "dark" ? "hover:bg-[#363ED6]" : "hover:bg-[#2228A8]"}`}
+              name="type"
+              value={value}
+              onClick={handleTransaction}
+            >
+              <div>{icon}</div>
+              <p className="text-sm font-medium lg:text-xl">{label}</p>
+            </button>
+          );
+        })}
       </div>
     </header>
   );

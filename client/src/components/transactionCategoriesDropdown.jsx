@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useTransactionDetailsStore } from "../stores/transactionDetailsStore.js";
 import { useParams } from "react-router";
 import { transactionCategories as categories } from "../utils/constants.js";
 import CloseIcon from "@mui/icons-material/Close";
@@ -29,6 +30,9 @@ export default function TransactionCategoriesDropdown(props) {
     setTransactionDetails,
     isAmountExceedBalance,
   } = props;
+  const clearCategoryAndDescription = useTransactionDetailsStore(
+    (state) => state.clearCategoryAndDescription,
+  );
   const [showTransactionsCategory, setShowTransactionsCategory] =
     useState(false);
   const [transactionCategories, setTransactionCategories] =
@@ -38,7 +42,6 @@ export default function TransactionCategoriesDropdown(props) {
 
   useEffect(() => {
     filterTransactionCategories();
-    console.log(isEnableCategoriesDropdown);
   }, [category]);
 
   // Function to handle filtering of transactions categories
@@ -62,11 +65,8 @@ export default function TransactionCategoriesDropdown(props) {
 
   // Function to handle selection of a transaction category
   function handleSelectTransactionCategory(e) {
-    const { value } = e.currentTarget;
-    setTransactionDetails((prev) => ({
-      ...prev,
-      category: value,
-    }));
+    const { name, value } = e.currentTarget;
+    setTransactionDetails(name, value);
     sessionStorage.setItem("inputCategory", value);
     setShowTransactionsCategory(false);
   }
@@ -80,12 +80,7 @@ export default function TransactionCategoriesDropdown(props) {
   // Function to handle click of the close button icon
   function handleClickCloseButtonIcon() {
     handleCategoryInputFocus();
-    setTransactionDetails((prev) => ({
-      ...prev,
-      category: "",
-      description: "",
-    }));
-    sessionStorage.removeItem("inputCategory");
+    clearCategoryAndDescription();
   }
 
   return (
@@ -221,7 +216,9 @@ export default function TransactionCategoriesDropdown(props) {
                 return (
                   <li key={transactionCategory} className="w-full">
                     <button
+                      type="button"
                       className={`w-full transition-all duration-200 active:scale-95 cursor-pointer flex gap-2 items-center font-medium p-2 rounded-xl border  ${theme === "dark" ? "bg-gray-900 hover:bg-gray-700" : "bg-gray-200 hover:bg-gray-300"}`}
+                      name="category"
                       value={transactionCategory}
                       onClick={handleSelectTransactionCategory}
                     >

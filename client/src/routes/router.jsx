@@ -82,19 +82,19 @@ export const router = createBrowserRouter([
     loader: authLoader,
   },
   {
-    path: "/transaction/:transactionType",
+    path: "/transaction/account-options",
     element: <AccountOption />,
     errorElement: <PageNotFound />,
     loader: userDataLoader,
   },
   {
-    path: "/transaction/:transactionType/:accountType",
+    path: "/transaction/transaction-details",
     element: <TransactionDetails />,
     errorElement: <PageNotFound />,
     loader: userDataLoader,
   },
   {
-    path: "/transaction/:transactionType/:accountType/success",
+    path: "/transaction/success",
     element: <TransactionSuccess />,
     errorElement: <PageNotFound />,
     loader: authLoader,
