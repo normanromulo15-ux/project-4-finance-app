@@ -15,6 +15,9 @@ export default function BackButton(props) {
         break;
       case "transactionAccountOption":
         sessionStorage.removeItem("selectedTransactionAccount");
+        sessionStorage.removeItem("inputAmount");
+        sessionStorage.removeItem("inputCategory");
+        sessionStorage.removeItem("inputDescription");
     }
     navigate(endpoint);
   }

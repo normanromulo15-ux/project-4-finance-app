@@ -62,12 +62,30 @@ export default function TransactionCategoriesDropdown(props) {
 
   // Function to handle selection of a transaction category
   function handleSelectTransactionCategory(e) {
-    const { name } = e.currentTarget;
+    const { value } = e.currentTarget;
     setTransactionDetails((prev) => ({
       ...prev,
-      category: name,
+      category: value,
     }));
+    sessionStorage.setItem("inputCategory", value);
     setShowTransactionsCategory(false);
+  }
+
+  // Function to handle click of the arrow dropdown button
+  function handleClickArrowDropdown() {
+    handleCategoryInputFocus();
+    setShowTransactionsCategory(true);
+  }
+
+  // Function to handle click of the close button icon
+  function handleClickCloseButtonIcon() {
+    handleCategoryInputFocus();
+    setTransactionDetails((prev) => ({
+      ...prev,
+      category: "",
+      description: "",
+    }));
+    sessionStorage.removeItem("inputCategory");
   }
 
   return (
@@ -204,11 +222,8 @@ export default function TransactionCategoriesDropdown(props) {
                   <li key={transactionCategory} className="w-full">
                     <button
                       className={`w-full transition-all duration-200 active:scale-95 cursor-pointer flex gap-2 items-center font-medium p-2 rounded-xl border  ${theme === "dark" ? "bg-gray-900 hover:bg-gray-700" : "bg-gray-200 hover:bg-gray-300"}`}
-                      name={transactionCategory}
-                      onClick={(e) => {
-                        handleSelectTransactionCategory(e);
-                        setShowTransactionsCategory(false);
-                      }}
+                      value={transactionCategory}
+                      onClick={handleSelectTransactionCategory}
                     >
                       <div>{transactionIcon}</div>
                       <div className="text-start">
@@ -232,24 +247,14 @@ export default function TransactionCategoriesDropdown(props) {
         <button
           className="absolute transition-all active:scale-85 cursor-pointer disabled:cursor-not-allowed bottom-2 right-2"
           disabled={!isEnableCategoriesDropdown}
-          onClick={() => {
-            handleCategoryInputFocus();
-            setShowTransactionsCategory(true);
-          }}
+          onClick={handleClickArrowDropdown}
         >
           <ArrowDropDownIcon />
         </button>
         {category.trim() && (
           <button
             className="absolute right-8 top-1.5 cursor-pointer hover:scale-105 active:scale-95"
-            onClick={() => {
-              handleCategoryInputFocus();
-              setTransactionDetails((prev) => ({
-                ...prev,
-                category: "",
-                description: "",
-              }));
-            }}
+            onClick={handleClickCloseButtonIcon}
           >
             <CloseIcon />
           </button>

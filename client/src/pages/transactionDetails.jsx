@@ -10,15 +10,19 @@ import TransactionConfirmation from "../components/overlays/transactionConfirmat
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 export default function TransactionDetails() {
-  const theme = localStorage.getItem("theme") || "light";
+  const theme = localStorage.getItem("theme") ?? "light";
+  const inputAmount = sessionStorage.getItem("inputAmount") ?? "";
+  const inputCategory = sessionStorage.getItem("inputCategory") ?? "";
+  const inputDescription = sessionStorage.getItem("inputDescription") ?? "";
   const navigate = useNavigate();
-  const [amountInputType, setAmountInputType] = useState("number");
+  const { transactionType, accountType } = useParams();
+  const [amountInputType, setAmountInputType] = useState("text");
   const [transactionDetails, setTransactionDetails] = useState({
-    account: "",
-    amount: "",
-    category: "",
-    description: "",
-    type: "",
+    account: accountType,
+    amount: inputAmount,
+    category: transactionType === "debit" ? inputCategory : "Financial",
+    description: inputDescription,
+    type: transactionType,
   });
   const { account, amount, category, description } = transactionDetails;
 
@@ -29,7 +33,6 @@ export default function TransactionDetails() {
   const [isAmountExceedBalance, setIsAmountExceedBalance] = useState(false);
   const [accountAvailableBalance, setAccountAvailableBalance] = useState(null);
   const [isDisableSubmit, setIsDisableSubmit] = useState(false);
-  const { transactionType, accountType } = useParams();
   const { firstName, lastName } = useLoaderData().fullName;
   const { cash, eWallet } = useLoaderData();
   const transactionAccounts = [
@@ -67,17 +70,22 @@ export default function TransactionDetails() {
     if (name === "amount" && transactionType === "debit") {
       setIsAmountExceedBalance(value > accountAvailableBalance);
     }
+    switch (name) {
+      case "amount":
+        sessionStorage.setItem("inputAmount", value);
+        break;
+      case "category":
+        sessionStorage.setItem("inputCategory", value);
+        break;
+      case "description":
+        sessionStorage.setItem("inputDescription", value);
+        break;
+    }
   }
 
   // Function to handle the display of transaction confirmation
   function handleDisplayTransactionConfirmation() {
     setShowTransactionConfirmation((prev) => !prev);
-    setTransactionDetails((prev) => ({
-      ...prev,
-      account: accountType,
-      category: transactionType === "credit" ? "Financial" : prev.category,
-      type: transactionType,
-    }));
   }
 
   // Function to handle the transaction submission
