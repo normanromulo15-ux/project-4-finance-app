@@ -86,6 +86,7 @@ export default function Header(props) {
           const { label, value, icon } = account;
           return (
             <button
+              key={value}
               className={`transition-all duration-75 cursor-pointer active:scale-95 flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2 lg:py-4 lg:rounded-2xl ${theme === "dark" ? "hover:bg-[#363ED6]" : "hover:bg-[#2228A8]"}`}
               name="type"
               value={value}
