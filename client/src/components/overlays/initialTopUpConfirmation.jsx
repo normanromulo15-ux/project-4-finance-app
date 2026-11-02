@@ -26,8 +26,7 @@ export default function InitialTopUpConfirmation(props) {
           description,
           type,
         };
-        console.log(requestBody);
-        // await addTransaction(requestBody);
+        await addTransaction(requestBody);
       }
       navigate("/new-user/success");
       sessionStorage.clear();
@@ -73,7 +72,7 @@ export default function InitialTopUpConfirmation(props) {
         <p className="w-full text-sm font-medium py-2 border-t-2 md:text-base lg:text-lg">
           Please review the top up details. This action can't be undone.
         </p>
-        <div className="flex items-center justify-center gap-5">
+        <div className="flex items-center justify-center gap-5 md:gap-8">
           <button
             className="transition-all cursor-pointer active:scale-95 bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-full hover:bg-gray-400 hover:text-gray-800"
             onClick={() => setIsShowConfirmationOverlay(false)}
