@@ -72,12 +72,12 @@ export const router = createBrowserRouter([
     loader: authLoader,
   },
   {
-    path: "/new-user/accounts",
+    path: "/new-user/accounts-choice",
     element: <NewUserSetupAccountsChoice />,
     loader: authLoader,
   },
   {
-    path: "/new-user/accounts/setup",
+    path: "/new-user/accounts-balance",
     element: <NewUserSetupAccountsBalance />,
     loader: authLoader,
   },

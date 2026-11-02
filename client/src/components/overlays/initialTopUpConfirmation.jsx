@@ -5,13 +5,13 @@ import { formatCurrency } from "../../utils/formatters.js";
 
 export default function InitialTopUpConfirmation(props) {
   const navigate = useNavigate();
-  const { topUpDetails, setIsShowConfirmationOverlay } = props;
+  const { initialTopUpDetails, setIsShowConfirmationOverlay } = props;
   const {
     accounts: chosenAccounts,
     category,
     description,
     type,
-  } = topUpDetails;
+  } = initialTopUpDetails;
   const fullName = useUserFullNameStore((state) => state.fullName);
   const { firstName, lastName } = fullName;
 
@@ -30,6 +30,7 @@ export default function InitialTopUpConfirmation(props) {
         // await addTransaction(requestBody);
       }
       navigate("/new-user/success");
+      sessionStorage.clear();
     } catch (error) {
       console.error(error);
     }

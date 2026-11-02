@@ -1,24 +1,24 @@
 import { useState } from "react";
-import { useAccountsChoiceStore } from "../stores/accountsChoiceStore.js";
+import { useNewUserAccountsChoiceStore } from "../stores/newUserAccountsChoiceStore.js";
 import { formatCurrency } from "../utils/formatters.js";
 import InitialTopUpConfirmation from "../components/overlays/initialTopUpConfirmation.jsx";
 import BackButton from "../components/backButton.jsx";
 
 export default function NewUserSetupAccountsBalance() {
-  const selectedAccounts = useAccountsChoiceStore(
+  const selectedAccounts = useNewUserAccountsChoiceStore(
     (state) => state.selectedAccounts,
   );
-  const [topUpDetails, setTopUpDetails] = useState({
+  const [initialTopUpDetails, setInitialTopUpDetails] = useState({
     accounts: selectedAccounts.map((account) => ({
       ...account,
-      amount: "",
-      amountDataType: "number",
+      amount: sessionStorage.getItem(`${account.name}Balance`) ?? "",
+      amountDataType: "text",
     })),
     category: "Financial",
     description: "Initial top up",
     type: "credit",
   });
-  const { accounts: chosenAccounts } = topUpDetails;
+  const { accounts: chosenAccounts } = initialTopUpDetails;
   const isEnableReview = chosenAccounts
     .map((account) => Number(account.amount) >= 0.1)
     .every((element) => element === true);
@@ -28,18 +28,19 @@ export default function NewUserSetupAccountsBalance() {
   // Function to handle the initial balance(s) input
   function handleInitialBalanceInput(e) {
     const { name, value } = e.target;
-    setTopUpDetails((prev) => ({
+    setInitialTopUpDetails((prev) => ({
       ...prev,
       accounts: prev.accounts.map((account) =>
         account.name === name ? { ...account, amount: value } : account,
       ),
     }));
+    sessionStorage.setItem(`${name}Balance`, String(value));
   }
 
   // Function to handle input focus
   function handleInputFocus(e) {
     const { name } = e.target;
-    setTopUpDetails((prev) => ({
+    setInitialTopUpDetails((prev) => ({
       ...prev,
       accounts: prev.accounts.map((account) => {
         return account.name === name
@@ -52,7 +53,7 @@ export default function NewUserSetupAccountsBalance() {
   // Function to handle input blur
   function handleInputBlur(e) {
     const { name } = e.target;
-    setTopUpDetails((prev) => ({
+    setInitialTopUpDetails((prev) => ({
       ...prev,
       accounts: prev.accounts.map((account) => {
         return account.name === name
@@ -114,12 +115,12 @@ export default function NewUserSetupAccountsBalance() {
       </div>
       {isShowConfirmationOverlay && (
         <InitialTopUpConfirmation
-          topUpDetails={topUpDetails}
+          initialTopUpDetails={initialTopUpDetails}
           setIsShowConfirmationOverlay={setIsShowConfirmationOverlay}
         />
       )}
       <BackButton
-        endpoint={"/new-user/accounts"}
+        endpoint={"/new-user/accounts-choice"}
         page={"newUserSetupBalance"}
       />
     </>
