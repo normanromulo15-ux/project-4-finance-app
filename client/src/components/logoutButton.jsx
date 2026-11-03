@@ -22,6 +22,7 @@ export default function LogoutButton() {
       await logoutUser();
       setAccessToken(null);
       localStorage.clear();
+      sessionStorage.clear();
       navigate("/login");
     } catch (error) {
       console.error(error);
