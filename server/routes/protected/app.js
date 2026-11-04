@@ -186,6 +186,9 @@ router.post("/interest", authenticateUser, async (req, res) => {
     // Retrieve the current timestamp object
     const currentTimestamp = new Date();
 
+    // Start a database connection
+    await client.query("BEGIN");
+
     // Retrieve the previous savings account of the user
     const { rows: previousSavingsBalanceData } = await client.query(
       "SELECT balance, updated_at FROM accounts WHERE account = 'savings' AND user_id = $1 ORDER BY updated_at DESC LIMIT 1",

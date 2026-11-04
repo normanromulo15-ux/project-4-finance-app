@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import { useLoaderData } from "react-router";
 import { formatCurrency } from "../utils/formatters.js";
-import { addDailyInterest } from "../services/app.js";
 import Header from "../layout/header.jsx";
 import Navigation from "../layout/navigation.jsx";
 import Accounts from "../layout/accounts.jsx";
@@ -9,19 +7,9 @@ import Accounts from "../layout/accounts.jsx";
 export default function Home() {
   const theme = localStorage.getItem("theme") || "light";
   const { cash, eWallet, savings, userAccountsData } = useLoaderData();
-  const accounts = userAccountsData.map((account) => account.accountType);
   const spendingAccounts = userAccountsData.filter(
     (account) => account.accountType !== "savings",
   );
-
-  useEffect(() => {
-    if (accounts.includes("savings")) {
-      async function addInterestToSavings() {
-        return await addDailyInterest();
-      }
-      addInterestToSavings();
-    }
-  }, []);
 
   return (
     <div

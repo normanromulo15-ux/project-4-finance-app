@@ -46,7 +46,7 @@ export default function Accounts(props) {
           let accountName;
           let AccountIcon;
 
-          switch (account.accountType) {
+          switch (accountType) {
             case "cash":
               accountName = "Cash";
               AccountIcon = <MoneyIcon />;
