@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router";
-import { addDailyInterest } from "../services/app.js";
 import { getAccountBalanceHistory } from "../services/app.js";
 import { getTotalInterest } from "../services/app.js";
 import { formatCurrency } from "../utils/formatters.js";
@@ -27,14 +26,10 @@ export default function AccountDashboard() {
   useEffect(() => {
     switch (selectedAccount.value) {
       case "savings":
-        const addInterestToSavings = async () => {
-          return await addDailyInterest();
-        };
         const totalInterest = async () => {
           const { totalEarnedInterest } = await getTotalInterest();
           setInterestEarned(formatCurrency(Number(totalEarnedInterest)));
         };
-        addInterestToSavings();
         totalInterest();
         break;
     }

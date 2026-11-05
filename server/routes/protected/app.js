@@ -179,80 +179,76 @@ router.post("/transfer", authenticateUser, async (req, res) => {
 });
 
 // Add a daily interest based on the user's savings end-of-day balance
-router.post(
-  "/interest",
-  authenticateUser,
-  async (req, res) => {
-    const client = await db.connect();
-    try {
-      const { sub: userId } = req.user;
+router.post("/interest", authenticateUser, async (req, res) => {
+  const client = await db.connect();
+  try {
+    const { sub: userId } = req.user;
 
-      // Retrieve the current timestamp object
-      const currentTimestamp = new Date();
+    // Retrieve the current timestamp object
+    const currentTimestamp = new Date();
 
-      // Start a database connection
-      await client.query("BEGIN");
+    // Start a database connection
+    await client.query("BEGIN");
 
-      // Retrieve the previous savings account of the user
-      const { rows: previousSavingsBalanceData } = await client.query(
-        "SELECT balance, updated_at FROM accounts WHERE account = 'savings' AND user_id = $1 ORDER BY updated_at DESC LIMIT 1",
-        [userId],
-      );
+    // Retrieve the previous savings account of the user
+    const { rows: previousSavingsBalanceData } = await client.query(
+      "SELECT balance, updated_at FROM accounts WHERE account = 'savings' AND user_id = $1 ORDER BY updated_at DESC LIMIT 1",
+      [userId],
+    );
 
-      // Invalidate the request if there is no initialized savings balance
-      if (previousSavingsBalanceData.length === 0)
-        return res.status(404).json({ message: "Savings account not found." });
+    // Invalidate the request if there is no initialized savings balance
+    if (previousSavingsBalanceData.length === 0)
+      return res.status(404).json({ message: "Savings account not found." });
 
-      const {
-        balance: previousSavingsBalance,
-        updated_at: previousSavingsBalanceTimestamp,
-      } = previousSavingsBalanceData[0];
+    const {
+      balance: previousSavingsBalance,
+      updated_at: previousSavingsBalanceTimestamp,
+    } = previousSavingsBalanceData[0];
 
-      // Retrieve the date of the previous savings account balance
-      const previousSavingsBalanceDate =
-        previousSavingsBalanceTimestamp.toLocaleDateString("en-PH");
+    // Retrieve the date of the previous savings account balance
+    const previousSavingsBalanceDate =
+      previousSavingsBalanceTimestamp.toLocaleDateString("en-PH");
 
-      // Retrieve the current date
-      const currentDate = currentTimestamp.toLocaleDateString("en-PH");
+    // Retrieve the current date
+    const currentDate = currentTimestamp.toLocaleDateString("en-PH");
 
-      // Invalidate the request if the current date is the same to the previous savings balance date
-      if (currentDate === previousSavingsBalanceDate) {
-        return res
-          .status(409)
-          .json({ message: "Error in adding daily interest." });
-      }
-
-      const withHoldingTax = 0.2;
-      const interestRate = 0.035 * (1 - withHoldingTax);
-      const dailyInterestAmount =
-        Number(previousSavingsBalance) * interestRate * (1 / 365);
-
-      const newSavingsBalance =
-        Number(previousSavingsBalance) + dailyInterestAmount;
-
-      // Insert the daily interest amount to the interest_credits table
-      await client.query(
-        "INSERT INTO interest_credits (user_id, interest_amount, interest_date) VALUES ($1, $2, $3)",
-        [userId, dailyInterestAmount, currentDate],
-      );
-
-      /* Insert the latest savings account balance to the accounts table, with the daily interest account already credited*/
-      await client.query(
-        "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
-        [userId, "savings", newSavingsBalance, currentTimestamp.toISOString()],
-      );
-
-      await client.query("COMMIT");
-
-      res.sendStatus(201);
-    } catch (error) {
-      await client.query("ROLLBACK");
-      res.sendStatus(500);
-    } finally {
-      client.release();
+    // Invalidate the request if the current date is the same to the previous savings balance date
+    if (currentDate === previousSavingsBalanceDate) {
+      return res
+        .status(409)
+        .json({ message: "Error in adding daily interest." });
     }
-  },
-);
+
+    const withHoldingTax = 0.2;
+    const interestRate = 0.035 * (1 - withHoldingTax);
+    const dailyInterestAmount =
+      Number(previousSavingsBalance) * interestRate * (1 / 365);
+
+    const newSavingsBalance =
+      Number(previousSavingsBalance) + dailyInterestAmount;
+
+    // Insert the daily interest amount to the interest_credits table
+    await client.query(
+      "INSERT INTO interest_credits (user_id, interest_amount, interest_date) VALUES ($1, $2, $3)",
+      [userId, dailyInterestAmount, currentDate],
+    );
+
+    /* Insert the latest savings account balance to the accounts table, with the daily interest account already credited*/
+    await client.query(
+      "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, $2, $3, $4)",
+      [userId, "savings", newSavingsBalance, currentTimestamp.toISOString()],
+    );
+
+    await client.query("COMMIT");
+
+    res.sendStatus(201);
+  } catch (error) {
+    await client.query("ROLLBACK");
+    res.sendStatus(500);
+  } finally {
+    client.release();
+  }
+});
 
 // Retrieve all account transactions of a user
 router.get("/transactions", authenticateUser, async (req, res) => {
