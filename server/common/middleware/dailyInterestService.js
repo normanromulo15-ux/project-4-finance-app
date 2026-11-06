@@ -17,7 +17,20 @@ export async function addDailyInterest(req, res, next) {
       WHERE user_id = $1`,
       [userId],
     );
-    const latestInterestCreditDate = latestInterestDateData[0]?.date;
+
+    // Retrieve the user's latest savings account timestamp in case for first-time depositors
+    const { rows: latestSavingsAccountTimestampData } = await client.query(
+      `SELECT (updated_at AT TIME ZONE 'Asia/Manila')::DATE::TEXT AS date
+      FROM accounts
+      WHERE user_id = $1 AND account = 'savings'
+      ORDER BY updated_at DESC, id DESC
+      LIMIT 1`,
+      [userId],
+    );
+
+    const latestInterestCreditDate =
+      latestInterestDateData[0]?.date ??
+      latestSavingsAccountTimestampData[0]?.date;
 
     // If there is no latest interest credit date, return a 404 status code indicating that the savings account timestamp was not found
     if (!latestInterestCreditDate) {
@@ -25,7 +38,7 @@ export async function addDailyInterest(req, res, next) {
       return res.sendStatus(404);
     }
 
-    // Calculate the number of elapsed days between the latest balance date and the current date
+    // Calculate the number of elapsed days between the latest interest credit date and the current date
     const { rows: elapsedDaysData } = await client.query(
       `SELECT ((NOW() AT TIME ZONE 'Asia/Manila')::DATE - (interest_date)::DATE) AS elapsed_days
       FROM interest_credits
@@ -34,7 +47,16 @@ export async function addDailyInterest(req, res, next) {
       LIMIT 1`,
       [userId],
     );
-    const elapsedDays = elapsedDaysData[0].elapsed_days;
+    let elapsedDays = elapsedDaysData[0]?.elapsed_days;
+
+    /* If the query returns null or undefined for first-time depositors, re-assign the value of elapsedDays in terms of the last timestamp of the savings account*/
+    if (elapsedDays === null || elapsedDays === undefined) {
+      const { rows: elapsedDaysData } = await client.query(
+        `SELECT ((NOW() AT TIME ZONE 'Asia/Manila')::DATE - ($1)::DATE) AS elapsed_days`,
+        [latestInterestCreditDate],
+      );
+      elapsedDays = elapsedDaysData[0].elapsed_days;
+    }
 
     // If there are days that have passed since the last balance update, calculate and add interest for each day
     if (elapsedDays >= 1) {
@@ -42,7 +64,7 @@ export async function addDailyInterest(req, res, next) {
       let days = 1;
 
       // Retrieve the timestamp in ISO format for every interest credit entry to be added to the database
-      const creditISOTimestamp = new Date().toISOString();
+      const nowISOTimestamp = new Date().toISOString();
 
       // Define the daily interest rate of the savings account
       const dailyInterestRate = 0.028; // 2.8% net annual interest rate
@@ -84,7 +106,7 @@ export async function addDailyInterest(req, res, next) {
         // Add the new savings account balance to the accounts table in the database
         await client.query(
           "INSERT INTO accounts (user_id, account, balance, updated_at) VALUES ($1, 'savings', $2, $3)",
-          [userId, newSavingsBalance, creditISOTimestamp],
+          [userId, newSavingsBalance, nowISOTimestamp],
         );
 
         days++;
