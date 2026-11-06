@@ -144,3 +144,5 @@ WHERE id = 28;
 
 ALTER TABLE transactions
 ALTER COLUMN category SET NOT NULL 
+
+
