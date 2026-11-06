@@ -180,7 +180,7 @@ router.post("/transfer", authenticateUser, async (req, res) => {
 
 // Add a daily interest based on the user's savings end-of-day balance
 router.post("/interest", authenticateUser, addDailyInterest, (_, res) => {
-  res.sendStatus(201);
+  res.sendStatus(200);
 });
 
 // Retrieve all account transactions of a user
