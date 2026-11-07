@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLoaderData, useNavigate, useParams } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import { useTransactionDetailsStore } from "../stores/transactionDetailsStore.js";
 import { addTransaction } from "../services/app.js";
 import { getCurrentBalance } from "../services/app.js";
@@ -153,6 +153,7 @@ export default function TransactionDetails() {
                 value={
                   amountInputType === "number" ? amount : formatCurrency(amount)
                 }
+                autoFocus={Boolean(!amount)}
               />
               {isAmountExceedBalance && (
                 <div className="absolute right-1 top-1.5">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useTransactionDetailsStore } from "../stores/transactionDetailsStore.js";
 import { formatCurrentTime } from "../utils/formatters.js";
 
@@ -12,7 +12,6 @@ export default function Header(props) {
   const theme = localStorage.getItem("theme");
   const defaultBalanceVisibility =
     localStorage.getItem("spendingBalanceVisibility") ?? "Yes";
-  const navigate = useNavigate();
   const { spendingAccounts, formatCurrency } = props;
   const setTransactionDetails = useTransactionDetailsStore(
     (state) => state.setTransactionDetails,
@@ -59,11 +58,9 @@ export default function Header(props) {
   }
 
   // Function to handle the transaction
-  function handleTransaction(e) {
-    const { name, value } = e.currentTarget;
+  function handleTransaction(name, value) {
     sessionStorage.setItem("transactionType", value);
     setTransactionDetails(name, value);
-    navigate("/transaction/account-options");
   }
 
   return (
@@ -85,16 +82,17 @@ export default function Header(props) {
         {accountChoices.map((account) => {
           const { label, value, icon } = account;
           return (
-            <button
+            <Link
+              to="/transaction/account-options"
               key={value}
               className={`transition-all duration-75 cursor-pointer active:scale-95 flex flex-1 flex-col justify-center items-center text-white bg-[#2830c9] rounded-xl py-2 lg:py-4 lg:rounded-2xl ${theme === "dark" ? "hover:bg-[#363ED6]" : "hover:bg-[#2228A8]"}`}
-              name="type"
-              value={value}
-              onClick={handleTransaction}
+              onClick={() => {
+                handleTransaction("type", value);
+              }}
             >
               <div>{icon}</div>
               <p className="text-sm font-medium lg:text-xl">{label}</p>
-            </button>
+            </Link>
           );
         })}
       </div>

@@ -1,10 +1,9 @@
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useTransactionDetailsStore } from "../stores/transactionDetailsStore.js";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 export default function BackButton(props) {
   const { endpoint, page } = props;
-  const navigate = useNavigate();
   const theme = localStorage.getItem("theme") || "light";
   const clearTransactionDetails = useTransactionDetailsStore(
     (state) => state.clearTransactionDetails,
@@ -20,17 +19,17 @@ export default function BackButton(props) {
       case "transactionAccountOption":
         clearTransactionDetails();
     }
-    navigate(endpoint);
   }
 
   return (
-    <button
+    <Link
+      to={endpoint}
       className="transition-all duration-75 cursor-pointer active:scale-95 fixed left-4 top-6 md:left-8 md:top-8 lg:left-30 lg:top-10"
       onClick={handleBackNavigation}
     >
       <ArrowBackIosNewIcon
         sx={{ color: `${theme === "dark" ? "white" : "black"}` }}
       />
-    </button>
+    </Link>
   );
 }
