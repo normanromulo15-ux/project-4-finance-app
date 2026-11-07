@@ -1,8 +1,7 @@
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 export default function NewUserTopUpSuccess() {
-  const navigate = useNavigate();
   return (
     <div className="min-h-dvh flex flex-col justify-center items-center gap-8 p-8 md:gap-12 md:px-12 lg:gap-16">
       <header className="flex flex-col gap-6 text-center md:gap-8">
@@ -17,13 +16,13 @@ export default function NewUserTopUpSuccess() {
         <p className="text-center font-medium text-lg md:text-xl lg:text-2xl">
           You can now view your account page.
         </p>
-        <button
+        <Link
+          to="/"
           type="button"
           className="transition-all cursor-pointer active:scale-95 bg-[#2830c9] hover:bg-[#2228A8] text-white font-medium px-4 py-2 rounded-full md:text-lg lg:text-xl lg:py-3"
-          onClick={() => navigate("/")}
         >
           Go To Dashboard
-        </button>
+        </Link>
       </main>
     </div>
   );

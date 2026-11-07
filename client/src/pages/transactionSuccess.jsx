@@ -1,10 +1,9 @@
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useSuccessfulTransactionStore } from "../stores/successfulTransactionStore.js";
 import { formatTimestamp } from "../utils/formatters.js";
 import { formatCurrency } from "../utils/formatters.js";
 
 export default function TransactionSuccess() {
-  const navigate = useNavigate();
   const successfulTransactionDetails = useSuccessfulTransactionStore(
     (state) => state.successfulTransactionDetails,
   );
@@ -33,14 +32,12 @@ export default function TransactionSuccess() {
           <h4>{formattedTimestamp}</h4>
         </div>
       </div>
-      <button
+      <Link
+        to="/"
         className="transition-all duration-75 active:scale-95 cursor-pointer w-full hover:bg-[#2228A8] bg-[#2830c9] py-2 rounded-full text-lg text-white font-bold md:w-3/4 md:text-xl md:py-3 lg:w-1/2"
-        onClick={() => {
-          navigate("/");
-        }}
       >
         Back To Home
-      </button>
+      </Link>
     </div>
   );
 }
