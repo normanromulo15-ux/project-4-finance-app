@@ -6,7 +6,7 @@ import { getUserFullName } from "../../services/app.js";
 
 export default async function userDataLoader() {
   try {
-    const accounts = await getUserAccounts();
+    const { accounts } = await getUserAccounts();
     const userFullName = await getUserFullName();
 
     // Add daily interest to the savings account if it exists

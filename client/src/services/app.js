@@ -14,7 +14,7 @@ export async function checkAuthentication() {
 export async function getUserAccounts() {
   try {
     const { data } = await api.get("/accounts");
-    return data.accounts;
+    return data;
   } catch (error) {
     throw error;
   }
@@ -100,6 +100,16 @@ export async function getAccountBalanceHistory(account, period) {
 export async function getTotalInterest() {
   try {
     const { data } = await api.get("/interest/total");
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Function to retrieve the net balance change for the current month of the year
+export async function getMonthlyNetBalanceChange() {
+  try {
+    const { data } = await api.get("/monthly-net-change");
     return data;
   } catch (error) {
     console.error(error);

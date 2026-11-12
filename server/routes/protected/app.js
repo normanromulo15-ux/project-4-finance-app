@@ -539,4 +539,69 @@ router.get("/history/:account", authenticateUser, async (req, res) => {
   }
 });
 
+// Retrieve the net balance change for the current month of the year
+router.get("/monthly-net-change", authenticateUser, async (req, res) => {
+  try {
+    const userId = Number(req.user.sub);
+
+    // Query to retrieve the total interest in the current month of the year
+    const monthlyInterestEarnedData = db.query(
+      `SELECT COALESCE(SUM(interest_amount),0) AS monthly_interest_earned
+      FROM interest_credits
+      WHERE user_id = $1
+      AND interest_date >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')::DATE
+      AND interest_date < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')::DATE + INTERVAL '1 month')`,
+      [userId],
+    );
+
+    // Query to retrieve the total income in the current month of the year
+    const monthlyIncomeData = db.query(
+      `SELECT COALESCE(SUM(amount), 0) AS monthly_income
+      FROM transactions
+      WHERE user_id = $1 
+      AND account IN ('cash', 'eWallet')
+      AND type = 'credit'
+      AND created_at >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')
+      AND created_at < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila') + INTERVAL '1 month')`,
+      [userId],
+    );
+
+    // Query to retrieve the total expense in the current month of the year
+    const monthlyExpenseData = db.query(
+      `SELECT COALESCE(SUM(amount), 0) AS monthly_expense 
+      FROM transactions
+      WHERE user_id = $1 
+      AND account IN ('cash', 'eWallet')
+      AND type = 'debit'
+      AND created_at >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')
+      AND created_at < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila') + INTERVAL '1 month')`,
+      [userId],
+    );
+
+    // Simultaneously retrieve all required data from the database
+    const [{ rows: firstQuery }, { rows: secondQuery }, { rows: thirdQuery }] =
+      await Promise.all([
+        monthlyInterestEarnedData,
+        monthlyIncomeData,
+        monthlyExpenseData,
+      ]);
+
+    // Extract the individual data from the queries
+    const monthlyInterestEarned = firstQuery[0].monthly_interest_earned;
+    const monthlyIncome = secondQuery[0].monthly_income;
+    const monthlyExpense = thirdQuery[0].monthly_expense;
+
+    // Calculate the net gain or loss in the current month of the year
+    const monthlyNetBalanceChange =
+      monthlyInterestEarned + monthlyIncome - monthlyExpense;
+
+    res.json({
+      monthlyNetBalanceChange,
+    });
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(500);
+  }
+});
+
 export default router;

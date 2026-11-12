@@ -1,2 +1,0 @@
--- QUERY TO RETRIEVE THE DATES TO BE CREDITED FOR THE DAILY INTEREST
-SELECT (latestInterestCreditDate + (days - 1))::DATE AS interest_date
