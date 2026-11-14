@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLoaderData, useNavigate } from "react-router";
+import { useSuccessfulTransactionStore } from "../stores/successfulTransactionStore.js";
 import { formatCurrency } from "../utils/formatters.js";
 import { transferFunds } from "../services/app.js";
 import BackButton from "../components/backButton.jsx";
@@ -8,6 +9,9 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 export default function FundTransfer() {
   const navigate = useNavigate();
   const theme = localStorage.getItem("theme");
+  const setSuccessfulTransactionDetails = useSuccessfulTransactionStore(
+    (state) => state.useSuccessfulTransactionStore,
+  );
   const [amountInputType, setAmountInputType] = useState("number");
   const [transferDetails, setTransferDetails] = useState({
     originAccount: "",
@@ -96,13 +100,17 @@ export default function FundTransfer() {
     try {
       const response = await transferFunds(transferDetails);
       const {
-        storedFundTransferReferenceId: refNo,
-        storedFundTransferAmount: amount,
+        storedFundTransferReferenceId: referenceNumber,
+        storedFundTransferAmount: transactionAmount,
         storedFundTransferTimestamp: timestamp,
       } = response;
-      navigate(
-        `/transfer/success?refNo=${refNo}&amount=${amount}&timestamp=${timestamp}`,
-      );
+      const transactionDetails = {
+        referenceNumber,
+        transactionAmount,
+        timestamp,
+      };
+      setSuccessfulTransactionDetails(transactionDetails);
+      navigate("/transfer/success");
     } catch (error) {
       console.error(error);
     }
