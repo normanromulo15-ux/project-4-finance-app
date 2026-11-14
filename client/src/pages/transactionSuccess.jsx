@@ -35,6 +35,9 @@ export default function TransactionSuccess() {
       <Link
         to="/"
         className="transition-all duration-75 active:scale-95 cursor-pointer w-full hover:bg-[#2228A8] bg-[#2830c9] py-2 rounded-full text-lg text-white font-bold md:w-3/4 md:text-xl md:py-3 lg:w-1/2"
+        onClick={() => {
+          sessionStorage.clear();
+        }}
       >
         Back To Home
       </Link>

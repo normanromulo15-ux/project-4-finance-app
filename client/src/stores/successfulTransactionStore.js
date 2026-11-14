@@ -18,7 +18,7 @@ export const useSuccessfulTransactionStore = create((set) => ({
       "successfulReferenceNumber",
       String(referenceNumber),
     );
-    sessionStorage.getItem("successfulTimestamp", timestamp);
+    sessionStorage.setItem("successfulTimestamp", String(timestamp));
     set({ successfulTransactionDetails: details });
   },
 }));

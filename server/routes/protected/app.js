@@ -547,10 +547,10 @@ router.get("/monthly-net-change", authenticateUser, async (req, res) => {
     // Query to retrieve the total interest in the current month of the year
     const monthlyInterestEarnedData = db.query(
       `SELECT COALESCE(SUM(interest_amount),0) AS monthly_interest_earned
-      FROM interest_credits
-      WHERE user_id = $1
-      AND interest_date >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')::DATE
-      AND interest_date < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')::DATE + INTERVAL '1 month')`,
+        FROM interest_credits
+        WHERE user_id = $1
+        AND interest_date >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')::DATE
+        AND interest_date < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')::DATE + INTERVAL '1 month')`,
       [userId],
     );
 
@@ -587,9 +587,9 @@ router.get("/monthly-net-change", authenticateUser, async (req, res) => {
       ]);
 
     // Extract the individual data from the queries
-    const monthlyInterestEarned = firstQuery[0].monthly_interest_earned;
-    const monthlyIncome = secondQuery[0].monthly_income;
-    const monthlyExpense = thirdQuery[0].monthly_expense;
+    const monthlyInterestEarned = Number(firstQuery[0].monthly_interest_earned);
+    const monthlyIncome = Number(secondQuery[0].monthly_income);
+    const monthlyExpense = Number(thirdQuery[0].monthly_expense);
 
     // Calculate the net gain or loss in the current month of the year
     const monthlyNetBalanceChange =

@@ -110,6 +110,7 @@ export async function getTotalInterest() {
 export async function getMonthlyNetBalanceChange() {
   try {
     const { data } = await api.get("/monthly-net-change");
+    console.log(data);
     return data;
   } catch (error) {
     console.error(error);

@@ -59,8 +59,14 @@ export default function Header(props) {
 
   // Function to handle the transaction
   function handleTransaction(name, value) {
-    sessionStorage.setItem("transactionType", value);
     setTransactionDetails(name, value);
+    sessionStorage.setItem("transactionType", value);
+    switch (value) {
+      case "credit":
+        setTransactionDetails("category", "Financial");
+        sessionStorage.setItem("inputCategory", "Financial");
+        break;
+    }
   }
 
   return (

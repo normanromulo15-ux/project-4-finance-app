@@ -61,8 +61,11 @@ export default function Accounts(props) {
       <div className="flex justify-between items-center px-2 pb-2 mb-4 border-b-2 text-2xl md:text-3xl md:mb-8">
         <div className="flex flex-col gap-1">
           <h3 className="font-semibold">Accounts</h3>
-          <h3 className="font-medium text-base md:text-lg lg:text-2xl">
-            This Month: {displayMonthlyNetBalanceChange()}
+          <h3 className="text-base md:text-lg lg:text-2xl">
+            This Month:{" "}
+            <span className="font-medium">
+              {displayMonthlyNetBalanceChange()}
+            </span>
           </h3>
         </div>
         <BalanceVisibility

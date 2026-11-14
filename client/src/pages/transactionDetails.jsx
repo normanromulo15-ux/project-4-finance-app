@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 import { useTransactionDetailsStore } from "../stores/transactionDetailsStore.js";
+import { useSuccessfulTransactionStore } from "../stores/successfulTransactionStore.js";
 import { addTransaction } from "../services/app.js";
 import { getCurrentBalance } from "../services/app.js";
 import { capitalizeFirstLetter } from "../utils/formatters.js";
@@ -20,7 +21,7 @@ export default function TransactionDetails() {
   const setTransactionDetails = useTransactionDetailsStore(
     (state) => state.setTransactionDetails,
   );
-  const setSuccessfulTransactionDetails = useTransactionDetailsStore(
+  const setSuccessfulTransactionDetails = useSuccessfulTransactionStore(
     (state) => state.setSuccessfulTransactionDetails,
   );
   const {
@@ -93,8 +94,8 @@ export default function TransactionDetails() {
 
   // Function to handle the transaction submission
   async function handleTransactionSubmission(e) {
-    e.preventDefault();
     try {
+      e.preventDefault();
       setIsDisableSubmit(true);
       const response = await addTransaction(transactionDetails);
       const {
@@ -107,7 +108,6 @@ export default function TransactionDetails() {
         referenceNumber,
         timestamp,
       };
-
       setSuccessfulTransactionDetails(successfulTransactionDetails);
       navigate("/transaction/success");
     } catch (error) {
