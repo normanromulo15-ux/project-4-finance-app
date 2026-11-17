@@ -178,6 +178,7 @@ router.post("/login", async (req, res) => {
     }
     res.status(401).json({ errorMessage: "Unauthorized" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ errorMessage: "Internal Server Error" });
   }
 });
@@ -186,12 +187,10 @@ router.post("/login", async (req, res) => {
 router.get("/refresh", (req, res) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
-
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     const payload = {
       sub: decoded.sub,
     };
-
     const newAccessToken = generateAccessToken(payload);
     res.json({ newAccessToken });
   } catch (error) {

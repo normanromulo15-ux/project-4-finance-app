@@ -32,3 +32,26 @@ export const transactionCategories = [
   "Communication",
   "Technology",
 ];
+
+// List of valid account types
+export const accountTypes = ["cash", "eWallet", "savings"];
+
+// List of balance periods
+export const periods = [
+  {
+    value: "day",
+    interval: "1 day",
+  },
+  {
+    value: "week",
+    interval: "1 week",
+  },
+  {
+    value: "month",
+    interval: "1 month",
+  },
+  {
+    value: "year",
+    interval: "1 year",
+  },
+];

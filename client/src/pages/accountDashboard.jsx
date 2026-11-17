@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router";
 import { getAccountBalanceHistory } from "../services/app.js";
-import { getTotalInterest } from "../services/app.js";
+import { getTotalInterest, getCurrentBalance } from "../services/app.js";
 import { formatCurrency } from "../utils/formatters.js";
 import { accounts } from "../utils/constants.js";
 import NetChangeIndicator from "../components/netChangeIndicator.jsx";
@@ -44,21 +44,35 @@ export default function AccountDashboard() {
     try {
       const response = await getAccountBalanceHistory(account, period);
       const { averagePeriodBalance, formattedPeriodBalances } = response;
-      const firstPeriodBalance = formattedPeriodBalances[0]?.balance;
+      const { latestAccountBalance } = await getCurrentBalance(account);
+      const firstPeriodBalance =
+        formattedPeriodBalances[0]?.balance ?? latestAccountBalance;
       const latestPeriodBalance =
-        formattedPeriodBalances[formattedPeriodBalances.length - 1]?.balance;
+        formattedPeriodBalances[formattedPeriodBalances.length - 1]?.balance ??
+        latestAccountBalance;
       const balanceDifference =
         Number(latestPeriodBalance) - Number(firstPeriodBalance) || 0;
-      setAveragePeriodBalance(formatCurrency(averagePeriodBalance));
+      setAveragePeriodBalance(
+        formatCurrency(averagePeriodBalance || latestAccountBalance),
+      );
       setNetChangePercentage(
         `${((balanceDifference / firstPeriodBalance) * 100).toFixed(2)}%`,
       );
       setNumericBalanceDifference(balanceDifference);
       setDisplayBalance(formatCurrency(Number(latestPeriodBalance)));
       setBalanceDifference(formatCurrency(balanceDifference));
-      setBalances(formattedPeriodBalances);
+      setBalances(
+        formattedPeriodBalances.length >= 1
+          ? formattedPeriodBalances
+          : [
+              {
+                balance: latestAccountBalance,
+                balanceTimestamp: new Date().toISOString(),
+              },
+            ],
+      );
     } catch (error) {
-      console.error(error);
+      console.error(error.message);
     }
   }
 

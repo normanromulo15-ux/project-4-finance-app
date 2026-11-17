@@ -4,7 +4,11 @@ import db from "../../database/db.js";
 import { authenticateUser } from "../../common/middleware/jwt.js";
 import { addDailyInterest } from "../../common/middleware/dailyInterestService.js";
 import { retrieveLatestBalance } from "../../common/middleware/retrieveLatestBalance.js";
-import { transactionCategories } from "../../utils/constants.js";
+import {
+  accountTypes,
+  periods,
+  transactionCategories,
+} from "../../utils/constants.js";
 
 const router = express.Router();
 
@@ -72,9 +76,6 @@ router.post("/transfer", authenticateUser, async (req, res) => {
 
     const numericTransferFee =
       numericTransferAmount * numericTransferFeePercentage;
-
-    const accountTypes = ["cash", "eWallet", "savings"];
-
     const senderAccount = accountTypes.find((e) => e === originAccount);
     const receiverAccount = accountTypes.find((e) => e === destinationAccount);
 
@@ -191,8 +192,8 @@ router.get("/transactions", authenticateUser, async (req, res) => {
     const pageNumber = Number(page) || 1;
     const entryLimit = 5;
     const offset = (pageNumber - 1) * entryLimit;
-    const accounts = ["cash", "eWallet", "savings"];
-    const selectedAccount = accounts.find((item) => item === account) || "all";
+    const selectedAccount =
+      accountTypes.find((item) => item === account) || "all";
 
     // Invalidate the request if the page number is less than or equal to 0
     if (pageNumber <= 0) return res.sendStatus(404);
@@ -460,80 +461,52 @@ router.get("/interest/total", authenticateUser, async (req, res) => {
   }
 });
 
-// Retrieve the history of an account according to the specified period
-router.get("/history/:account", authenticateUser, async (req, res) => {
+// Retrieve the history of an account's balance according to the specified period
+router.get("/balances/history/:account", authenticateUser, async (req, res) => {
   try {
-    const { sub: userId } = req.user;
+    const userId = Number(req.user.sub);
     const accountType = req.params.account;
     const selectedPeriod = req.query.period;
-
-    const accounts = ["cash", "eWallet", "savings"];
-    const periods = [
-      {
-        duration: "day",
-        numberOfSeconds: 86.4e3,
-      },
-      {
-        duration: "week",
-        numberOfSeconds: 604.8e3,
-      },
-      {
-        duration: "month",
-        numberOfSeconds: 2.592e6,
-      },
-      {
-        duration: "year",
-        numberOfSeconds: 31.536e6,
-      },
-    ];
-    const account = accounts.find((e) => e === accountType);
-    const period = periods.find((e) => e.duration === selectedPeriod);
+    const account = accountTypes.find((account) => account === accountType);
+    const period = periods.find((period) => period.value === selectedPeriod);
 
     // Invalidate the request if no account or no period is found
     if (!account || !period) return res.sendStatus(404);
 
-    const { numberOfSeconds } = period;
+    const { value, interval } = period;
 
     // Retrieve all balance history of an account
-    const { rows } = await db.query(
-      "SELECT id, balance, updated_at FROM accounts WHERE user_id = $1 AND account = $2 ORDER BY updated_at DESC",
-      [Number(userId), account],
+    const { rows: balanceHistoryData } = await db.query(
+      `SELECT balance, updated_at
+     FROM accounts 
+     WHERE user_id = $1 
+     AND account = $2  
+     AND (updated_at <= CURRENT_TIMESTAMP
+     AND updated_at >= (DATE_TRUNC($3, CURRENT_TIMESTAMP, 'Asia/Manila')) - $4::INTERVAL)
+     ORDER BY updated_at ASC, id ASC`,
+      [userId, account, value, interval],
     );
 
-    const balanceHistory = rows.map((e) => {
+    const formattedPeriodBalances = balanceHistoryData.map((element) => {
+      const { balance, updated_at } = element;
       return {
-        ...e,
-        updated_at: Math.floor(new Date(e.updated_at).valueOf() / 1e3),
+        balance: Number(balance),
+        balanceTimestamp: updated_at,
       };
     });
 
-    // Retrieve the latest balance unix timestamp in seconds
-    const latestBalanceUnixTimeStamp = balanceHistory[0].updated_at;
-
-    // Filter balances that are only covered within the specified period
-    const periodBalances = balanceHistory.filter(
-      (e) =>
-        e.updated_at <= latestBalanceUnixTimeStamp &&
-        e.updated_at >= latestBalanceUnixTimeStamp - numberOfSeconds,
-    );
-
-    // Format the filtered balance to a user-readable format
-    const formattedPeriodBalances = periodBalances.map((e) => {
-      return {
-        ...e,
-        updated_at: new Date(e.updated_at * 1e3),
-      };
-    });
-
-    const numericBalances = formattedPeriodBalances.map((e) =>
-      Number(e.balance),
+    const numericBalances = balanceHistoryData.map((element) =>
+      Number(element.balance),
     );
 
     // Compute the average balance over a specified period
     const averagePeriodBalance =
       numericBalances.reduce((a, b) => a + b, 0) / numericBalances.length;
 
-    res.json({ averagePeriodBalance, formattedPeriodBalances });
+    res.json({
+      averagePeriodBalance,
+      formattedPeriodBalances,
+    });
   } catch (error) {
     res.sendStatus(500);
   }
