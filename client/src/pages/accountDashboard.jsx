@@ -44,11 +44,11 @@ export default function AccountDashboard() {
     try {
       const response = await getAccountBalanceHistory(account, period);
       const { averagePeriodBalance, formattedPeriodBalances } = response;
-      const { balance: latestPeriodBalance } = formattedPeriodBalances[0];
-      const { balance: firstPeriodBalance } =
-        formattedPeriodBalances[formattedPeriodBalances.length - 1];
+      const firstPeriodBalance = formattedPeriodBalances[0]?.balance;
+      const latestPeriodBalance =
+        formattedPeriodBalances[formattedPeriodBalances.length - 1]?.balance;
       const balanceDifference =
-        Number(latestPeriodBalance) - Number(firstPeriodBalance);
+        Number(latestPeriodBalance) - Number(firstPeriodBalance) || 0;
       setAveragePeriodBalance(formatCurrency(averagePeriodBalance));
       setNetChangePercentage(
         `${((balanceDifference / firstPeriodBalance) * 100).toFixed(2)}%`,
@@ -56,7 +56,7 @@ export default function AccountDashboard() {
       setNumericBalanceDifference(balanceDifference);
       setDisplayBalance(formatCurrency(Number(latestPeriodBalance)));
       setBalanceDifference(formatCurrency(balanceDifference));
-      setBalances(formattedPeriodBalances.toReversed());
+      setBalances(formattedPeriodBalances);
     } catch (error) {
       console.error(error);
     }
@@ -71,7 +71,7 @@ export default function AccountDashboard() {
           <header className="flex flex-col gap-8 lg:flex-2">
             <section className="flex flex-col gap-2">
               <h1 className="font-medium text-2xl md:text-3xl lg:text-4xl">
-                {selectedAccount.title} Available Balance
+                {selectedAccount.title} Balance
               </h1>
               <h2 className="font-semibold text-4xl md:text-5xl lg:text-6xl">
                 {displayBalance}
@@ -82,14 +82,18 @@ export default function AccountDashboard() {
                 netChangePercentage={netChangePercentage}
                 numericBalanceDifference={numericBalanceDifference}
               />
+              {account === "savings" && (
+                <h3 className="text-xl md:text-2xl lg:text-3xl">
+                  Total Interest Earned:{" "}
+                  <span
+                    className={`font-medium ${theme === "dark" ? "text-green-400" : "text-[#046E00]"}`}
+                  >
+                    {interestEarned}
+                  </span>
+                </h3>
+              )}
             </section>
             <section className="flex flex-col gap-2 md:text-lg lg:text-xl">
-              {account === "savings" && (
-                <div className="border-b pb-1 border-gray-400 flex justify-between">
-                  <h5>Total Interest Earned: </h5>
-                  <h5 className="font-medium">{interestEarned}</h5>
-                </div>
-              )}
               <div className="border-b pb-1 border-gray-400 flex justify-between">
                 <h5>Average Period Balance: </h5>
                 <h5 className="font-medium">{averagePeriodBalance}</h5>

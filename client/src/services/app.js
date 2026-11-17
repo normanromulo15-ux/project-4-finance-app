@@ -36,7 +36,7 @@ export async function addDailyInterest() {
     await api.post("/interest");
     return;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 }
 
@@ -85,14 +85,14 @@ export async function getTransactionHistory(page, account) {
 // Function to retrieve an account's balance history according to a specific period
 export async function getAccountBalanceHistory(account, period) {
   try {
-    const { data } = await api.get(`/history/${account}`, {
+    const { data } = await api.get(`/balances/history/${account}`, {
       params: {
         period,
       },
     });
     return data;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 }
 
@@ -102,7 +102,7 @@ export async function getTotalInterest() {
     const { data } = await api.get("/interest/total");
     return data;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 }
 
@@ -112,6 +112,6 @@ export async function getMonthlyNetBalanceChange() {
     const { data } = await api.get("/monthly-net-change");
     return data;
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 }
