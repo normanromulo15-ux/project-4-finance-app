@@ -35,6 +35,24 @@ export function formatTimestamp(ISOTimestamp) {
   return formattedTimestamp;
 }
 
+// Function to format a timestamp for balance history chart
+export function formatBalanceHistoryTimestamp(ISOTimestamp, isHover) {
+  const formattedTimestamp = isHover
+    ? new Date(ISOTimestamp).toLocaleString("en-PH", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+      })
+    : new Date(ISOTimestamp).toLocaleString("en-PH", {
+        month: "short",
+        day: "numeric",
+      });
+
+  return formattedTimestamp;
+}
+
 // Function to format a number into a human-readable string
 export function formatNumber(number) {
   const formatter = new Intl.NumberFormat("en-PH");

@@ -1,16 +1,24 @@
-import { CartesianGrid, AreaChart, Area, YAxis } from "recharts";
+import {
+  CartesianGrid,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+import {
+  formatCurrency,
+  formatBalanceHistoryTimestamp,
+} from "../utils/formatters.js";
 
 export default function BalanceHistoryChart(props) {
   const { theme, balances } = props;
-  const scaledBalances = balances.map((item) => {
-    return { ...item, balance: item.balance / 1e3 };
-  });
   return (
     <section>
       <AreaChart
         style={{ width: "100%", aspectRatio: 1.618, maxWidth: 650 }}
         responsive
-        data={scaledBalances}
+        data={balances}
       >
         <CartesianGrid />
         <Area
@@ -21,22 +29,29 @@ export default function BalanceHistoryChart(props) {
         />
         <YAxis
           width={55}
-          label={{
-            value: "Balance (PHP)",
-            position: "insideLeft",
-            angle: -90,
-            fill: `${theme === "dark" ? "#FFFFFF" : "#000000"}`,
-            fontWeight: 600,
-          }}
           tick={{
             fill: `${theme === "dark" ? "#FFFFFF" : "#000000"}`,
-            fontWeight: 600,
+            fontWeight: 400,
           }}
+          tickFormatter={(balance) => `₱${(balance / 1e3).toFixed(0)}k`}
+        />
+        <XAxis
+          dataKey="balanceTimestamp"
+          tick={{
+            fill: `${theme === "dark" ? "#FFFFFF" : "#000000"}`,
+            fontWeight: 400,
+          }}
+          tickFormatter={(balanceTimestamp) =>
+            `${formatBalanceHistoryTimestamp(balanceTimestamp, false)}`
+          }
+        />
+        <Tooltip
+          labelFormatter={(balanceTimestamp) =>
+            `${formatBalanceHistoryTimestamp(balanceTimestamp, true)}`
+          }
+          formatter={(balance) => `${formatCurrency(balance)}`}
         />
       </AreaChart>
-      <p className="text-sm md:text-base">
-        Balance Scale: <span className="font-bold">Thousands (1,000)</span>
-      </p>
     </section>
   );
 }
