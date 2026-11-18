@@ -37,18 +37,15 @@ export function formatTimestamp(ISOTimestamp) {
 
 // Function to format a timestamp for balance history chart
 export function formatBalanceHistoryTimestamp(ISOTimestamp, isHover) {
-  const formattedTimestamp = isHover
-    ? new Date(ISOTimestamp).toLocaleString("en-PH", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-      })
-    : new Date(ISOTimestamp).toLocaleString("en-PH", {
-        month: "short",
-        day: "numeric",
-      });
+  const formattedTimestamp = new Date(ISOTimestamp).toLocaleString("en-PH", {
+    month: "short",
+    day: "numeric",
+    ...(isHover && {
+      weekday: "short",
+      hour: "numeric",
+      minute: "numeric",
+    }),
+  });
 
   return formattedTimestamp;
 }
