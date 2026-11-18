@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 // Global middleware
 app.use(
   cors({
-    origin: "https://project-4-finance-app-client.onrender.com",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
   }),
 );
