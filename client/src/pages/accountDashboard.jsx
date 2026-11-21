@@ -12,14 +12,14 @@ import BackButton from "../components/backButton.jsx";
 export default function AccountDashboard() {
   const theme = localStorage.getItem("theme") || "light";
   const { account } = useParams();
-  const selectedAccount = accounts.find((e) => e.value === account);
+  const selectedAccount = accounts.find((element) => element.value === account);
   const [searchParams, setSearchParams] = useSearchParams();
   const period = searchParams.get("period") || "week";
   const [displayBalance, setDisplayBalance] = useState("");
   const [balances, setBalances] = useState([]);
   const [numericBalanceDifference, setNumericBalanceDifference] = useState(0);
   const [balanceDifference, setBalanceDifference] = useState("");
-  const [netChangePercentage, setNetChangePercentage] = useState(null);
+  const [netChangePercentage, setNetChangePercentage] = useState("");
   const [averagePeriodBalance, setAveragePeriodBalance] = useState(null);
   const [interestEarned, setInterestEarned] = useState(null);
 

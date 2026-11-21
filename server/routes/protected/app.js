@@ -473,7 +473,8 @@ router.get("/balances/history/:account", authenticateUser, async (req, res) => {
     // Invalidate the request if no account or no period is found
     if (!account || !period) return res.sendStatus(404);
 
-    const { value, interval } = period;
+    const { value } = period;
+    const interval = `1 ${value}`;
 
     // Retrieve all balance history of an account
     const { rows: balanceHistoryData } = await db.query(
@@ -482,9 +483,9 @@ router.get("/balances/history/:account", authenticateUser, async (req, res) => {
      WHERE user_id = $1 
      AND account = $2  
      AND (updated_at <= CURRENT_TIMESTAMP
-     AND updated_at >= (DATE_TRUNC($3, CURRENT_TIMESTAMP, 'Asia/Manila')) - $4::INTERVAL)
+     AND updated_at >= DATE_TRUNC('day', CURRENT_TIMESTAMP - $3::INTERVAL))
      ORDER BY updated_at ASC, id ASC`,
-      [userId, account, value, interval],
+      [userId, account, interval],
     );
 
     const formattedPeriodBalances = balanceHistoryData.map((element) => {
