@@ -44,7 +44,7 @@ export default function Accounts(props) {
     let className = "";
     let label = "";
     if (monthlyNetBalanceChange > 0) {
-      className = "text-green-700";
+      className = `${theme === "dark" ? "text-green-400" : "text-green-700"}`;
       label = `+${formatCurrency(monthlyNetBalanceChange)}`;
     } else if (monthlyNetBalanceChange < 0) {
       className = "text-red-700";
@@ -60,12 +60,9 @@ export default function Accounts(props) {
     <section className="w-full">
       <div className="flex justify-between items-center px-2 pb-2 mb-4 border-b-2 text-2xl md:text-3xl md:mb-8">
         <div className="flex flex-col gap-1">
-          <h3 className="font-semibold">Accounts</h3>
-          <h3 className="text-base md:text-lg lg:text-2xl">
-            This Month:{" "}
-            <span className="font-medium">
-              {displayMonthlyNetBalanceChange()}
-            </span>
+          <h3 className="font-bold">Accounts</h3>
+          <h3 className="font-medium text-base md:text-lg lg:text-2xl">
+            This Month: {displayMonthlyNetBalanceChange()}
           </h3>
         </div>
         <BalanceVisibility
