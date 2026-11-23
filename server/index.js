@@ -14,7 +14,11 @@ const PORT = process.env.PORT || 3000;
 // Global middlewares
 app.use(
   cors({
+<<<<<<< HEAD
     origin: "https://finance-app-client-g4a2.onrender.com",
+=======
+    origin: "https://finance-app-server-j89v.onrender.com",
+>>>>>>> fb7b75eeb42d8fd2b037bca1c2bba673570fddad
     credentials: true,
   }),
 );

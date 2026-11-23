@@ -479,7 +479,7 @@ router.get("/balances/history/:account", authenticateUser, async (req, res) => {
     // Retrieve all balance history of an account
     const { rows: balanceHistoryData } = await db.query(
       `SELECT balance, updated_at
-     FROM accounts 
+     FROM accounts
      WHERE user_id = $1 
      AND account = $2  
      AND (updated_at <= CURRENT_TIMESTAMP
