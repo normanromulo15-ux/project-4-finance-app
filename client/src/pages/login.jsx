@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useNavigate } from "react-router";
 import { loginUser } from "../services/auth.js";
+import api from "../services/api.js";
 import Footer from "../components/footer.jsx";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -43,8 +44,9 @@ export default function Login() {
   async function handleUserCredentialsSubmission(e) {
     try {
       e.preventDefault();
-      const response = await loginUser(userCredentials);
-      setAccessToken(response.accessToken);
+      const { accessToken } = await loginUser(userCredentials);
+      api.accessToken = accessToken;
+      setAccessToken(accessToken);
       setUserCredentials({
         email: "",
         password: "",
