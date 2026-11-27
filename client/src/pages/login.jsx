@@ -61,6 +61,9 @@ export default function Login() {
         case 404:
           setIsAccountExists(false);
           break;
+        case 500:
+          setIsEnableSignIn(false);
+          break;
       }
       setTimeout(() => {
         setIsAccountExists(true);

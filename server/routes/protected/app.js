@@ -1,6 +1,7 @@
 import express from "express";
 import crypto from "node:crypto";
 import db from "../../database/db.js";
+import redisClient from "../../redis.js";
 import { authenticateUser } from "../../common/middleware/jwt.js";
 import { addDailyInterest } from "../../common/middleware/dailyInterestService.js";
 import { retrieveLatestBalance } from "../../common/middleware/retrieveLatestBalance.js";
@@ -48,7 +49,6 @@ router.get("/accounts", authenticateUser, async (req, res) => {
 
 // Add a fund transfer from one account to another account
 router.post("/transfer", authenticateUser, async (req, res) => {
-  const client = await db.connect();
   try {
     const { sub: userId } = req.user;
     const {
@@ -86,6 +86,8 @@ router.post("/transfer", authenticateUser, async (req, res) => {
     // INVALIDATE THE REQUEST IF THE TRANSFER AMOUNT IS LESS THAN OR EQUAL TO 0 OR IF THE TRANSFER FEE IS LESS THAN 0
     if (numericTransferAmount <= 0 || numericTransferAmount < 0)
       return res.status(422).json({ message: "Invalid fund transfer" });
+
+    const client = await db.connect();
 
     // Start a database connection
     await client.query("BEGIN");
@@ -410,6 +412,13 @@ router.post("/transaction", authenticateUser, async (req, res) => {
 
     await client.query("COMMIT");
 
+    // Delete the cache for the latest account balance and timestamp to reflect the newest balance and timestamp
+    await redisClient.del([
+      `latest${accountType}Balance`,
+      `latest${accountType}Timestamp`,
+      "monthlyNetBalanceChange",
+    ]);
+
     res.status(201).json({
       storedTransactionAmount,
       transactionReferenceId,
@@ -445,17 +454,31 @@ router.get(
 router.get("/interest/total", authenticateUser, async (req, res) => {
   try {
     const { sub: userId } = req.user;
-    const { rows } = await db.query(
-      "SELECT SUM(interest_amount) FROM interest_credits WHERE user_id = $1",
-      [Number(userId)],
-    );
 
-    // Invalidate the request if there is no recorded interest
-    if (!rows) return res.sendStatus(404);
+    // Retrieve the cache for the total interest earned of a savings account
+    let totalEarnedInterest = await redisClient.get("totalEarnedInterest");
 
-    const totalEarnedInterest = rows[0].sum;
+    // Perform a database query if the cache for the total interest earned doesn't exist yet
+    if (totalEarnedInterest === null) {
+      const { rows } = await db.query(
+        "SELECT SUM(interest_amount) FROM interest_credits WHERE user_id = $1",
+        [Number(userId)],
+      );
 
-    res.json({ totalEarnedInterest });
+      // Invalidate the request if there is no recorded interest
+      if (!rows) return res.sendStatus(404);
+
+      totalEarnedInterest = rows[0].sum;
+
+      // Set the cache for the total interest earned
+      await redisClient.set(
+        "totalEarnedInterest",
+        String(totalEarnedInterest),
+        { EX: 3600 },
+      );
+    }
+
+    res.json({ totalEarnedInterest: Number(totalEarnedInterest) });
   } catch (error) {
     res.sendStatus(500);
   }
@@ -476,12 +499,12 @@ router.get("/balances/history/:account", authenticateUser, async (req, res) => {
     const { value } = period;
     const interval = `1 ${value}`;
 
-    // Retrieve all balance history of an account
+    // Retrieve all balance history of an account from the database
     const { rows: balanceHistoryData } = await db.query(
       `SELECT balance, updated_at
      FROM accounts
      WHERE user_id = $1 
-     AND account = $2  
+     AND account = $2 
      AND (updated_at <= CURRENT_TIMESTAMP
      AND updated_at >= DATE_TRUNC('day', CURRENT_TIMESTAMP - $3::INTERVAL))
      ORDER BY updated_at ASC, id ASC`,
@@ -518,59 +541,79 @@ router.get("/monthly-net-change", authenticateUser, async (req, res) => {
   try {
     const userId = Number(req.user.sub);
 
-    // Query to retrieve the total interest in the current month of the year
-    const monthlyInterestEarnedData = db.query(
-      `SELECT COALESCE(SUM(interest_amount),0) AS monthly_interest_earned
-        FROM interest_credits
-        WHERE user_id = $1
-        AND interest_date >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')::DATE
-        AND interest_date < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')::DATE + INTERVAL '1 month')`,
-      [userId],
+    // Retrieve the cache for the monthly net change
+    let monthlyNetBalanceChange = await redisClient.get(
+      "monthlyNetBalanceChange",
     );
 
-    // Query to retrieve the total income in the current month of the year
-    const monthlyIncomeData = db.query(
-      `SELECT COALESCE(SUM(amount), 0) AS monthly_income
-      FROM transactions
-      WHERE user_id = $1 
-      AND account IN ('cash', 'eWallet')
-      AND type = 'credit'
-      AND created_at >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')
-      AND created_at < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila') + INTERVAL '1 month')`,
-      [userId],
-    );
+    // Query the database if the cache for the monthly net changes doesn't exist yet
+    if (monthlyNetBalanceChange === null) {
+      // Query to retrieve the total interest in the current month of the year
+      const monthlyInterestEarnedData = db.query(
+        ` SELECT COALESCE(SUM(interest_amount),0) AS monthly_interest_earned
+          FROM interest_credits
+          WHERE user_id = $1
+          AND interest_date >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')::DATE
+          AND interest_date < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')::DATE + INTERVAL '1 month')`,
+        [userId],
+      );
 
-    // Query to retrieve the total expense in the current month of the year
-    const monthlyExpenseData = db.query(
-      `SELECT COALESCE(SUM(amount), 0) AS monthly_expense 
-      FROM transactions
-      WHERE user_id = $1 
-      AND account IN ('cash', 'eWallet')
-      AND type = 'debit'
-      AND created_at >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')
-      AND created_at < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila') + INTERVAL '1 month')`,
-      [userId],
-    );
+      // Query to retrieve the total income in the current month of the year
+      const monthlyIncomeData = db.query(
+        `SELECT COALESCE(SUM(amount), 0) AS monthly_income
+        FROM transactions
+        WHERE user_id = $1 
+        AND account IN ('cash', 'eWallet')
+        AND type = 'credit'
+        AND created_at >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')
+        AND created_at < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila') + INTERVAL '1 month')`,
+        [userId],
+      );
 
-    // Simultaneously retrieve all required data from the database
-    const [{ rows: firstQuery }, { rows: secondQuery }, { rows: thirdQuery }] =
-      await Promise.all([
+      // Query to retrieve the total expense in the current month of the year
+      const monthlyExpenseData = db.query(
+        `SELECT COALESCE(SUM(amount), 0) AS monthly_expense 
+        FROM transactions
+        WHERE user_id = $1 
+        AND account IN ('cash', 'eWallet')
+        AND type = 'debit'
+        AND created_at >= DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila')
+        AND created_at < (DATE_TRUNC('month', CURRENT_TIMESTAMP, 'Asia/Manila') + INTERVAL '1 month')`,
+        [userId],
+      );
+
+      // Simultaneously retrieve all required data from the database
+      const [
+        { rows: firstQuery },
+        { rows: secondQuery },
+        { rows: thirdQuery },
+      ] = await Promise.all([
         monthlyInterestEarnedData,
         monthlyIncomeData,
         monthlyExpenseData,
       ]);
 
-    // Extract the individual data from the queries
-    const monthlyInterestEarned = Number(firstQuery[0].monthly_interest_earned);
-    const monthlyIncome = Number(secondQuery[0].monthly_income);
-    const monthlyExpense = Number(thirdQuery[0].monthly_expense);
+      // Extract the individual data from the queries
+      const monthlyInterestEarned = Number(
+        firstQuery[0].monthly_interest_earned,
+      );
+      const monthlyIncome = Number(secondQuery[0].monthly_income);
+      const monthlyExpense = Number(thirdQuery[0].monthly_expense);
 
-    // Calculate the net gain or loss in the current month of the year
-    const monthlyNetBalanceChange =
-      monthlyInterestEarned + monthlyIncome - monthlyExpense;
+      // Calculate the net gain or loss in the current month of the year
+      monthlyNetBalanceChange =
+        monthlyInterestEarned + monthlyIncome - monthlyExpense;
+
+      // Set the cache for the monthly net balance change
+      await redisClient.set(
+        "monthlyNetBalanceChange",
+        String(monthlyNetBalanceChange),
+        { EX: 3600 },
+      );
+    }
 
     res.json({
-      monthlyNetBalanceChange,
+      monthlyNetBalanceChange: Number(monthlyNetBalanceChange),
     });
   } catch (error) {
     console.error(error);

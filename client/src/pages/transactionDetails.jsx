@@ -111,7 +111,7 @@ export default function TransactionDetails() {
       setSuccessfulTransactionDetails(successfulTransactionDetails);
       navigate("/transaction/success");
     } catch (error) {
-      console.error(error);
+      console.error(error.message);
     }
   }
 
