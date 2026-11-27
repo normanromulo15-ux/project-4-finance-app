@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 // Global middlewares
 app.use(
   cors({
-    origin: "https://finance-app-server-lg25.onrender.com",
+    origin: "https://finance-app-client-ailj.onrender.com",
     credentials: true,
   }),
 );
